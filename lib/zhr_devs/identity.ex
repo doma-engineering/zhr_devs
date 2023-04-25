@@ -15,7 +15,7 @@ defmodule ZhrDevs.Identity do
   defdata do
     identity :: Uptight.Text.t()
     hashed_identity :: Uptight.Base.Urlsafe.t()
-    login_at :: UtcDatetime
+    login_at :: UtcDateTime.t()
   end
 
   alias DomaOAuth.Authentication.Success
@@ -48,13 +48,7 @@ defmodule ZhrDevs.Identity do
       hashed_identity = Uptight.Base.mk_url(success.hashed_identity)
       assert Result.is_ok?(hashed_identity), "Hashed identity is not valid"
 
-      new(Result.from_ok(identity), Result.from_ok(hashed_identity), UtcDatetime.new())
+      new(Result.from_ok(identity), Result.from_ok(hashed_identity), UtcDateTime.new())
     end)
   end
-end
-
-defmodule UtcDatetime do
-  @moduledoc "Just a hack module to allow to use DateTime as a type in Algae."
-
-  def new, do: DateTime.utc_now()
 end
