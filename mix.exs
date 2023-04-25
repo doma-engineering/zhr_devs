@@ -26,8 +26,8 @@ defmodule ZhrDevs.MixProject do
       {:doma_oauth, github: "doma-engineering/doma_oauth", branch: "main"},
       {:algae_goo, github: "doma-engineering/algae-goo", branch: "main"},
       {:uptight, github: "doma-engineering/uptight", branch: "main"},
-
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.2", only: [:dev], runtime: false}
     ]
   end
 end

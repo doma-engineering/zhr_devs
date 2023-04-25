@@ -28,3 +28,5 @@ zhr_devs-*.tar
 start.sh
 
 config/secrets.exs
+
+.direnv/
