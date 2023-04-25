@@ -11,7 +11,7 @@ defmodule ZhrDevs.IdentityTest do
               %Identity{
                 identity: %Uptight.Text{text: "johndoe@github.com"},
                 hashed_identity: %Uptight.Base.Urlsafe{},
-                login_at: %DateTime{}
+                login_at: %UtcDateTime{dt: %DateTime{}}
               }} = Identity.init(valid_auth_success())
     end
 
