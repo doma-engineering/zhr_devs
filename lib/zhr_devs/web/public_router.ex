@@ -1,4 +1,4 @@
-defmodule ZhrDevs.PublicRouter do
+defmodule ZhrDevs.Web.PublicRouter do
   @moduledoc """
   Public router for ZhrDevs
   """
@@ -14,19 +14,18 @@ defmodule ZhrDevs.PublicRouter do
   @session_options Keyword.merge(@session_secrets, store: :cookie)
 
   plug(Plug.Session, @session_options)
-
+  plug(:fetch_session)
   plug(:fetch_query_params)
-
   plug(:match)
   plug(Ueberauth)
   plug(:dispatch)
-
-  plug(:fetch_session)
 
   get("/auth/:provider/callback",
     to: DomaOAuth,
     init_opts: %{callback: &AuthCallback.call/2}
   )
+
+  forward("/my", to: ZhrDevs.Web.ProtectedRouter)
 
   match _ do
     conn
