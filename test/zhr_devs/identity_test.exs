@@ -1,5 +1,6 @@
 defmodule ZhrDevs.IdentityTest do
   use ExUnit.Case, async: true
+  doctest ZhrDevs.IdentityManagement.Identity
 
   alias DomaOAuth.Authentication
 

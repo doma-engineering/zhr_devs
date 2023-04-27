@@ -37,7 +37,7 @@ defmodule ZhrDevs.Web.ProtectedRouter do
       :unauthenticated ->
         conn
         |> put_resp_header("location", "/")
-        |> send_resp(302, "Unauthenticated")
+        |> send_resp(403, "Unauthenticated")
         |> halt()
     end
   end
