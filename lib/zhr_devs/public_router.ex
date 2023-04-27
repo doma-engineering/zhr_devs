@@ -6,6 +6,8 @@ defmodule ZhrDevs.PublicRouter do
   use Plug.Router
   use Plug.ErrorHandler
 
+  alias ZhrDevs.Web.AuthCallback
+
   plug(Plug.Logger)
 
   @session_secrets Application.compile_env!(:zhr_devs, :server)[:session]
@@ -23,7 +25,7 @@ defmodule ZhrDevs.PublicRouter do
 
   get("/auth/:provider/callback",
     to: DomaOAuth,
-    init_opts: %{callback: &ZhrDevs.AuthCallback.call/2}
+    init_opts: %{callback: &AuthCallback.call/2}
   )
 
   match _ do

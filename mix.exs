@@ -6,6 +6,7 @@ defmodule ZhrDevs.MixProject do
       app: :zhr_devs,
       version: "0.1.0",
       elixir: "~> 1.14",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -19,15 +20,20 @@ defmodule ZhrDevs.MixProject do
     ]
   end
 
+  # Specifies which paths to compile per environment.
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:plug_cowboy, "~> 2.6"},
-      {:doma_oauth, github: "doma-engineering/doma_oauth", branch: "main"},
+      {:doma_oauth, github: "doma-engineering/doma_oauth", tag: "0.1.1"},
       {:algae_goo, github: "doma-engineering/algae-goo", branch: "main"},
       {:uptight, github: "doma-engineering/uptight", branch: "main"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.2", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.2", only: [:dev], runtime: false},
+      {:stream_data, "~> 0.5.0", only: [:test]}
     ]
   end
 end
