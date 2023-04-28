@@ -1,4 +1,4 @@
-defmodule ZhrDevs.Identity do
+defmodule ZhrDevs.IdentityManagement.Identity do
   @moduledoc """
   Represents an identity of user received from a trusted OAuth provider.
   """
@@ -26,6 +26,11 @@ defmodule ZhrDevs.Identity do
     GenServer.start_link(__MODULE__, success_struct, name: via_tuple(hashed_identity))
   end
 
+  @spec renew_login(binary()) :: :ok | no_return()
+  def renew_login(hashed_identity) when is_binary(hashed_identity) do
+    GenServer.call(via_tuple(hashed_identity), :renew_login)
+  end
+
   # Callbacks
 
   @impl GenServer
@@ -36,6 +41,11 @@ defmodule ZhrDevs.Identity do
     {:ok, Result.from_ok(parsed_success)}
   end
 
+  @impl GenServer
+  def handle_call(:renew_login, _from, state) do
+    {:reply, :ok, %__MODULE__{state | login_at: UtcDateTime.new()}}
+  end
+
   defp via_tuple(hashed_identity) do
     {:via, Registry, {ZhrDevs.Registry, hashed_identity}}
   end
@@ -43,10 +53,7 @@ defmodule ZhrDevs.Identity do
   defp success_to_identity(success) do
     Result.new(fn ->
       identity = T.new(success.identity)
-      assert Result.is_ok?(identity), "Identity is not valid"
-
       hashed_identity = Uptight.Base.mk_url(success.hashed_identity)
-      assert Result.is_ok?(hashed_identity), "Hashed identity is not valid"
 
       new(Result.from_ok(identity), Result.from_ok(hashed_identity), UtcDateTime.new())
     end)

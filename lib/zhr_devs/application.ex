@@ -10,7 +10,7 @@ defmodule ZhrDevs.Application do
       {DynamicSupervisor, strategy: :one_for_one, name: ZhrDevs.DynamicSupervisor},
       {Plug.Cowboy,
        scheme: :http,
-       plug: ZhrDevs.PublicRouter,
+       plug: ZhrDevs.Web.PublicRouter,
        options: [
          otp_app: :zhr_devs,
          port: Application.get_env(:zhr_devs, :server)[:port]

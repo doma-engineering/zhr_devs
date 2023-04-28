@@ -1,9 +1,10 @@
 defmodule ZhrDevs.IdentityTest do
   use ExUnit.Case, async: true
+  doctest ZhrDevs.IdentityManagement.Identity
 
   alias DomaOAuth.Authentication
 
-  alias ZhrDevs.Identity
+  alias ZhrDevs.IdentityManagement.Identity
 
   describe "init" do
     test "with correct success struct - return {:ok, state} with valid types" do
@@ -25,7 +26,7 @@ defmodule ZhrDevs.IdentityTest do
   defp valid_auth_success do
     %Authentication.Success{
       identity: "johndoe@github.com",
-      hashed_identity: :blake2s |> :crypto.hash("johndoe@github.com") |> Base.url_encode64()
+      hashed_identity: DomaOAuth.hash("johndoe@github.com")
     }
   end
 
