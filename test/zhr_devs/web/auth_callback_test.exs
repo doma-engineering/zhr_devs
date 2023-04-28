@@ -4,7 +4,7 @@ defmodule ZhrDevs.Web.AuthCallbackTest do
 
   import ExUnit.CaptureLog
 
-  import ZhrDevs.Factory
+  import ZhrDevs.Fixtures
 
   alias ZhrDevs.Web.AuthCallback
 

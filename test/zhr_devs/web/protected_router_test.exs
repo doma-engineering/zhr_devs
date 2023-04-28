@@ -4,7 +4,7 @@ defmodule ZhrDevs.Web.ProtectedRouterTest do
 
   alias ZhrDevs.Web.ProtectedRouter
 
-  import ZhrDevs.Factory
+  import ZhrDevs.Fixtures
 
   alias ZhrDevs.IdentityManagement.Identity
 

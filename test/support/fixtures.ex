@@ -1,4 +1,4 @@
-defmodule ZhrDevs.Factory do
+defmodule ZhrDevs.Fixtures do
   @moduledoc "Helper functions to generate test data."
 
   alias DomaOAuth.Authentication.Success

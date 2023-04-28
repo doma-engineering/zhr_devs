@@ -31,14 +31,6 @@ defmodule ZhrDevs.IdentityManagement.Identity do
     GenServer.call(via_tuple(hashed_identity), :renew_login)
   end
 
-  @spec digest_to_urlsafe!(binary()) :: Uptight.Result.t()
-  def digest_to_urlsafe!(digest) when is_binary(digest) do
-    hashed_identity = Uptight.Base.mk_url(digest)
-    assert Result.is_ok?(hashed_identity), "Hashed identity can't be converted to urlsafe"
-
-    hashed_identity
-  end
-
   # Callbacks
 
   @impl GenServer
@@ -61,9 +53,7 @@ defmodule ZhrDevs.IdentityManagement.Identity do
   defp success_to_identity(success) do
     Result.new(fn ->
       identity = T.new(success.identity)
-      assert Result.is_ok?(identity), "Identity is not valid"
-
-      hashed_identity = digest_to_urlsafe!(success.hashed_identity)
+      hashed_identity = Uptight.Base.mk_url(success.hashed_identity)
 
       new(Result.from_ok(identity), Result.from_ok(hashed_identity), UtcDateTime.new())
     end)
