@@ -10,4 +10,10 @@ defmodule UtcDateTime do
   def new do
     %__MODULE__{dt: DateTime.utc_now()}
   end
+
+  defimpl Jason.Encoder, for: UtcDateTime do
+    def encode(value, _opts) do
+      [?", DateTime.to_iso8601(value.dt), ?"]
+    end
+  end
 end

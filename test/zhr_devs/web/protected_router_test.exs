@@ -6,19 +6,20 @@ defmodule ZhrDevs.Web.ProtectedRouterTest do
 
   import ZhrDevs.Fixtures
 
-  alias ZhrDevs.IdentityManagement.Identity
+  alias ZhrDevs.IdentityManagement.ReadModels.Identity
 
   @routes ZhrDevs.Web.ProtectedRouter.init([])
 
   describe "authentication" do
     test "with authenticated identity and spawned process - do not halt the connection" do
       successful_auth = generate_successful_auth(:github)
+      login_event = generate_successful_login_event(successful_auth)
 
-      start_supervised!({Identity, successful_auth})
+      start_supervised!({Identity, login_event})
 
       conn =
         conn(:get, "/tasks")
-        |> init_test_session(%{hashed_identity: successful_auth.hashed_identity})
+        |> init_test_session(%{hashed_identity: login_event.hashed_identity.encoded})
         |> ProtectedRouter.call(@routes)
 
       assert conn.status === 200

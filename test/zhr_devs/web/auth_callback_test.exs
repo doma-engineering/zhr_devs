@@ -6,51 +6,90 @@ defmodule ZhrDevs.Web.AuthCallbackTest do
 
   import ZhrDevs.Fixtures
 
+  import Commanded.Assertions.EventAssertions
+
   alias ZhrDevs.Web.AuthCallback
 
-  alias ZhrDevs.IdentityManagement.Identity
+  alias ZhrDevs.IdentityManagement.ReadModels.Identity
+
+  alias ZhrDevs.IdentityManagement
+
+  alias ZhrDevs.IdentityManagement.Events.LoggedIn
 
   describe "successfull authentication" do
     setup do
-      %{success: generate_successful_auth(:github)}
+      successful_auth = generate_successful_auth(:github)
+      login_event = generate_successful_login_event(successful_auth)
+
+      %{success: successful_auth, event: login_event}
     end
 
-    test "with existing identity - renews login time", %{success: success} do
-      pid = start_supervised!({Identity, success})
-      %Identity{login_at: first_login_at} = :sys.get_state(pid)
-
+    test "with new identity - redirects to /protected", %{success: success} do
       conn = build_success_conn(success)
 
-      %Identity{login_at: new_login_at} = :sys.get_state(pid)
-
-      refute first_login_at == new_login_at
       assert conn.status == 302
       assert get_resp_header(conn, "location") == ["/protected"]
     end
 
-    test "with existing identity - log successful login attempt", %{success: success} do
-      start_supervised!({Identity, success})
+    test "with new identity - receives an event", %{success: success} do
+      build_success_conn(success)
+      hashed_identity = success.hashed_identity
+
+      wait_for_event(
+        IdentityManagement.App,
+        LoggedIn,
+        fn
+          %LoggedIn{hashed_identity: %Uptight.Base.Urlsafe{encoded: ^hashed_identity}} ->
+            assert hashed_identity == success.hashed_identity
+
+          _other_concurrent_login ->
+            nil
+        end
+      )
+    end
+
+    test "with existing identity - log successful login attempt and redirects to /protected", %{
+      success: success,
+      event: login
+    } do
+      start_supervised!({Identity, login})
 
       assert capture_log(fn ->
-               build_success_conn(success)
+               conn = build_success_conn(success)
+               assert conn.status == 302
+               assert get_resp_header(conn, "location") == ["/protected"]
              end) =~ "Successful authentication attempt for #{success.hashed_identity}"
     end
 
-    test "with new identity - spawns a new process", %{success: success} do
-      assert {:error, :not_found} =
-               ZhrDevs.IdentityManagement.get_identity(success.hashed_identity)
+    test "with exsiting identity - receives an event with updated logged_in time", %{
+      success: success,
+      event: login
+    } do
+      pid = start_supervised!({Identity, login})
+
+      %Identity{login_at: login_at} = :sys.get_state(pid)
 
       build_success_conn(success)
+      hashed_identity = success.hashed_identity
 
-      assert {:ok, pid} = ZhrDevs.IdentityManagement.get_identity(success.hashed_identity)
+      assert_receive_event(
+        IdentityManagement.App,
+        LoggedIn,
+        fn
+          %LoggedIn{
+            login_at: new_login_at,
+            hashed_identity: %Uptight.Base.Urlsafe{encoded: ^hashed_identity}
+          } ->
+            refute DateTime.compare(login_at.dt, new_login_at.dt) == :eq
 
-      assert Process.alive?(pid)
-    end
+            :timer.sleep(20)
 
-    test "with new identity - log successful login attempt", %{success: success} do
-      assert capture_log(fn ->
-               build_success_conn(success)
-             end) =~ "New identity spawned"
+            assert %Identity{login_at: ^new_login_at} = :sys.get_state(pid)
+
+          _other_concurrent_login ->
+            nil
+        end
+      )
     end
 
     defp build_success_conn(success) do

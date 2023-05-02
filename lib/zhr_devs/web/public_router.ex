@@ -6,6 +6,7 @@ defmodule ZhrDevs.Web.PublicRouter do
   use Plug.Router
   use Plug.ErrorHandler
 
+  alias ZhrDevs.Web
   alias ZhrDevs.Web.AuthCallback
 
   plug(Plug.Logger)
@@ -26,6 +27,21 @@ defmodule ZhrDevs.Web.PublicRouter do
   )
 
   forward("/my", to: ZhrDevs.Web.ProtectedRouter)
+
+  if Mix.env() == :dev do
+    get "/sign-in-dev" do
+      mock_auth = %DomaOAuth.Authentication.Success{
+        identity: "john.doe@gmail.com",
+        hashed_identity: DomaOAuth.hash("john.doe@gmail.com")
+      }
+
+      :ok = AuthCallback.dispatch_login_command(mock_auth)
+
+      conn
+      |> AuthCallback.assign_hashed_identity_to_session(mock_auth.hashed_identity)
+      |> Web.Shared.redirect_to("/my/tasks")
+    end
+  end
 
   match _ do
     conn
