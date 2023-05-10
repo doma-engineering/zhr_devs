@@ -7,24 +7,17 @@ defmodule ZhrDevs.Web.AuthCallback do
 
   require Logger
 
+  import ZhrDevs.Web.Shared
+
   alias DomaOAuth.Authentication.{Failure, Success}
 
-  alias ZhrDevs.IdentityManagement
+  alias ZhrDevs.IdentityManagement.Commands.Login
 
   def init(opts), do: opts
 
   def call(%{assigns: %{oauth: %Success{} = success}} = conn, _opts) do
+    :ok = dispatch_login_command(success)
     Logger.info("Successful authentication attempt for #{success.hashed_identity}")
-
-    case IdentityManagement.get_identity(success.hashed_identity) do
-      {:ok, _pid} ->
-        :ok = IdentityManagement.renew_login(success.hashed_identity)
-
-      {:error, :not_found} ->
-        {:ok, _pid} = IdentityManagement.spawn_identity(success)
-
-        Logger.info("New identity spawned for #{success.hashed_identity}")
-    end
 
     conn
     |> assign_hashed_identity_to_session(success.hashed_identity)
@@ -37,13 +30,14 @@ defmodule ZhrDevs.Web.AuthCallback do
     redirect_to(conn, "/")
   end
 
-  defp assign_hashed_identity_to_session(conn, hashed_identity) do
+  def assign_hashed_identity_to_session(conn, hashed_identity) do
     Plug.Conn.put_session(conn, :hashed_identity, hashed_identity)
   end
 
-  defp redirect_to(conn, route) do
-    conn
-    |> Plug.Conn.put_status(302)
-    |> Plug.Conn.put_resp_header("location", route)
+  def dispatch_login_command(%Success{} = success) do
+    success
+    |> Map.take([:identity, :hashed_identity])
+    |> Keyword.new()
+    |> Login.dispatch()
   end
 end

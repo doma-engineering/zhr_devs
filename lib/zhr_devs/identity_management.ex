@@ -3,13 +3,12 @@ defmodule ZhrDevs.IdentityManagement do
   This module is responsible for managing identities of users.
   """
 
-  alias DomaOAuth.Authentication.Success
-  alias ZhrDevs.IdentityManagement.Identity
+  alias ZhrDevs.IdentityManagement.ReadModels.Identity
 
-  defdelegate renew_login(hashed_identity), to: Identity
+  alias ZhrDevs.IdentityManagement.Events.LoggedIn
 
-  def spawn_identity(%Success{} = success_struct) do
-    DynamicSupervisor.start_child(ZhrDevs.DynamicSupervisor, {Identity, success_struct})
+  def spawn_identity(%LoggedIn{} = logged_in_event) do
+    DynamicSupervisor.start_child(ZhrDevs.DynamicSupervisor, {Identity, logged_in_event})
   end
 
   def get_identity(hashed_identity) do

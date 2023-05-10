@@ -33,7 +33,13 @@ defmodule ZhrDevs.MixProject do
       {:uptight, github: "doma-engineering/uptight", branch: "main"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.2", only: [:dev], runtime: false},
-      {:stream_data, "~> 0.5.0", only: [:test]}
+      {:stream_data, "~> 0.5.0", only: [:test]},
+
+      # Event sourcing / CQRS
+      {:commanded, "~> 1.4"},
+      {:jason, "~> 1.3"},
+      {:eventstore, "~> 1.4"},
+      {:commanded_eventstore_adapter, "~> 1.4"}
     ]
   end
 end
