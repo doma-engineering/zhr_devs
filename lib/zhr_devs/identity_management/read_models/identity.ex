@@ -42,6 +42,6 @@ defmodule ZhrDevs.IdentityManagement.ReadModels.Identity do
   end
 
   defp via_tuple(hashed_identity) do
-    {:via, Registry, {ZhrDevs.Registry, to_string(hashed_identity)}}
+    {:via, Registry, {ZhrDevs.Registry, {:identity, to_string(hashed_identity)}}}
   end
 end

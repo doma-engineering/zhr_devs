@@ -36,7 +36,7 @@ defmodule ZhrDevs.Web.AuthCallbackTest do
       hashed_identity = success.hashed_identity
 
       wait_for_event(
-        IdentityManagement.App,
+        ZhrDevs.App,
         LoggedIn,
         fn
           %LoggedIn{hashed_identity: %Uptight.Base.Urlsafe{encoded: ^hashed_identity}} ->
@@ -73,7 +73,7 @@ defmodule ZhrDevs.Web.AuthCallbackTest do
       hashed_identity = success.hashed_identity
 
       assert_receive_event(
-        IdentityManagement.App,
+        ZhrDevs.App,
         LoggedIn,
         fn
           %LoggedIn{

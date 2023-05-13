@@ -1,4 +1,4 @@
-defmodule ZhrDevs.IdentityManagement.App do
+defmodule ZhrDevs.App do
   @moduledoc """
   Commanded allows you to define, supervise, and start your own application module. To use Commanded you must create at least one application.
   You can create multiple Commanded applications which will run independently, each using its own separately configured event store.
@@ -22,4 +22,5 @@ defmodule ZhrDevs.IdentityManagement.App do
     event_store: Application.compile_env(:zhr_devs, :event_store)
 
   router(ZhrDevs.IdentityManagement.EventsRouter)
+  router(ZhrDevs.Submissions.EventsRouter)
 end

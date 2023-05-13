@@ -3,7 +3,9 @@ defmodule ZhrDevs.IdentityManagement.CommandsTest do
 
   import Commanded.Assertions.EventAssertions
 
-  alias ZhrDevs.IdentityManagement.{App, Commands, Events}
+  alias ZhrDevs.App
+
+  alias ZhrDevs.IdentityManagement.{Commands, Events}
 
   test "dispatch of the Login command emits an event with tighten identity, hashed_identity and login_at stamp" do
     opts = [identity: "example", hashed_identity: "sPJI3B_c0reGPtFtacqjHWDzSUh_AkkujufycDOYweI="]
@@ -22,8 +24,7 @@ defmodule ZhrDevs.IdentityManagement.CommandsTest do
   test "new/1 will fail with invalid input" do
     opts = [identity: "example", hashed_identity: "sPJI3B_c0reGPtFtacqjHWD+SUh_AkkujufycDOYweI="]
 
-    {:error, "Parsing OAuth success struct failed"} =
-      Commands.Login.dispatch(opts)
+    {:error, "Parsing OAuth success struct failed"} = Commands.Login.dispatch(opts)
   end
 
   test "new/1 will fail with invalid options" do

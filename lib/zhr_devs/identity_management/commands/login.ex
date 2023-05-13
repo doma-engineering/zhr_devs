@@ -8,7 +8,7 @@ defmodule ZhrDevs.IdentityManagement.Commands.Login do
 
   use Witchcraft.Comonad
 
-  alias ZhrDevs.IdentityManagement.App
+  alias ZhrDevs.App
 
   alias Uptight.Result
   alias Uptight.Text, as: T
@@ -24,6 +24,7 @@ defmodule ZhrDevs.IdentityManagement.Commands.Login do
         ok_result
         |> Result.from_ok()
         |> App.dispatch()
+
       error ->
         {:error, error |> extract() |> build_error}
     end
