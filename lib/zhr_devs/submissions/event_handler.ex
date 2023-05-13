@@ -39,11 +39,10 @@ defmodule ZhrDevs.Submissions.EventHandler do
         :ok
 
       {:error, {:already_started, _}} ->
-        :ok =
-          ZhrDevs.Submissions.increment_attempts(
-            solution_submitted.hashed_identity,
-            solution_submitted.technology
-          )
+        ZhrDevs.Submissions.increment_attempts(
+          solution_submitted.hashed_identity,
+          solution_submitted.technology
+        )
 
       other_error ->
         Logger.error(

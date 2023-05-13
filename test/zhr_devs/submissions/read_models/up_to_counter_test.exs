@@ -1,8 +1,8 @@
-defmodule ZhrDevs.Submissions.ReadModels.SubmissionsTest do
+defmodule ZhrDevs.Submissions.ReadModels.UpToCounterTest do
   use ExUnit.Case, async: true
 
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
-  alias ZhrDevs.Submissions.ReadModels.Submissions
+  alias ZhrDevs.Submissions.ReadModels.UpToCounter
 
   import ZhrDevs.Fixtures
 
@@ -17,12 +17,14 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionsTest do
     end
 
     test "with spawned identity - allows to increment without constraints", %{event: event} do
-      start_supervised!({Submissions, event})
+      start_supervised!({UpToCounter, event})
 
-      assert Submissions.increment_attempts(event.hashed_identity, "elixir") == :ok
-      assert Submissions.increment_attempts(event.hashed_identity, "elixir") == :ok
+      assert UpToCounter.increment_attempts(event.hashed_identity, "elixir") == :ok
 
-      assert Submissions.attempts(event.hashed_identity) == %{"elixir" => 3}
+      assert UpToCounter.increment_attempts(event.hashed_identity, "elixir") ==
+               {:error, :max_attempts_reached}
+
+      assert %{elixir: 2} = UpToCounter.attempts(event.hashed_identity)
     end
   end
 
@@ -37,9 +39,9 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionsTest do
     end
 
     test "doesn't allow to spawn more than one process per hashed_identity", %{event: event} do
-      pid = start_supervised!({Submissions, event})
+      pid = start_supervised!({UpToCounter, event})
 
-      assert {:error, {:already_started, ^pid}} = Submissions.start_link(event)
+      assert {:error, {:already_started, ^pid}} = UpToCounter.start_link(event)
     end
   end
 end

@@ -4,12 +4,12 @@ defmodule ZhrDevs.Submissions do
   """
 
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
-  alias ZhrDevs.Submissions.ReadModels.Submissions
+  alias ZhrDevs.Submissions.ReadModels.UpToCounter
 
   def spawn_submission(%SolutionSubmitted{} = submitted_solution_event) do
     DynamicSupervisor.start_child(
       ZhrDevs.DynamicSupervisor,
-      {Submissions, submitted_solution_event}
+      {UpToCounter, submitted_solution_event}
     )
   end
 
@@ -23,7 +23,7 @@ defmodule ZhrDevs.Submissions do
     end
   end
 
-  defdelegate increment_attempts(hashed_identity, technology), to: Submissions
+  defdelegate increment_attempts(hashed_identity, technology), to: UpToCounter
 
-  defdelegate attempts(hashed_identity), to: Submissions
+  defdelegate attempts(hashed_identity), to: UpToCounter
 end
