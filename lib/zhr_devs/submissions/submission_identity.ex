@@ -4,6 +4,8 @@ defmodule ZhrDevs.Submissions.SubmissionIdentity do
 
   Because our business rules require that the same person can't submit more than two solutions for the same technology,
   we need to track the events by identity:technology pair.
+
+  Read more: https://github.com/commanded/commanded/blob/master/guides/Commands.md#custom-aggregate-identity
   """
   @enforce_keys [:hashed_identity, :technology]
   defstruct [:hashed_identity, :technology]
