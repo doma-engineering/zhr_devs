@@ -7,6 +7,16 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
   @enforce_keys @fields
   defstruct @fields
 
+  @type t :: %{
+          :__struct__ => __MODULE__,
+          required(:technology) => atom(),
+          required(:uuid) => Uptight.Base.Urlsafe.t(),
+          required(:hashed_identity) => Uptight.Base.Urlsafe.t(),
+          required(:task_uuid) => Uptight.Base.Urlsafe.t(),
+          required(:solution_path) => list(Uptight.Base.Urlsafe.t()),
+          required(:submission_identity) => ZhrDevs.Submissions.SubmissionIdentity.t()
+        }
+
   use Witchcraft.Comonad
 
   alias Uptight.Result

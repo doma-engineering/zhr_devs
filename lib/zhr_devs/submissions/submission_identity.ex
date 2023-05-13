@@ -12,6 +12,12 @@ defmodule ZhrDevs.Submissions.SubmissionIdentity do
 
   alias ZhrDevs.Submissions.SubmissionIdentity
 
+  @type t :: %{
+          :__struct__ => __MODULE__,
+          required(:hashed_identity) => Uptight.Base.Urlsafe.t(),
+          required(:technology) => atom()
+        }
+
   def new(opts) do
     opts
     |> Enum.into(%{})

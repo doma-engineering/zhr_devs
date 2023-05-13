@@ -15,6 +15,12 @@ defmodule ZhrDevs.IdentityManagement.Commands.Login do
 
   @parse_err "Parsing OAuth success struct failed"
 
+  @type t :: %{
+          :__struct__ => __MODULE__,
+          required(:identity) => T.t(),
+          required(:hashed_identity) => Uptight.Base.Urlsafe.t()
+        }
+
   @typep error() :: String.t() | struct()
 
   @spec dispatch(Keyword.t()) :: :ok | {:error, error()}
