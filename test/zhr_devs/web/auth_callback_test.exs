@@ -12,8 +12,6 @@ defmodule ZhrDevs.Web.AuthCallbackTest do
 
   alias ZhrDevs.IdentityManagement.ReadModels.Identity
 
-  alias ZhrDevs.IdentityManagement
-
   alias ZhrDevs.IdentityManagement.Events.LoggedIn
 
   describe "successfull authentication" do
