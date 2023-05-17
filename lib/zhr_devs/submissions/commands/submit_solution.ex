@@ -3,17 +3,19 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
   A command must contain a field to uniquely identify the aggregate instance (e.g. account_number).
   Use @enforce_keys to force the identity field to be specified when creating the command struct.
   """
-  @fields [:uuid, :hashed_identity, :technology, :task_uuid, :solution_path, :submission_identity]
-  @enforce_keys @fields
+  alias ZhrDevs.Submissions.Events.SolutionSubmitted
+  alias Uptight.Base.Urlsafe
+
+  @fields [:uuid, :submission_identity] ++ SolutionSubmitted.command_fields()
   defstruct @fields
 
   @type t :: %{
           :__struct__ => __MODULE__,
           required(:technology) => atom(),
-          required(:uuid) => Uptight.Base.Urlsafe.t(),
-          required(:hashed_identity) => Uptight.Base.Urlsafe.t(),
-          required(:task_uuid) => Uptight.Base.Urlsafe.t(),
-          required(:solution_path) => list(Uptight.Base.Urlsafe.t()),
+          required(:uuid) => Urlsafe.t(),
+          required(:hashed_identity) => Urlsafe.t(),
+          required(:task_uuid) => Urlsafe.t(),
+          required(:solution_path) => list(Urlsafe.t()),
           required(:submission_identity) => ZhrDevs.Submissions.SubmissionIdentity.t()
         }
 

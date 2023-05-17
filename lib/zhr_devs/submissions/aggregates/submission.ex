@@ -25,23 +25,26 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
 
   Read more: https://github.com/commanded/commanded/blob/master/guides/Aggregates.md
   """
-
-  import Algae
-
   alias Uptight.Base.Urlsafe
 
   alias ZhrDevs.Submissions.Commands.SubmitSolution
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
 
-  defdata do
-    uuid :: Uptight.Base.Urlsafe.t()
-    hashed_identity :: Uptight.Base.Urlsafe.t()
-    task_uuid :: Uptight.Base.Urlsafe.t()
-    technology :: atom()
-    attempts :: non_neg_integer()
-    first_attempt_at :: UtcDateTime.t()
-    last_attempt_at :: UtcDateTime.t()
-  end
+  @type t() ::
+          %{
+            :__struct__ => __MODULE__,
+            required(:attempts) => non_neg_integer(),
+            required(:first_attempt_at) => UtcDateTime.t(),
+            required(:hashed_identity) => Urlsafe.t(),
+            required(:last_attempt_at) => UtcDateTime.t(),
+            required(:task_uuid) => Urlsafe.t(),
+            required(:technology) => atom(),
+            required(:uuid) => Urlsafe.t()
+          }
+
+  @fields SolutionSubmitted.aggregate_fields() ++ [last_attempt_at: nil, first_attempt_at: nil, attempts: 0, uuid: Urlsafe.new()]
+  @enforce_keys Keyword.keys(SolutionSubmitted.aggregate_fields()) ++ [:attempts, :uuid]
+  defstruct @fields
 
   @new Urlsafe.new()
 
@@ -66,7 +69,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
       hashed_identity: event.hashed_identity,
       task_uuid: event.task_uuid,
       technology: event.technology,
-      last_attempt_at: UtcDateTime.new()
+      first_attempt_at: UtcDateTime.new()
     }
   end
 

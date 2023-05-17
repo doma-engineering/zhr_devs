@@ -3,14 +3,28 @@ defmodule ZhrDevs.Submissions.Events.SolutionSubmitted do
   Represents an event that is emitted when a solution is submitted.
   """
 
-  @derive Jason.Encoder
-  import Algae
+  alias Uptight.Base.Urlsafe
 
-  defdata do
-    uuid :: Uptight.Base.Urlsafe.t()
-    hashed_identity :: Uptight.Base.Urlsafe.t()
-    task_uuid :: Uptight.Base.Urlsafe.t()
-    technology :: atom()
-    solution_path :: list(Uptight.Base.Urlsafe.t())
+  @fields [solution_path: nil, technology: nil, task_uuid: Urlsafe.new(), hashed_identity: Urlsafe.new()]
+  @derive Jason.Encoder
+  defstruct [:uuid | @fields]
+
+  @type t() :: %{
+          :__struct__ => __MODULE__,
+          required(:uuid) => Urlsafe.t(),
+          required(:hashed_identity) => Urlsafe.t(),
+          required(:task_uuid) => Urlsafe.t(),
+          required(:technology) => atom(),
+          required(:solution_path) => list(Urlsafe.t())
+        }
+
+  def command_fields do
+    @fields
+  end
+
+  def aggregate_fields do
+    [_ | aggregate_fields] = @fields
+
+    aggregate_fields
   end
 end

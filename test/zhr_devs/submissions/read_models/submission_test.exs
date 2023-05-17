@@ -10,7 +10,10 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
     setup do
       trigger_event = %SolutionSubmitted{
         hashed_identity: generate_hashed_identity(),
-        technology: "elixir"
+        technology: "elixir",
+        uuid: Commanded.UUID.uuid4(),
+        task_uuid: Commanded.UUID.uuid4(),
+        solution_path: "test/support/testfile.txt"
       }
 
       %{event: trigger_event}
@@ -32,7 +35,10 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
     setup do
       trigger_event = %SolutionSubmitted{
         hashed_identity: generate_hashed_identity(),
-        technology: "elixir"
+        technology: "elixir",
+        uuid: Commanded.UUID.uuid4(),
+        task_uuid: Commanded.UUID.uuid4(),
+        solution_path: "test/support/testfile.txt"
       }
 
       %{event: trigger_event}
