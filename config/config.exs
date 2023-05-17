@@ -4,6 +4,10 @@ config :zhr_devs, :server,
   port: 4001,
   host: "localhost"
 
+config :zhr_devs,
+       :supported_technologies,
+       ~w[elixir haskell lean typescript python rust kotlin java]a
+
 # Event store configuration
 config :zhr_devs, event_stores: [ZhrDevs.EventStore]
 

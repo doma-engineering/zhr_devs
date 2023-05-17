@@ -2,15 +2,16 @@ defmodule ZhrDevs.Application do
   @moduledoc false
   use Application
 
-  alias ZhrDevs.IdentityManagement
+  alias ZhrDevs.{IdentityManagement, Submissions}
 
   alias ZhrDevs.Otp.ProjectionsSupervisor
 
   @impl true
   def start(_type, _args) do
     children = [
-      IdentityManagement.App,
+      ZhrDevs.App,
       IdentityManagement.EventHandler,
+      Submissions.EventHandler,
       ProjectionsSupervisor,
       {Plug.Cowboy,
        scheme: :http,

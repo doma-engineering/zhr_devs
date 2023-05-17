@@ -8,12 +8,16 @@ defmodule ZhrDevs.IdentityManagement.Commands.Login do
 
   use Witchcraft.Comonad
 
-  alias ZhrDevs.IdentityManagement.App
+  alias ZhrDevs.App
 
   alias Uptight.Result
   alias Uptight.Text, as: T
 
-  @parse_err "Parsing OAuth success struct failed"
+  @type t :: %{
+          :__struct__ => __MODULE__,
+          required(:identity) => T.t(),
+          required(:hashed_identity) => Uptight.Base.Urlsafe.t()
+        }
 
   @typep error() :: String.t() | struct()
 
@@ -24,8 +28,9 @@ defmodule ZhrDevs.IdentityManagement.Commands.Login do
         ok_result
         |> Result.from_ok()
         |> App.dispatch()
+
       error ->
-        {:error, error |> extract() |> build_error}
+        {:error, error}
     end
   end
 
@@ -44,10 +49,4 @@ defmodule ZhrDevs.IdentityManagement.Commands.Login do
       }
     end)
   end
-
-  defp build_error(%Uptight.Trace{exception: %KeyError{} = key_error}) do
-    key_error
-  end
-
-  defp build_error(_), do: @parse_err
 end

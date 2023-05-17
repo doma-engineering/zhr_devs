@@ -4,6 +4,8 @@ defmodule ZhrDevs.Otp.ProjectionsSupervisor do
   since we want them to be in-memory.
   """
 
+  @dialyzer {:no_return, {:init, 1}}
+
   use Supervisor
 
   def start_link([]) do

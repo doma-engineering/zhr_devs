@@ -1,4 +1,4 @@
-defmodule ZhrDevs.IdentityManagement.EventHandler do
+defmodule ZhrDevs.Submissions.EventHandler do
   @moduledoc """
   Event handlers allow you to execute code that reacts to domain events:
    - to build read model projections;
@@ -23,29 +23,30 @@ defmodule ZhrDevs.IdentityManagement.EventHandler do
     name: __MODULE__,
     start_from: :origin
 
-  alias ZhrDevs.IdentityManagement.Aggregates.Identity
-  alias ZhrDevs.IdentityManagement.Events.LoggedIn
-  alias ZhrDevs.IdentityManagement.ReadModels.Identity
+  alias ZhrDevs.Submissions.Events.SolutionSubmitted
 
   def init do
     :ok = ZhrDevs.Queries.delete_handler_subscriptions(__MODULE__)
   end
 
-  def handle(%LoggedIn{} = logged_in, _meta) do
-    case ZhrDevs.IdentityManagement.spawn_identity(logged_in) do
+  def handle(%SolutionSubmitted{} = solution_submitted, _meta) do
+    case ZhrDevs.Submissions.spawn_submission(solution_submitted) do
       {:ok, _pid} ->
         Logger.debug(
-          "Spawned new identity projection after successful login for #{inspect(logged_in.hashed_identity)}"
+          "Spawned new submission projection after solution submission for #{inspect(solution_submitted.hashed_identity)}"
         )
 
         :ok
 
       {:error, {:already_started, _}} ->
-        :ok = Identity.update_login_at(logged_in.hashed_identity, logged_in.login_at)
+        ZhrDevs.Submissions.increment_attempts(
+          solution_submitted.hashed_identity,
+          solution_submitted.technology
+        )
 
       other_error ->
         Logger.error(
-          "Failed to spawn identity for #{inspect(logged_in)}: #{inspect(other_error)}"
+          "Failed to spawn submission for #{inspect(solution_submitted)}: #{inspect(other_error)}"
         )
 
         :ok

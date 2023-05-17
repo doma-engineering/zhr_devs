@@ -3,7 +3,11 @@ defmodule ZhrDevs.IdentityManagement.CommandsTest do
 
   import Commanded.Assertions.EventAssertions
 
-  alias ZhrDevs.IdentityManagement.{App, Commands, Events}
+  import ZhrDevs.Web.Presentation.Helper, only: [extract_error: 1]
+
+  alias ZhrDevs.App
+
+  alias ZhrDevs.IdentityManagement.{Commands, Events}
 
   test "dispatch of the Login command emits an event with tighten identity, hashed_identity and login_at stamp" do
     opts = [identity: "example", hashed_identity: "sPJI3B_c0reGPtFtacqjHWDzSUh_AkkujufycDOYweI="]
@@ -22,13 +26,17 @@ defmodule ZhrDevs.IdentityManagement.CommandsTest do
   test "new/1 will fail with invalid input" do
     opts = [identity: "example", hashed_identity: "sPJI3B_c0reGPtFtacqjHWD+SUh_AkkujufycDOYweI="]
 
-    {:error, "Parsing OAuth success struct failed"} =
-      Commands.Login.dispatch(opts)
+    {:error, exception} = Commands.Login.dispatch(opts)
+
+    assert %ArgumentError{message: "non-alphabet character found: \"+\" (byte 43)"} =
+             extract_error(exception)
   end
 
   test "new/1 will fail with invalid options" do
     opts = [identity: "example"]
 
-    {:error, %KeyError{key: :hashed_identity}} = Commands.Login.dispatch(opts)
+    {:error, exception} = Commands.Login.dispatch(opts)
+
+    assert %KeyError{key: :hashed_identity} = extract_error(exception)
   end
 end

@@ -12,7 +12,7 @@ defmodule ZhrDevs.IdentityManagement do
   end
 
   def get_identity(hashed_identity) do
-    case Registry.lookup(ZhrDevs.Registry, hashed_identity) do
+    case Registry.lookup(ZhrDevs.Registry, {:identity, hashed_identity}) do
       [{pid, _}] when is_pid(pid) ->
         {:ok, pid}
 

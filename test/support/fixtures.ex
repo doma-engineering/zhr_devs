@@ -7,7 +7,7 @@ defmodule ZhrDevs.Fixtures do
   alias Uptight.Text, as: T
 
   def generate_successful_auth(:github) do
-    username = username_generator()
+    username = identity_generator()
 
     %Success{
       identity: username,
@@ -43,8 +43,15 @@ defmodule ZhrDevs.Fixtures do
     }
   end
 
-  defp username_generator do
-    generated = StreamData.string(:alphanumeric) |> Enum.take(5) |> Enum.join()
+  def identity_generator(num_of_chars \\ 5) do
+    generated = StreamData.string(:alphanumeric) |> Enum.take(num_of_chars) |> Enum.join()
     generated <> "@" <> "github.com"
+  end
+
+  def generate_hashed_identity(num_of_chars \\ 5) do
+    num_of_chars
+    |> identity_generator()
+    |> DomaOAuth.hash()
+    |> Uptight.Base.mk_url!()
   end
 end
