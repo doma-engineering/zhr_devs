@@ -5,7 +5,12 @@ defmodule ZhrDevs.Submissions.Events.SolutionSubmitted do
 
   alias Uptight.Base.Urlsafe
 
-  @fields [solution_path: nil, technology: nil, task_uuid: Urlsafe.new(), hashed_identity: Urlsafe.new()]
+  @fields [
+    solution_path: nil,
+    technology: nil,
+    task_uuid: Urlsafe.new(),
+    hashed_identity: Urlsafe.new()
+  ]
   @derive Jason.Encoder
   defstruct [:uuid | @fields]
 

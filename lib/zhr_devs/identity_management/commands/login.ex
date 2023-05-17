@@ -13,8 +13,6 @@ defmodule ZhrDevs.IdentityManagement.Commands.Login do
   alias Uptight.Result
   alias Uptight.Text, as: T
 
-  @parse_err "Parsing OAuth success struct failed"
-
   @type t :: %{
           :__struct__ => __MODULE__,
           required(:identity) => T.t(),
@@ -32,7 +30,7 @@ defmodule ZhrDevs.IdentityManagement.Commands.Login do
         |> App.dispatch()
 
       error ->
-        {:error, error |> extract() |> build_error}
+        {:error, error}
     end
   end
 
@@ -51,10 +49,4 @@ defmodule ZhrDevs.IdentityManagement.Commands.Login do
       }
     end)
   end
-
-  defp build_error(%Uptight.Trace{exception: %KeyError{} = key_error}) do
-    key_error
-  end
-
-  defp build_error(_), do: @parse_err
 end

@@ -5,6 +5,8 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
 
   import ZhrDevs.Fixtures
 
+  import ZhrDevs.Web.Presentation.Helper, only: [extract_error: 1]
+
   alias Commanded.Aggregates.Aggregate
 
   alias ZhrDevs.App
@@ -28,12 +30,15 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
     end
 
     test "return error if invalid options passed" do
-      assert {:error, %KeyError{key: :hashed_identity}} = Commands.SubmitSolution.dispatch([])
+      assert {:error, exception} = Commands.SubmitSolution.dispatch([])
+
+      assert %KeyError{key: :hashed_identity} = extract_error(exception)
     end
 
     test "return error if invalid hashed_identity passed" do
-      assert {:error, %ArgumentError{message: "incorrect padding"}} =
-               Commands.SubmitSolution.dispatch(hashed_identity: "invalid")
+      assert {:error, exception} = Commands.SubmitSolution.dispatch(hashed_identity: "invalid")
+
+      assert %ArgumentError{message: "incorrect padding"} = extract_error(exception)
     end
 
     test "return an error when file can't be located (File.exists? is returning false)", %{
@@ -42,16 +47,18 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
       opts =
         identity_generator() |> valid_opts.() |> Keyword.put(:solution_path, "/nonesense/path")
 
-      assert {:error, %ArgumentError{message: "Solution path is invalid: /nonesense/path"}} =
-               Commands.SubmitSolution.dispatch(opts)
+      assert {:error, exception} = Commands.SubmitSolution.dispatch(opts)
+
+      assert %ArgumentError{message: "Solution path is invalid: /nonesense/path"} =
+               extract_error(exception)
     end
 
     test "return an error when technology we do not support passed", %{valid_opts: valid_opts} do
       opts = identity_generator() |> valid_opts.() |> Keyword.put(:technology, "javascript")
 
-      assert {:error, %Uptight.AssertionError{message: message}} =
-               Commands.SubmitSolution.dispatch(opts)
+      assert {:error, exception} = Commands.SubmitSolution.dispatch(opts)
 
+      assert %Uptight.AssertionError{message: message} = extract_error(exception)
       assert message =~ "javascript is not supported"
     end
 

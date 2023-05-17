@@ -42,7 +42,8 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
             required(:uuid) => Urlsafe.t()
           }
 
-  @fields SolutionSubmitted.aggregate_fields() ++ [last_attempt_at: nil, first_attempt_at: nil, attempts: 0, uuid: Urlsafe.new()]
+  @fields SolutionSubmitted.aggregate_fields() ++
+            [last_attempt_at: nil, first_attempt_at: nil, attempts: 0, uuid: Urlsafe.new()]
   @enforce_keys Keyword.keys(SolutionSubmitted.aggregate_fields()) ++ [:attempts, :uuid]
   defstruct @fields
 

@@ -19,8 +19,6 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
           required(:submission_identity) => ZhrDevs.Submissions.SubmissionIdentity.t()
         }
 
-  use Witchcraft.Comonad
-
   alias Uptight.Result
   alias Uptight.Text, as: T
 
@@ -46,7 +44,7 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
         |> App.dispatch()
 
       error ->
-        {:error, error |> extract() |> build_error()}
+        {:error, error}
     end
   end
 
@@ -81,12 +79,6 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
       }
     end)
   end
-
-  defp build_error(%{exception: %MatchError{term: %Result.Err{} = exception}}),
-    do: exception |> extract |> build_error()
-
-  defp build_error(%{exception: exception}), do: exception
-  defp build_error(exception), do: exception
 
   defp check_solution_path(opts) do
     solution_path = Keyword.fetch!(opts, :solution_path)
