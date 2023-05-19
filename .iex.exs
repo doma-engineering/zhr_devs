@@ -13,3 +13,5 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 #     technology: "elixir",
 #     solution_path: solution_path
 #   ]
+# To check actual Check aggregate state:
+# Commanded.Aggregates.Aggregate.aggregate_state(ZhrDevs.App, ZhrDevs.Submissions.Aggregates.Check, solution_uuid)
