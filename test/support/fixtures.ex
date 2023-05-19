@@ -3,7 +3,6 @@ defmodule ZhrDevs.Fixtures do
 
   alias DomaOAuth.Authentication.Success
 
-  alias Uptight.Result
   alias Uptight.Text, as: T
 
   def generate_successful_auth(:github) do

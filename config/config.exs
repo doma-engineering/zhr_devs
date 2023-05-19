@@ -22,6 +22,15 @@ config :zhr_devs, ZhrDevs.EventStore,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
+config :zhr_devs, :server,
+  session: [
+    key: "_to_be_overridden",
+    encryption_salt: "_to_be_overridden",
+    signing_salt: "_to_be_overridden",
+    secret_key_base: "oEmi0qbPX1iNGLuG9sSZB+WxbxR99eXznc8nhUf+d8tBv/VxkTYKkFPpMIDLvltG",
+    log: :debug
+  ]
+
 config :zhr_devs, :event_store,
   adapter: Commanded.EventStore.Adapters.EventStore,
   event_store: ZhrDevs.EventStore
@@ -43,4 +52,7 @@ config :ueberauth, Ueberauth.Strategy.Google.OAuth,
   client_secret: System.get_env("GOOGLE_CLIENT_SECRET")
 
 import_config "#{Mix.env()}.exs"
-import_config "secrets.exs"
+
+if File.exists?("secrets.exs") do
+  import_config "secrets.exs"
+end
