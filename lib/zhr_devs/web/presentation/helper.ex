@@ -1,4 +1,6 @@
 defmodule ZhrDevs.Web.Presentation.Helper do
+  @moduledoc false
+
   use Witchcraft.Comonad
 
   alias Uptight.Result.Err

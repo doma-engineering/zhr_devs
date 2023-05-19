@@ -65,7 +65,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
 
   def apply(%__MODULE__{uuid: @new}, %SolutionSubmitted{} = event) do
     %__MODULE__{
-      uuid: Commanded.UUID.uuid4() |> Uptight.Base.mk_url!(),
+      uuid: event.uuid,
       attempts: 1,
       hashed_identity: event.hashed_identity,
       task_uuid: event.task_uuid,
