@@ -3,10 +3,19 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
   A command must contain a field to uniquely identify the aggregate instance (e.g. account_number).
   Use @enforce_keys to force the identity field to be specified when creating the command struct.
   """
-  alias ZhrDevs.Submissions.Events.SolutionSubmitted
-  alias Uptight.Base.Urlsafe
+  alias ZhrDevs.App
 
-  @fields [:uuid, :submission_identity] ++ SolutionSubmitted.command_fields()
+  alias ZhrDevs.Submissions.SubmissionIdentity
+
+  alias ZhrDevs.Submissions.Events.SolutionSubmitted
+
+  alias Uptight.Base.Urlsafe
+  alias Uptight.Result
+  alias Uptight.Text, as: T
+
+  import Uptight.Assertions
+
+  @fields [:uuid, :submission_identity] ++ SolutionSubmitted.fields()
   defstruct @fields
 
   @type t :: %{
@@ -16,17 +25,8 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
           required(:hashed_identity) => Urlsafe.t(),
           required(:task_uuid) => Urlsafe.t(),
           required(:solution_path) => list(Urlsafe.t()),
-          required(:submission_identity) => ZhrDevs.Submissions.SubmissionIdentity.t()
+          required(:submission_identity) => SubmissionIdentity.t()
         }
-
-  alias Uptight.Result
-  alias Uptight.Text, as: T
-
-  alias ZhrDevs.App
-
-  alias ZhrDevs.Submissions.SubmissionIdentity
-
-  import Uptight.Assertions
 
   @supported_technologies Enum.map(
                             Application.compile_env(:zhr_devs, :supported_technologies),
@@ -64,7 +64,10 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
         |> Keyword.fetch!(:task_uuid)
         |> Uptight.Base.mk_url!()
 
-      uuid = Commanded.UUID.uuid4() |> Uptight.Base.mk_url!()
+      uuid =
+        opts
+        |> Keyword.get(:uuid, Commanded.UUID.uuid4())
+        |> Uptight.Base.mk_url!()
 
       solution_path = check_solution_path(opts)
 

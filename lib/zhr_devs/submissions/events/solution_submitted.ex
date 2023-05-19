@@ -23,13 +23,11 @@ defmodule ZhrDevs.Submissions.Events.SolutionSubmitted do
           required(:solution_path) => list(Urlsafe.t())
         }
 
-  def command_fields do
+  def fields do
     @fields
   end
 
   def aggregate_fields do
-    [_ | aggregate_fields] = @fields
-
-    aggregate_fields
+    Keyword.delete(@fields, :solution_path)
   end
 end

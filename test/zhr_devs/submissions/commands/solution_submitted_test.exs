@@ -125,6 +125,26 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
              } = Aggregate.aggregate_state(App, Aggregates.Submission, submission_identity(opts))
     end
 
+    test "correlated with SolutionCheckStarted event", %{valid_opts: valid_opts} do
+      identity = identity_generator()
+      opts = valid_opts.(identity)
+      uuid = Commanded.UUID.uuid4()
+
+      opts = Keyword.put(opts, :uuid, uuid)
+
+      assert :ok = Commands.SubmitSolution.dispatch(opts)
+
+      encoded_uuid = Uptight.Base.mk_url!(uuid)
+
+      assert_correlated(
+        App,
+        Events.SolutionSubmitted,
+        fn solution_submitted -> solution_submitted.uuid == encoded_uuid end,
+        Events.SolutionCheckStarted,
+        fn check_started -> check_started.solution_uuid == encoded_uuid end
+      )
+    end
+
     defp submission_identity(opts) do
       opts
       |> Keyword.take([:hashed_identity, :technology])
