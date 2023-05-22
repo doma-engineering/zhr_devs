@@ -13,4 +13,6 @@ defmodule ZhrDevs.Web.Presentation.Helper do
 
   def extract_error(%Trace{exception: exception}), do: exception
   def extract_error(exception), do: exception
+
+  def json_error(error), do: Jason.encode!(%{error: error})
 end
