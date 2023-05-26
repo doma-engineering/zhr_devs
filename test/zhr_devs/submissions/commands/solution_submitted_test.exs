@@ -5,6 +5,8 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
 
   import ZhrDevs.Fixtures
 
+  import Hammox
+
   import ZhrDevs.Web.Presentation.Helper, only: [extract_error: 1]
 
   alias Commanded.Aggregates.Aggregate
@@ -16,6 +18,8 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
   alias ZhrDevs.Submissions.SubmissionIdentity
 
   describe "SolutionSubmitted command" do
+    setup :verify_on_exit!
+
     setup do
       valid_opts = fn identity ->
         [
@@ -62,7 +66,22 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
       assert message =~ "javascript is not supported"
     end
 
+    test "return an error when zip -T is proof that submitted file isn't valid .zip", %{
+      valid_opts: valid_opts
+    } do
+      expect(ZhrDevs.MockDocker, :zip_test, fn _solution_path -> false end)
+
+      identity = identity_generator()
+      opts = valid_opts.(identity)
+
+      assert {:error, exception} = Commands.SubmitSolution.dispatch(opts)
+
+      assert %ArgumentError{message: "Not a zip file!"} = extract_error(exception)
+    end
+
     test "with valid arguments emits an a valid event", %{valid_opts: valid_opts} do
+      expect(ZhrDevs.MockDocker, :zip_test, fn _solution_path -> true end)
+
       identity = identity_generator()
       opts = valid_opts.(identity)
 
@@ -85,6 +104,8 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
     end
 
     test "with valid arguments aggregate state is predictable", %{valid_opts: valid_opts} do
+      expect(ZhrDevs.MockDocker, :zip_test, fn _solution_path -> true end)
+
       identity = identity_generator()
       opts = valid_opts.(identity)
       hashed_identity = opts[:hashed_identity]
@@ -103,6 +124,8 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
     end
 
     test "we allow to submit solution only twice", %{valid_opts: valid_opts} do
+      expect(ZhrDevs.MockDocker, :zip_test, 3, fn _solution_path -> true end)
+
       identity = identity_generator()
       opts = valid_opts.(identity)
       hashed_identity = opts[:hashed_identity]
@@ -126,6 +149,8 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
     end
 
     test "correlated with SolutionCheckStarted event", %{valid_opts: valid_opts} do
+      expect(ZhrDevs.MockDocker, :zip_test, fn _solution_path -> true end)
+
       identity = identity_generator()
       opts = valid_opts.(identity)
       uuid = Commanded.UUID.uuid4()

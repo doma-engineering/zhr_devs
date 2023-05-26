@@ -14,7 +14,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Check do
   Read more about aggregates in Commanded context:
   https://github.com/commanded/commanded/blob/master/guides/Aggregates.md
   """
-  defstruct [:solution_uuid, status: :new, execution_errors: []]
+  defstruct [:solution_uuid, status: :new]
 
   alias Uptight.Base.Urlsafe
 

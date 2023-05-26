@@ -16,15 +16,21 @@ defmodule ZhrDevs.Web.ProtectedRouter do
   plug(:match)
   plug(:dispatch)
 
+  plug(Plug.Parsers,
+    pass: ["application/json", "application/zip", "multipart/form-data"],
+    parsers: [
+      {:json, json_decoder: Jason},
+      {:multipart, length: Application.compile_env!(:zhr_devs, :max_upload_size)}
+    ]
+  )
+
   get("/tasks") do
     conn
     |> send_resp(200, "Tasks index page!")
     |> halt()
   end
 
-  get("/task/:id/submission") do
-    send_resp(conn, 200, "Hello World")
-  end
+  post("/task/:technology/:task_uuid/submission", to: ZhrDevs.Web.Plugs.SubmissionUpload)
 
   defp check_auth(conn, _opts) do
     conn

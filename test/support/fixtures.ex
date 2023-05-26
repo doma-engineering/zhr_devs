@@ -3,6 +3,8 @@ defmodule ZhrDevs.Fixtures do
 
   alias DomaOAuth.Authentication.Success
 
+  alias ZhrDevs.IdentityManagement.ReadModels.Identity
+
   alias Uptight.Text, as: T
 
   def generate_successful_auth(:github) do
@@ -52,5 +54,14 @@ defmodule ZhrDevs.Fixtures do
     |> identity_generator()
     |> DomaOAuth.hash()
     |> Uptight.Base.mk_url!()
+  end
+
+  def login(%Plug.Conn{} = conn) do
+    successful_auth = generate_successful_auth(:github)
+    login_event = generate_successful_login_event(successful_auth)
+
+    ExUnit.Callbacks.start_supervised!({Identity, login_event})
+
+    Plug.Test.init_test_session(conn, %{hashed_identity: login_event.hashed_identity.encoded})
   end
 end

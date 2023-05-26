@@ -30,3 +30,6 @@ start.sh
 config/secrets.exs
 
 .direnv/
+
+priv/uploads/dev/*
+priv/uploads/test/*
