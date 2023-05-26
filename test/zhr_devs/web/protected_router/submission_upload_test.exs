@@ -2,6 +2,8 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionUploadTest do
   use ExUnit.Case, async: true
   use Plug.Test
 
+  import Hammox
+
   alias ZhrDevs.Web.ProtectedRouter
 
   @routes ZhrDevs.Web.ProtectedRouter.init([])
@@ -13,7 +15,11 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionUploadTest do
   setup_all :setup_dirs
 
   describe "submission upload" do
+    setup :verify_on_exit!
+
     test "allow upload with valid size" do
+      expect(ZhrDevs.MockDocker, :zip_test, fn _solution_path -> true end)
+
       allowed_size = Application.get_env(:zhr_devs, :max_upload_size)
       bytes = :crypto.strong_rand_bytes(allowed_size)
       params = %{submission: generate_zip_upload_of_size(bytes)}

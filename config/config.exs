@@ -5,8 +5,8 @@ config :zhr_devs, :server,
   host: "localhost"
 
 config :zhr_devs,
-       :supported_technologies,
-       ~w[elixir haskell lean typescript python rust kotlin java]a
+  supported_technologies: ~w[elixir haskell lean typescript python rust kotlin java]a,
+  docker_module: ZhrDevs.Docker.Real
 
 config :zhr_devs,
   uploads_path: Path.expand("./priv/uploads/#{Mix.env()}"),

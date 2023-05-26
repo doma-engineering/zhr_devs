@@ -23,6 +23,7 @@ defmodule ZhrDevs.Submissions.EventHandler do
     name: __MODULE__,
     start_from: :origin
 
+  alias ZhrDevs.Submissions.Events.SolutionCheckStarted
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
 
   def init do
@@ -51,5 +52,11 @@ defmodule ZhrDevs.Submissions.EventHandler do
 
         :ok
     end
+  end
+
+  def handle(%SolutionCheckStarted{} = event, _meta) do
+    Logger.info("Solution check started: #{inspect(event)}")
+
+    :ok
   end
 end

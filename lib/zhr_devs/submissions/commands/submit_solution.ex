@@ -90,6 +90,10 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
       raise ArgumentError, "Solution path is invalid: #{solution_path}"
     end
 
+    unless valid_zip_file?(solution_path) do
+      raise ArgumentError, "Not a zip file!"
+    end
+
     T.new!(solution_path)
   end
 
@@ -103,5 +107,9 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
            "Technology #{passed_technology_downcase} is not supported"
 
     String.to_existing_atom(passed_technology_downcase)
+  end
+
+  defp valid_zip_file?(solution_path) do
+    ZhrDevs.Docker.zip_test(solution_path)
   end
 end
