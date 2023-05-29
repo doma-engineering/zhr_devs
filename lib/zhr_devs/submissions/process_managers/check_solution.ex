@@ -20,11 +20,13 @@ defmodule ZhrDevs.Submissions.ProcessManagers.CheckSolution do
 
   use Commanded.ProcessManagers.ProcessManager,
     application: ZhrDevs.App,
-    name: "CheckSolutionProcessManager"
+    name: "CheckSolutionProcessManager",
+    start_from: :origin
 
   alias ZhrDevs.Submissions.Commands
   alias ZhrDevs.Submissions.Events
 
+  @derive Jason.Encoder
   defstruct status: :new
 
   def interested?(%Events.SolutionSubmitted{uuid: solution_uuid}), do: {:start, solution_uuid}
@@ -49,5 +51,29 @@ defmodule ZhrDevs.Submissions.ProcessManagers.CheckSolution do
 
   def apply(%__MODULE__{status: :new} = state, %Events.SolutionCheckStarted{}) do
     %__MODULE__{state | status: :running}
+  end
+
+  ### Error handling ###
+
+  require Logger
+
+  @retry_delay_milliseconds 10_000
+  @failures_limit 3
+
+  # Stop process manager after three failures
+  def error({:error, _failure}, _failed_message, %{context: %{failures: failures}})
+      when failures >= @failures_limit do
+    {:stop, :too_many_failures}
+  end
+
+  # Retry command, record failure count in context map
+  def error({:error, _failure}, _failed_message, %{context: context}) do
+    Logger.error(
+      "[#{__MODULE__}] Failed to dispatch command, retrying in #{@retry_delay_milliseconds} ms"
+    )
+
+    context = Map.update(context, :failures, 1, fn failures -> failures + 1 end)
+
+    {:retry, @retry_delay_milliseconds, context}
   end
 end

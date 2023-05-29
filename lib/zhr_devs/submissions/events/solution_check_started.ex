@@ -10,6 +10,7 @@ defmodule ZhrDevs.Submissions.Events.SolutionCheckStarted do
     solution_path: Urlsafe.new()
   ]
   @enforce_keys Keyword.keys(@fields)
+  @derive Jason.Encoder
   defstruct @fields
 
   def fields do

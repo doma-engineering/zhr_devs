@@ -10,6 +10,7 @@ defmodule ZhrDevs.Submissions.Events.SolutionCheckCompleted do
     points: 0
   ]
   @enforce_keys Keyword.keys(@fields)
+  @derive Jason.Encoder
   defstruct @fields
 
   def fields do
