@@ -13,7 +13,7 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
   alias Uptight.Result
   alias Uptight.Text, as: T
 
-  import Uptight.Assertions
+  import ZhrDevs.Submissions.Commands.Parsing.Shared
 
   @fields [:uuid, :submission_identity] ++ SolutionSubmitted.fields()
   defstruct @fields
@@ -27,12 +27,6 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
           required(:solution_path) => list(Urlsafe.t()),
           required(:submission_identity) => SubmissionIdentity.t()
         }
-
-  @supported_technologies Enum.map(
-                            Application.compile_env(:zhr_devs, :supported_technologies),
-                            &Atom.to_string/1
-                          )
-
   @typep error() :: String.t() | struct()
 
   @spec dispatch(Keyword.t()) :: :ok | {:error, error()}
@@ -95,18 +89,6 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
     end
 
     T.new!(solution_path)
-  end
-
-  defp unpack_technology(opts) do
-    passed_technology_downcase =
-      opts
-      |> Keyword.fetch!(:technology)
-      |> String.downcase()
-
-    assert passed_technology_downcase in @supported_technologies,
-           "Technology #{passed_technology_downcase} is not supported"
-
-    String.to_existing_atom(passed_technology_downcase)
   end
 
   defp valid_zip_file?(solution_path) do

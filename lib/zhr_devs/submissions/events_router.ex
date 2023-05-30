@@ -20,6 +20,7 @@ defmodule ZhrDevs.Submissions.EventsRouter do
   alias ZhrDevs.Submissions.{Aggregates, Commands}
 
   dispatch(Commands.SubmitSolution, to: Aggregates.Submission, identity: :submission_identity)
+  dispatch(Commands.DownloadTask, to: Aggregates.Submission, identity: :submission_identity)
 
   dispatch(Commands.StartCheckSolution, to: Aggregates.Check, identity: :solution_uuid)
   dispatch(Commands.CompleteCheckSolution, to: Aggregates.Check, identity: :solution_uuid)
