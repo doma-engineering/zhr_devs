@@ -1,0 +1,56 @@
+version: '3'
+# IN VSCODE, PLEASE USE "SAVE WITHOUT FORMATTING" COMMAND: <F1> -> "Save without formatting"
+services:
+    sneakium:
+        image: 'domadev/sneakium:2022-05-07'
+        networks:
+            - sneak_link
+        depends_on:
+            - ui
+        volumes:
+            - .:/home/user/:rw
+        command: bash -c "
+            echo 'Started sneakium component' ;
+            su user &&
+            cd /home/user &&
+            nc -l -p 12321 > /dev/null ;
+            echo 'Got ready' ;
+            WDIO_URL=ui ./node_modules/.bin/wdio && echo -n 'OK' > ./_wdio_result || echo -n 'KO' > ./_wdio_result ;
+            chmod go+rw ./_wdio_result ;
+            sleep 1 ;
+            echo 'Sending done' ;
+            wget http://ui:12322/sneakium-done --timeout=0.01 --tries=1 --quiet
+            "
+    ui:
+        build: .
+        networks:
+            - sneak_link
+        command: bash -c "
+            echo -n 'Started ui component ' ;
+            echo ${RUNTS_ENDPOINT:-App.tsx} ;
+            rm ./_webpack_* 2> /dev/null;
+            ( node --require tsm ./run.ts  ${RUNTS_ENDPOINT:-App.tsx} 2>&1 | stdbuf -oL grep 'compiled successfully\\|issues found' | tee ./_webpack_status ) & run_pid=$$! ;
+            while true; do
+                read -t 0.1 ;
+                if [[ -f ./_webpack_status ]]; then
+                    _x=\"$$(cat ./_webpack_status | wc -l)\" ;
+                    if [ $$_x -gt 0 ]; then
+                        break ;
+                    fi
+                fi;
+            done ;
+            sleep 2 ;
+            echo "=========" ;
+            cat ./_webpack_status ;
+            echo "=========" ;
+            echo 'Sending ready' ;
+            wget http://sneakium:12321/ui-ready --timeout=0.01 --tries=1 --quiet &
+            nc -l -p 12322 > /dev/null ;
+            echo 'Got done' ;
+            rm ./_webpack_* ;
+            kill $$run_pid
+            "
+networks:
+    sneak_link:
+        driver: bridge
+
