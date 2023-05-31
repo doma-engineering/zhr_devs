@@ -27,8 +27,8 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
   """
   alias Uptight.Base.Urlsafe
 
-  alias ZhrDevs.Submissions.Commands.SubmitSolution
   alias ZhrDevs.Submissions.Commands.DownloadTask
+  alias ZhrDevs.Submissions.Commands.SubmitSolution
 
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
   alias ZhrDevs.Submissions.Events.TaskDownloaded

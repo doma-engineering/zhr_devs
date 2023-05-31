@@ -15,8 +15,8 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTask do
 
   alias ZhrDevs.App
 
-  alias Uptight.Result
   alias Uptight.Base.Urlsafe
+  alias Uptight.Result
 
   @fields TaskDownloaded.fields() ++ [submission_identity: nil]
   @enforce_keys Keyword.keys(@fields)

@@ -4,6 +4,8 @@ defmodule ZhrDevs.Otp.ProjectionsSupervisor do
   since we want them to be in-memory.
   """
 
+  alias ZhrDevs.Submissions.ReadModels.TaskDownloads
+
   @dialyzer {:no_return, {:init, 1}}
 
   use Supervisor
@@ -16,7 +18,8 @@ defmodule ZhrDevs.Otp.ProjectionsSupervisor do
   def init([]) do
     children = [
       {Registry, keys: :unique, name: ZhrDevs.Registry},
-      {DynamicSupervisor, strategy: :one_for_one, name: ZhrDevs.DynamicSupervisor}
+      {DynamicSupervisor, strategy: :one_for_one, name: ZhrDevs.DynamicSupervisor},
+      TaskDownloads
     ]
 
     Supervisor.init(children, strategy: :one_for_one, name: __MODULE__)

@@ -8,11 +8,15 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
   import Hammox
 
   alias ZhrDevs.App
+
   alias ZhrDevs.Submissions.Commands.DownloadTask
   alias ZhrDevs.Submissions.Commands.SubmitSolution
+
+  alias ZhrDevs.Submissions.Events.SolutionSubmitted
   alias ZhrDevs.Submissions.Events.TaskDownloaded
   alias ZhrDevs.Submissions.Events.TestCasesDownloaded
-  alias ZhrDevs.Submissions.Events.SolutionSubmitted
+
+  alias ZhrDevs.Submissions.ReadModels.TaskDownloads
 
   @task_uuid Commanded.UUID.uuid4() |> Uptight.Base.mk_url!()
 
@@ -71,10 +75,26 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
 
     @tag :skip
     test "download of task increments global tasks read model", %{hid: hashed_identity} do
-    end
+      independent_task_uuid = Commanded.UUID.uuid4()
 
-    @tag :skip
-    test "download of task increments per-user read model", %{hid: hashed_identity} do
+      :ok =
+        DownloadTask.dispatch(
+          task_uuid: independent_task_uuid,
+          hashed_identity: hashed_identity.encoded,
+          technology: "elixir"
+        )
+
+      wait_for_event(App, TaskDownloaded, fn event ->
+        event.hashed_identity === hashed_identity
+      end)
+
+      # Testing of global shared resources aren't easy
+
+      :timer.sleep(50)
+
+      downloads = TaskDownloads.get_downloads()
+
+      assert %{task: 1, test_cases: 0} == Map.fetch!(downloads, independent_task_uuid)
     end
   end
 end

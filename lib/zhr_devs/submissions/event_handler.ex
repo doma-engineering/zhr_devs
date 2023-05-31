@@ -25,6 +25,10 @@ defmodule ZhrDevs.Submissions.EventHandler do
 
   alias ZhrDevs.Submissions.Events.SolutionCheckStarted
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
+  alias ZhrDevs.Submissions.Events.TaskDownloaded
+  alias ZhrDevs.Submissions.Events.TestCasesDownloaded
+
+  alias ZhrDevs.Submissions.ReadModels.TaskDownloads
 
   def init do
     :ok = ZhrDevs.Queries.delete_handler_subscriptions(__MODULE__)
@@ -58,5 +62,13 @@ defmodule ZhrDevs.Submissions.EventHandler do
     Logger.info("Solution check started: #{inspect(event)}")
 
     :ok
+  end
+
+  def handle(%TaskDownloaded{task_uuid: task_uuid}, _meta) do
+    :ok = TaskDownloads.increment_downloads(task_uuid.encoded, :task)
+  end
+
+  def handle(%TestCasesDownloaded{task_uuid: task_uuid}, _meta) do
+    :ok = TaskDownloads.increment_downloads(task_uuid.encoded, :test_cases)
   end
 end
