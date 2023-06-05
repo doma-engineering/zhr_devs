@@ -33,3 +33,4 @@ config/secrets.exs
 
 priv/uploads/dev/*
 priv/uploads/test/*
+priv/static/

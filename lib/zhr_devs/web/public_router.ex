@@ -12,6 +12,10 @@ defmodule ZhrDevs.Web.PublicRouter do
 
   plug(Plug.Logger)
 
+  plug Plug.Static,
+    at: "/",
+    from: :zhr_devs
+
   @session_secrets Application.compile_env!(:zhr_devs, :server)[:session]
   @session_options Keyword.merge(@session_secrets, store: :cookie)
 
@@ -21,6 +25,11 @@ defmodule ZhrDevs.Web.PublicRouter do
   plug(:match)
   plug(Ueberauth)
   plug(:dispatch)
+
+  get "/" do
+    conn = put_resp_content_type(conn, "text/html")
+    send_file(conn, 200, "priv/static/index.html")
+  end
 
   get("/auth/:provider/callback",
     to: DomaOAuth,
