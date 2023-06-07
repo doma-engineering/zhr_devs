@@ -18,32 +18,31 @@ defmodule ZhrDevs.Web.ProtectedRouterTest do
       start_supervised!({Identity, login_event})
 
       conn =
-        conn(:get, "/tasks")
+        conn(:get, "/")
         |> init_test_session(%{hashed_identity: login_event.hashed_identity.encoded})
         |> ProtectedRouter.call(@routes)
 
       assert conn.status === 200
-      assert conn.resp_body =~ "Tasks index page!"
     end
 
     test "with authenticated identity and no spawned process - threat as :unauthenticated, halt connection" do
       conn =
-        conn(:get, "/tasks")
+        conn(:get, "/")
         |> init_test_session(%{hashed_identity: "nonesense"})
         |> ProtectedRouter.call(@routes)
 
       assert conn.halted
-      assert conn.status === 403
+      assert conn.status === 302
     end
 
     test "with no hashed_identity in session - halt the connection and redirect to /" do
       conn =
         :get
-        |> conn("/tasks")
+        |> conn("/")
         |> ProtectedRouter.call(@routes)
 
       assert conn.halted
-      assert conn.status === 403
+      assert conn.status === 302
     end
   end
 end

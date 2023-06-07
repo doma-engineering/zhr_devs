@@ -21,7 +21,7 @@ defmodule ZhrDevs.Web.AuthCallback do
 
     conn
     |> assign_hashed_identity_to_session(success.hashed_identity)
-    |> redirect_to("/protected")
+    |> redirect_to("/my")
   end
 
   def call(%{assigns: %{oauth: %Failure{errors: errors}}} = conn, _opts) do

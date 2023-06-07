@@ -12,9 +12,10 @@ defmodule ZhrDevs.Web.PublicRouter do
 
   plug(Plug.Logger)
 
-  plug Plug.Static,
+  plug(Plug.Static,
     at: "/",
     from: :zhr_devs
+  )
 
   @session_secrets Application.compile_env!(:zhr_devs, :server)[:session]
   @session_options Keyword.merge(@session_secrets, store: :cookie)
@@ -26,9 +27,9 @@ defmodule ZhrDevs.Web.PublicRouter do
   plug(Ueberauth)
   plug(:dispatch)
 
-  get "/" do
+  get "/login" do
     conn = put_resp_content_type(conn, "text/html")
-    send_file(conn, 200, "priv/static/index.html")
+    send_file(conn, 200, "priv/pages/login.html")
   end
 
   get("/auth/:provider/callback",
@@ -49,7 +50,7 @@ defmodule ZhrDevs.Web.PublicRouter do
 
       conn
       |> AuthCallback.assign_hashed_identity_to_session(mock_auth.hashed_identity)
-      |> Web.Shared.redirect_to("/my/tasks")
+      |> Web.Shared.redirect_to("/my")
     end
   end
 
