@@ -27,8 +27,12 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
   """
   alias Uptight.Base.Urlsafe
 
+  alias ZhrDevs.Submissions.Commands.DownloadTask
   alias ZhrDevs.Submissions.Commands.SubmitSolution
+
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
+  alias ZhrDevs.Submissions.Events.TaskDownloaded
+  alias ZhrDevs.Submissions.Events.TestCasesDownloaded
 
   @type t() ::
           %{
@@ -63,6 +67,22 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
     }
   end
 
+  def execute(%__MODULE__{attempts: 0}, %DownloadTask{} = command) do
+    %TaskDownloaded{
+      hashed_identity: command.hashed_identity,
+      task_uuid: command.task_uuid,
+      technology: command.technology
+    }
+  end
+
+  def execute(%__MODULE__{attempts: 1}, %DownloadTask{} = command) do
+    %TestCasesDownloaded{
+      hashed_identity: command.hashed_identity,
+      task_uuid: command.task_uuid,
+      technology: command.technology
+    }
+  end
+
   def apply(%__MODULE__{uuid: @new}, %SolutionSubmitted{} = event) do
     %__MODULE__{
       uuid: event.uuid,
@@ -81,4 +101,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
         last_attempt_at: UtcDateTime.new()
     }
   end
+
+  def apply(%__MODULE__{} = state, %TaskDownloaded{}), do: state
+  def apply(%__MODULE__{} = state, %TestCasesDownloaded{}), do: state
 end

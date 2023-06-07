@@ -26,7 +26,7 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
   @spec increment_attempts(hashed_identity :: Uptight.Base.Urlsafe.t(), String.t()) ::
           :ok | {:error, :max_attempts_reached}
   def increment_attempts(hashed_identity, technology) do
-    technology_atom = String.to_existing_atom(technology)
+    technology_atom = safe_string_to_existing_atom(technology)
 
     GenServer.call(via_tuple(hashed_identity), {:increment_attempts, technology_atom})
   end
@@ -38,7 +38,7 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
   ### GenServer callbacks ###
   @impl GenServer
   def init(%SolutionSubmitted{technology: technology}) do
-    technology_atom = String.to_existing_atom(technology)
+    technology_atom = safe_string_to_existing_atom(technology)
     {:ok, attempts} = do_increment_attempts(new().attempts, technology_atom)
 
     {:ok, %__MODULE__{attempts: attempts}}
@@ -93,4 +93,10 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
   defp new_attempts do
     Enum.map(@technologies, fn technology -> {technology, @default_counter} end) |> Map.new()
   end
+
+  defp safe_string_to_existing_atom(term) when is_binary(term) do
+    String.to_existing_atom(term)
+  end
+
+  defp safe_string_to_existing_atom(term) when is_atom(term), do: term
 end
