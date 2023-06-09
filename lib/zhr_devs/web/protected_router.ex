@@ -7,6 +7,8 @@ defmodule ZhrDevs.Web.ProtectedRouter do
 
   alias ZhrDevs.IdentityManagement
 
+  import ZhrDevs.Web.Shared, only: [redirect_to: 2]
+
   @session_secrets Application.compile_env!(:zhr_devs, :server)[:session]
   @session_options Keyword.merge(@session_secrets, store: :cookie)
 
@@ -24,10 +26,9 @@ defmodule ZhrDevs.Web.ProtectedRouter do
     ]
   )
 
-  get("/tasks") do
-    conn
-    |> send_resp(200, "Tasks index page!")
-    |> halt()
+  get "/" do
+    conn = put_resp_content_type(conn, "text/html")
+    send_file(conn, 200, "priv/static/index.html")
   end
 
   post("/task/:technology/:task_uuid/submission", to: ZhrDevs.Web.Plugs.SubmissionUpload)
@@ -41,9 +42,7 @@ defmodule ZhrDevs.Web.ProtectedRouter do
         conn
 
       :unauthenticated ->
-        conn
-        |> send_resp(403, "Unauthenticated")
-        |> halt()
+        redirect_to(conn, "/login")
     end
   end
 

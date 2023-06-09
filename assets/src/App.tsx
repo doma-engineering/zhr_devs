@@ -1,10 +1,13 @@
 import './App.css';
+import Navbar from './components/Navbar'
 
 function App() {
   return (
-    <h1 className="text-3xl font-bold underline text-teal-600">
-      Welcome to zhr_devs!
-    </h1>
+    <div>
+      <Navbar />
+
+      <h1>Here will be the tasks!</h1>
+    </div>
   );
 }
 

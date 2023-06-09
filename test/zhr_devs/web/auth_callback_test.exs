@@ -22,11 +22,11 @@ defmodule ZhrDevs.Web.AuthCallbackTest do
       %{success: successful_auth, event: login_event}
     end
 
-    test "with new identity - redirects to /protected", %{success: success} do
+    test "with new identity - redirects to /my", %{success: success} do
       conn = build_success_conn(success)
 
       assert conn.status == 302
-      assert get_resp_header(conn, "location") == ["/protected"]
+      assert get_resp_header(conn, "location") == ["/my"]
     end
 
     test "with new identity - receives an event", %{success: success} do
@@ -46,7 +46,7 @@ defmodule ZhrDevs.Web.AuthCallbackTest do
       )
     end
 
-    test "with existing identity - log successful login attempt and redirects to /protected", %{
+    test "with existing identity - log successful login attempt and redirects to /my", %{
       success: success,
       event: login
     } do
@@ -55,7 +55,7 @@ defmodule ZhrDevs.Web.AuthCallbackTest do
       assert capture_log(fn ->
                conn = build_success_conn(success)
                assert conn.status == 302
-               assert get_resp_header(conn, "location") == ["/protected"]
+               assert get_resp_header(conn, "location") == ["/my"]
              end) =~ "Successful authentication attempt for #{success.hashed_identity}"
     end
 
