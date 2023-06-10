@@ -14,7 +14,7 @@ defmodule ZhrDevs.Submissions do
   end
 
   def get_submission(hashed_identity) do
-    case Registry.lookup(ZhrDevs.Registry, {:submissions, hashed_identity}) do
+    case lookup_submissions_registry(hashed_identity) do
       [{pid, _}] when is_pid(pid) ->
         {:ok, pid}
 
@@ -23,7 +23,19 @@ defmodule ZhrDevs.Submissions do
     end
   end
 
+  def attempts(hashed_identity) do
+    case lookup_submissions_registry(hashed_identity) do
+      [{pid, _}] when is_pid(pid) ->
+        Submission.attempts(hashed_identity)
+
+      _ ->
+        Submission.default_counter()
+    end
+  end
+
   defdelegate increment_attempts(hashed_identity, technology), to: Submission
 
-  defdelegate attempts(hashed_identity), to: Submission
+  defp lookup_submissions_registry(hashed_identity) do
+    Registry.lookup(ZhrDevs.Registry, {:submissions, hashed_identity})
+  end
 end

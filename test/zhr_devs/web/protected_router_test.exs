@@ -32,7 +32,7 @@ defmodule ZhrDevs.Web.ProtectedRouterTest do
         |> ProtectedRouter.call(@routes)
 
       assert conn.halted
-      assert conn.status === 302
+      assert conn.status === 401
     end
 
     test "with no hashed_identity in session - halt the connection and redirect to /" do
@@ -42,7 +42,7 @@ defmodule ZhrDevs.Web.ProtectedRouterTest do
         |> ProtectedRouter.call(@routes)
 
       assert conn.halted
-      assert conn.status === 302
+      assert conn.status === 401
     end
   end
 end

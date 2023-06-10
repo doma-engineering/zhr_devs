@@ -1,12 +1,13 @@
 import './App.css';
 import Navbar from './components/Navbar'
+import Tasks from './components/Tasks'
 
 function App() {
   return (
     <div>
       <Navbar />
 
-      <h1>Here will be the tasks!</h1>
+      <Tasks />
     </div>
   );
 }
