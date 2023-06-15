@@ -28,8 +28,11 @@ db: pgdata pgdata/sockets pgdata/postgresql.conf
 	priv/dev/create-role-phoenix.sh
 	$(MAKE) pgdata/pg_hba.conf
 	pg_ctl -D ./pgdata -l logfile restart
-	mix ecto.create
-	mix ecto.migrate
+	mix ecto.create || true
+	mix ecto.migrate || true
+	mix event_store.create || true
+	mix event_store.init || true
+	mix event_store.migrate || true
 
 # Copy pre-commit hook to .git/hooks/.
 .git/hooks/pre-commit:
@@ -59,7 +62,4 @@ migrate:
 
 danger_zone_i_am_sure_i_want_to_clean_dev_state:
 	pg_ctl -D ./pgdata -l logfile stop
-	mv ~/.pgpass{,.old}
 	rm -rf ./logfile ./pgdata
-	rm -v ./config/test.secret.exs
-	rm -v ./config/dev.secret.exs

@@ -1,5 +1,10 @@
 import Config
 
+# You probably should use an env-dependent secrets file such as:
+# dev.secret.exs
+# prod.secret.exs
+# test.secret.exs
+
 config :zhr_devs, :server,
   session: [
     key: "_zhr_devs_session",

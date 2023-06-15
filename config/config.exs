@@ -16,17 +16,6 @@ config :zhr_devs,
 # Event store configuration
 config :zhr_devs, event_stores: [ZhrDevs.EventStore]
 
-config :zhr_devs, ZhrDevs.EventStore,
-  column_data_type: "jsonb",
-  serializer: Commanded.Serialization.JsonSerializer,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "zhr_devs_eventstore",
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
-
 config :zhr_devs, :server,
   session: [
     key: "_to_be_overridden",
@@ -58,6 +47,17 @@ config :ueberauth, Ueberauth.Strategy.Google.OAuth,
 
 import_config "#{Mix.env()}.exs"
 
+# Import global secrets (not sure it's a good design).
 if File.exists?("secrets.exs") do
   import_config "secrets.exs"
+end
+
+# Also import per-environment secret configuration.
+if File.exists?("#{Mix.env()}.secret.exs") do
+  import_config "#{Mix.env()}.secret.exs"
+end
+
+# Also import auto-generated secret configuration (for example, from running `make dev`).
+if File.exists?("#{Mix.env()}.secret.auto.exs") do
+  import_config "#{Mix.env()}.secret.auto.exs"
 end
