@@ -40,6 +40,6 @@
   "ueberauth": {:hex, :ueberauth, "0.10.5", "806adb703df87e55b5615cf365e809f84c20c68aa8c08ff8a416a5a6644c4b02", [:mix], [{:plug, "~> 1.5", [hex: :plug, repo: "hexpm", optional: false]}], "hexpm", "3efd1f31d490a125c7ed453b926f7c31d78b97b8a854c755f5c40064bf3ac9e1"},
   "ueberauth_github": {:hex, :ueberauth_github, "0.8.2", "6e12332172ebfadb6fbe2feaeddbd8c421f8ebf9d425d1367c2dce2a35f6bf21", [:mix], [{:oauth2, "~> 1.0 or ~> 2.0", [hex: :oauth2, repo: "hexpm", optional: false]}, {:ueberauth, "~> 0.7", [hex: :ueberauth, repo: "hexpm", optional: false]}], "hexpm", "98ed414ee313bd754135ab9689e8f16863c5691d11c8526800457cce6153d4e2"},
   "ueberauth_google": {:hex, :ueberauth_google, "0.10.2", "b85b3de6070e7bc71bbec3d4dbe2de805b004ae9c19efeb31531f9134ede4033", [:mix], [{:oauth2, "~> 1.0 or ~> 2.0", [hex: :oauth2, repo: "hexpm", optional: false]}, {:ueberauth, "~> 0.10.0", [hex: :ueberauth, repo: "hexpm", optional: false]}], "hexpm", "fcf987749db5e2d890240ce61223c61ee6ac1d638c3378bf1eeeb0e6332e5a12"},
-  "uptight": {:git, "https://github.com/doma-engineering/uptight.git", "5d86f1d9147d9cf27c676024adf48edbdd83dd82", [branch: "main"]},
+  "uptight": {:git, "https://github.com/doma-engineering/uptight.git", "f401b98f15d1b057d7d52c8a7949cbf7d223cee2", [branch: "main"]},
   "witchcraft_goo": {:git, "https://github.com/doma-engineering/witchcraft-goo.git", "e86072d9d87e5f677239a1ef369b2c8c801ed2f5", [branch: "main"]},
 }
