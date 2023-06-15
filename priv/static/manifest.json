@@ -1,6 +1,6 @@
 {
-  "short_name": "ZHR devs",
-  "name": "Zero HR devs",
+  "short_name": "React App",
+  "name": "Create React App Sample",
   "icons": [
     {
       "src": "favicon.ico",

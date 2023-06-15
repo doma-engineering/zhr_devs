@@ -35,6 +35,8 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
     GenServer.call(via_tuple(hashed_identity), :attempts)
   end
 
+  def default_counter, do: do_extract_attempts(new_attempts())
+
   ### GenServer callbacks ###
   @impl GenServer
   def init(%SolutionSubmitted{technology: technology}) do
@@ -77,8 +79,8 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
   end
 
   defp do_extract_attempts(state_attempts) do
-    Enum.reduce(state_attempts, %{}, fn {technology, %UpToCounter{i: i}}, acc ->
-      Map.put(acc, technology, i)
+    Enum.reduce(state_attempts, [], fn {technology, %UpToCounter{i: i}}, acc ->
+      [%{technology: technology, counter: i} | acc]
     end)
   end
 

@@ -7,8 +7,6 @@ defmodule ZhrDevs.Web.ProtectedRouter do
 
   alias ZhrDevs.IdentityManagement
 
-  import ZhrDevs.Web.Shared, only: [redirect_to: 2]
-
   @session_secrets Application.compile_env!(:zhr_devs, :server)[:session]
   @session_options Keyword.merge(@session_secrets, store: :cookie)
 
@@ -31,6 +29,8 @@ defmodule ZhrDevs.Web.ProtectedRouter do
     send_file(conn, 200, "priv/static/index.html")
   end
 
+  get("/tasks", to: ZhrDevs.Web.Plugs.Submissions)
+
   post("/task/:technology/:task_uuid/submission", to: ZhrDevs.Web.Plugs.SubmissionUpload)
 
   defp check_auth(conn, _opts) do
@@ -42,7 +42,9 @@ defmodule ZhrDevs.Web.ProtectedRouter do
         conn
 
       :unauthenticated ->
-        redirect_to(conn, "/login")
+        conn
+        |> ZhrDevs.Web.Shared.send_json(401, %{error: "Unauthorized", code: 401})
+        |> halt()
     end
   end
 
