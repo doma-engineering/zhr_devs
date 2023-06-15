@@ -8,17 +8,13 @@ function TasksIndex() {
   const [tasks, setTasks] = useState<State>([])
 
   useEffect(() => {
-    function doFetchTasks() {
-      fetchTasks().then(response => {
-        if ('tasks' in response) {
-          setTasks(response.tasks)
-        } else {
-          // Handle error
-        }
-      })
-    }
-
-    doFetchTasks()
+    fetchTasks().then(response => {
+      if ('tasks' in response) {
+        setTasks(response.tasks)
+      } else {
+        // Handle error
+      }
+    })
   }, tasks)
 
   return (
@@ -32,12 +28,15 @@ function TasksIndex() {
       </div>
 
       <div className="flex basis-1/2 flex-wrap px-4 gap-8">
-        {/* <Task technology={"elixir"} counter={0} />
-        <Task technology={"haskell"} counter={0} />
-        <Task technology={"typescript"} counter={2} /> */}
-        {tasks.map(task =>
+        <Task technology={"elixir"} counter={0} renderLink={true} />
+        <Task technology={"haskell"} counter={0} renderLink={true} />
+        <Task technology={"rust"} counter={2} renderLink={true} />
+        <Task technology={"typescript"} counter={2} renderLink={true} />
+        <Task technology={"java"} counter={2} renderLink={true} />
+        <Task technology={"kotlin"} counter={2} renderLink={true} />
+        {/* {tasks.map(task =>
           <Task technology={task.technology} counter={task.counter} />
-        )}
+        )} */}
       </div>
     </div>
   );
