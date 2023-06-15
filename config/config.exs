@@ -45,6 +45,21 @@ config :ueberauth, Ueberauth.Strategy.Google.OAuth,
   client_id: System.get_env("GOOGLE_CLIENT_ID"),
   client_secret: System.get_env("GOOGLE_CLIENT_SECRET")
 
+# Default pgsql connection values for people who aren't using auto-generated configuration
+
+config :zhr_devs, ZhrDevs.EventStore,
+  column_data_type: "jsonb",
+  serializer: Commanded.Serialization.JsonSerializer,
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  database: "zhr_devs_eventstore",
+  stacktrace: true,
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
+
+# Overrides!
+
 import_config "#{Mix.env()}.exs"
 
 # Import global secrets (not sure it's a good design).

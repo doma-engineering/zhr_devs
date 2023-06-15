@@ -6,6 +6,7 @@
 
     outputs = {self, nixpkgs, goo}:
         let pkgs = nixpkgs.legacyPackages.x86_64-linux;
+            npkgs = pkgs.nodePackages;
         in {
             defaultPackage.x86_64-linux = pkgs.hello;
 
@@ -26,6 +27,7 @@
                         # Stuff that has to be externally configured
                         pkgs.gnupg
                         pkgs.darcs
+                        npkgs.yarn
                         ## Stuff that isn't yet implemented
                         # domaPakages.passveil
                         ## Stuff that doesn't work

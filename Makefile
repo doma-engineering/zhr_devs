@@ -7,7 +7,10 @@ pgdata:
 # Copy config files to pgdata.
 pgdata/sockets pgdata/postgresql.conf:
 	mkdir -p pgdata/sockets
-	cp priv/dev/postgresql.conf ./pgdata/
+	# Replace `port = 5666` with whatever ./priv/dev/genport.sh returns.
+	# This is necessary, because we need to run multiple instances of postgresql on the same machine.
+	priv/dev/genport.sh
+	sed -e 's/port = 5666/port = $(shell priv/dev/genport.sh)/' priv/dev/postgresql.conf > ./pgdata/postgresql.conf
 
 pgdata/pg_hba.conf: pgdata/sockets pgdata/postgresql.conf
 	cp priv/dev/pg_hba.conf ./pgdata/
@@ -61,5 +64,5 @@ migrate:
 	mix ecto.migrate
 
 danger_zone_i_am_sure_i_want_to_clean_dev_state:
-	pg_ctl -D ./pgdata -l logfile stop
+	pg_ctl -D ./pgdata -l logfile stop || true
 	rm -rf ./logfile ./pgdata
