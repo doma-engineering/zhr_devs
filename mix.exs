@@ -34,6 +34,12 @@ defmodule ZhrDevs.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.2", only: [:dev], runtime: false},
 
+      # Phoenix just for phx.gen.secret :D
+      {:phoenix, "~> 1.7", only: [:dev], runtime: false},
+
+      # Ecto to control migrations.
+      {:ecto_sql, "~> 3.10"},
+
       # Testing
       {:stream_data, "~> 0.5.0", only: [:test]},
       {:hammox, "~> 0.7", only: :test},
