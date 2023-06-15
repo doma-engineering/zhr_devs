@@ -48,16 +48,16 @@ config :ueberauth, Ueberauth.Strategy.Google.OAuth,
 import_config "#{Mix.env()}.exs"
 
 # Import global secrets (not sure it's a good design).
-if File.exists?("secrets.exs") do
+if File.exists?("config/secrets.exs") do
   import_config "secrets.exs"
 end
 
 # Also import per-environment secret configuration.
-if File.exists?("#{Mix.env()}.secret.exs") do
+if File.exists?("config/#{Mix.env()}.secret.exs") do
   import_config "#{Mix.env()}.secret.exs"
 end
 
 # Also import auto-generated secret configuration (for example, from running `make dev`).
-if File.exists?("#{Mix.env()}.secret.auto.exs") do
+if File.exists?("config/#{Mix.env()}.secret.auto.exs") do
   import_config "#{Mix.env()}.secret.auto.exs"
 end
