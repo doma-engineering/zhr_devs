@@ -13,11 +13,12 @@
         pkgs.mkShell {
           buildInputs = [
 
-            pkgs.nodejs-17_x
+            pkgs.nodejs
 
             npkgs.typescript
             npkgs.node-gyp
             npkgs.serve
+            npkgs.yarn
 
           ];
         };

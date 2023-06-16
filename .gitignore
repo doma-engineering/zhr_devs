@@ -39,3 +39,9 @@ priv/uploads/test/*
 /priv/static/asset-manifest.json
 
 /assets/.env
+
+# Ignore local DB and secret configuraitons
+/config/*.secret.exs
+/config/*.secret.auto.exs
+logfile
+pgdata/
