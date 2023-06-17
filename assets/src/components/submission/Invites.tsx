@@ -9,7 +9,7 @@ function Invites(props: {invited: string[], interested: string[], testCompleted:
   }
 
   return (
-    <div className="px-8 bg-slate-200 rounded leading-loose">
+    <div className="px-8 py-4 bg-slate-200 rounded leading-loose">
       <p className="font-semibold">You were invited by</p>
       {props.invited.map(invitedBy => {
         return <p>{invitedBy}</p>
@@ -20,7 +20,7 @@ function Invites(props: {invited: string[], interested: string[], testCompleted:
         return <p>{interested}</p>
       })}
 
-      <div className="text-center mt-4">
+      <div className="text-center">
         {application}
       </div>
     </div>

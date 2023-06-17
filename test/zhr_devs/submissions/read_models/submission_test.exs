@@ -61,4 +61,32 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
       assert {:error, {:already_started, ^pid}} = Submission.start_link(event)
     end
   end
+
+  describe "attempts/2" do
+    setup do
+      successful_auth = generate_successful_auth(:github)
+
+      trigger_event = %SolutionSubmitted{
+        hashed_identity: successful_auth.hashed_identity,
+        technology: "elixir",
+        uuid: Commanded.UUID.uuid4(),
+        task_uuid: Commanded.UUID.uuid4(),
+        solution_path: "test/support/testfile.txt"
+      }
+
+      %{event: trigger_event}
+    end
+
+    test "return counters for all supported technologies", %{event: trigger_event} do
+      start_supervised!({Submission, trigger_event})
+
+      for tech <- Application.get_env(:zhr_devs, :supported_technologies) do
+        tech_string = Atom.to_string(tech)
+
+        counter = if tech == :elixir, do: 1, else: 0
+
+        assert Submissions.attempts(trigger_event.hashed_identity, tech_string) == counter
+      end
+    end
+  end
 end

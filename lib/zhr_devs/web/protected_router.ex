@@ -31,6 +31,8 @@ defmodule ZhrDevs.Web.ProtectedRouter do
 
   get("/tasks", to: ZhrDevs.Web.Plugs.Submissions)
 
+  get("/submission/:technology", to: ZhrDevs.Web.Plugs.Submission)
+
   post("/task/:technology/:task_uuid/submission", to: ZhrDevs.Web.Plugs.SubmissionUpload)
 
   defp check_auth(conn, _opts) do
@@ -46,6 +48,10 @@ defmodule ZhrDevs.Web.ProtectedRouter do
         |> ZhrDevs.Web.Shared.send_json(401, %{error: "Unauthorized", code: 401})
         |> halt()
     end
+  end
+
+  match _ do
+    ZhrDevs.Web.Shared.redirect_to(conn, "/my")
   end
 
   defp check_session(conn), do: get_session(conn, :hashed_identity)

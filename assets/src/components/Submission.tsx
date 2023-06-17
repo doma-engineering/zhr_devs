@@ -8,20 +8,22 @@ import DragAndDrop from "./submission/DragAndDrop";
 
 import type { SubmissionInfo } from "./submission/request";
 
+import { redirect } from "react-router-dom";
+
 type State = SubmissionInfo | undefined
 
-const DUMMY_SUBMISSION: SubmissionInfo = {
-  technology: 'elixir',
-  counter: 0,
-  task: {
-    id: 'taskID',
-    description: 'In this task you are working with a fictional startup’s marketing department to come up with an optimal automated bidding strategy to get the most out of an ad slot on a popular website'
-  },
-  invitations: {
-    invited: ['Geeks', 'Ancient Greeks'],
-    interested: ['Apple', 'Microsoft']
-  }
-}
+// const DUMMY_SUBMISSION: SubmissionInfo = {
+//   technology: 'elixir',
+//   counter: 0,
+//   task: {
+//     id: 'taskID',
+//     description: 'In this task you are working with a fictional startup’s marketing department to come up with an optimal automated bidding strategy to get the most out of an ad slot on a popular website'
+//   },
+//   invitations: {
+//     invited: ['Geeks', 'Ancient Greeks'],
+//     interested: ['Apple', 'Microsoft']
+//   }
+// }
 
 function Submission() {
   const { tech } = useParams<{tech?: string}>()
@@ -32,22 +34,22 @@ function Submission() {
     fetchSubmissionInfo(tech).then(response => {
       if ('technology' in response) {
         setSubmissionInfo(response)
+
+        setAttempt(response.counter + 1)
       } else {
-        // Navigate to /tasks, something wrong
+        return redirect("/my")
       }
     })
   }
 
   useEffect(() => {
     if (tech) {
-      // doFetchSubmissionInfo(tech)
-      setSubmissionInfo(DUMMY_SUBMISSION)
+      doFetchSubmissionInfo(tech)
+      // setSubmissionInfo(DUMMY_SUBMISSION)
 
-      setAttempt(DUMMY_SUBMISSION.counter + 1)
-    } else {
-      // Navigate to /tasks
+      // setAttempt(DUMMY_SUBMISSION.counter + 1)
     }
-  }, [submissionInfo, tech])
+  }, [tech])
 
   return (
     <div className="mx-16 mt-12">

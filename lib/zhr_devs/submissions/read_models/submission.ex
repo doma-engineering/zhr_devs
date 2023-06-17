@@ -35,6 +35,10 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
     GenServer.call(via_tuple(hashed_identity), :attempts)
   end
 
+  def attempts(hashed_identity, technology) do
+    GenServer.call(via_tuple(hashed_identity), {:attempts, technology})
+  end
+
   def default_counter, do: do_extract_attempts(new_attempts())
 
   ### GenServer callbacks ###
@@ -59,6 +63,15 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
 
   def handle_call(:attempts, _from, state) do
     {:reply, do_extract_attempts(state.attempts), state}
+  end
+
+  def handle_call({:attempts, technology}, _from, state) do
+    technology_atom = safe_string_to_existing_atom(technology)
+
+    {^technology_atom, %UpToCounter{i: counter}} =
+      Enum.find(state.attempts, fn {t, _} -> t == technology_atom end)
+
+    {:reply, counter, state}
   end
 
   ### Private functions ###
