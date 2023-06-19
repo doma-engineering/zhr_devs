@@ -29,17 +29,22 @@ function Submission() {
   const { tech } = useParams<{tech?: string}>()
   const [submissionInfo, setSubmissionInfo] = useState<State>(undefined)
   const [attempt, setAttempt] = useState<number>(0)
+  const [downloadTaskUrl, setDownloadTaskUrl] = useState<string>('')
 
   function doFetchSubmissionInfo (tech: string) {
     fetchSubmissionInfo(tech).then(response => {
       if ('technology' in response) {
         setSubmissionInfo(response)
-
+        setDownloadTaskUrl(`/my/task/${response.task.id}/download`)
         setAttempt(response.counter + 1)
       } else {
         return redirect("/my")
       }
     })
+  }
+
+  function handleDownloadTask() {
+    return redirect(downloadTaskUrl)
   }
 
   useEffect(() => {
@@ -79,7 +84,7 @@ function Submission() {
             <div className="ml-4">
               <span className="text-lg font-bold">Get the Task</span>
               <p className="mt-4 text-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque at felis lobortis, pulvinar justo mattis, tincidunt erat. Sed odio enim, dictum id imperdiet eget</p>
-              <button className="rounded bg-purple-400 text-white p-2 mt-4">Download task</button>
+              <Link to={downloadTaskUrl} className="rounded bg-purple-400 text-white p-2 mt-4 inline-block" target="_blank">Download task</Link>
             </div>
           </div>
 

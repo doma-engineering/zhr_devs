@@ -20,7 +20,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionTest do
       assert %{
                "counter" => 0,
                "task" => %{
-                 "id" => "elixir-0-dev"
+                 "id" => _
                },
                "technology" => "elixir",
                "invitations" => %{"invited" => [], "interested" => ["Company X"]}

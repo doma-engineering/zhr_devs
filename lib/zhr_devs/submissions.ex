@@ -43,12 +43,15 @@ defmodule ZhrDevs.Submissions do
     end
   end
 
+  @doc """
+  Should return all the information that we need on the individual task page.
+  """
   def details(hashed_identity, technology) do
     %{
       technology: technology,
       counter: attempts(hashed_identity, technology),
       task: %{
-        id: "#{technology}-0-dev",
+        id: "MjzJjpWMFMtmfA3FEfu3h0-l3MJvk_RiHabe6pku6Tg=",
         description: "This task is not exists currently"
       },
       invitations: %{
