@@ -35,6 +35,8 @@ defmodule ZhrDevs.Web.ProtectedRouter do
 
   post("/task/:technology/:task_uuid/submission", to: ZhrDevs.Web.Plugs.SubmissionUpload)
 
+  get("/task/:task_uuid/download", to: ZhrDevs.Web.Plugs.DownloadTask)
+
   defp check_auth(conn, _opts) do
     conn
     |> check_session()
