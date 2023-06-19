@@ -20,8 +20,7 @@ export async function fetchSubmissionInfo(technology: string): Promise<Submissio
     }
   }
 
-  const tech = encodeURIComponent(technology)
-  const url = `/my/submission?technology=${tech}`
+  const url = `/my/submission/${technology}`
 
   return fetch(url, opts).then(response => response.json())
 }
