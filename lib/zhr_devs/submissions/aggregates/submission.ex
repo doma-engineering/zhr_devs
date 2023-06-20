@@ -10,7 +10,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
 
   Command functions (execute/2):
     A command function receives the aggregate's state and the command to execute. It must return the resultant domain events, which may be one event or multiple events.
-    
+
     You can return a single event or a list of events: %Event{}, [%Event{}], {:ok, %Event{}}, or {:ok, [%Event{}]}.
     To respond without returning an event you can return :ok, nil or an empty list as either [] or {:ok, []}.
     For business rule violations and errors you may return an {:error, error} tagged tuple or raise an exception.
@@ -26,6 +26,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
   Read more: https://github.com/commanded/commanded/blob/master/guides/Aggregates.md
   """
   alias Uptight.Base.Urlsafe
+  alias Uptight.Text, as: T
 
   alias ZhrDevs.Submissions.Commands.DownloadTask
   alias ZhrDevs.Submissions.Commands.SubmitSolution
@@ -41,7 +42,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
             required(:first_attempt_at) => UtcDateTime.t(),
             required(:hashed_identity) => Urlsafe.t(),
             required(:last_attempt_at) => UtcDateTime.t(),
-            required(:task_uuid) => Urlsafe.t(),
+            required(:task_id) => T.t(),
             required(:technology) => atom(),
             required(:uuid) => Urlsafe.t()
           }
@@ -62,7 +63,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
       uuid: command.uuid,
       hashed_identity: command.hashed_identity,
       technology: command.technology,
-      task_uuid: command.task_uuid,
+      task_id: command.task_id.encoded,
       solution_path: command.solution_path
     }
   end
@@ -70,7 +71,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
   def execute(%__MODULE__{attempts: 0}, %DownloadTask{} = command) do
     %TaskDownloaded{
       hashed_identity: command.hashed_identity,
-      task_uuid: command.task_uuid,
+      task_id: command.task_id.encoded,
       technology: command.technology
     }
   end
@@ -78,7 +79,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
   def execute(%__MODULE__{attempts: 1}, %DownloadTask{} = command) do
     %TestCasesDownloaded{
       hashed_identity: command.hashed_identity,
-      task_uuid: command.task_uuid,
+      task_id: command.task_id.encoded,
       technology: command.technology
     }
   end
@@ -88,7 +89,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
       uuid: event.uuid,
       attempts: 1,
       hashed_identity: event.hashed_identity,
-      task_uuid: event.task_uuid,
+      task_id: event.task_id,
       technology: event.technology,
       first_attempt_at: UtcDateTime.new()
     }

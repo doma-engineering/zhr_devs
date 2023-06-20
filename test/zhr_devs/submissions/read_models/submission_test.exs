@@ -16,7 +16,7 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
         hashed_identity: successful_auth.hashed_identity,
         technology: "elixir",
         uuid: Commanded.UUID.uuid4(),
-        task_uuid: Commanded.UUID.uuid4(),
+        task_id: "onthemap-elixir-algae-witchcraft-uptight",
         solution_path: "test/support/testfile.txt"
       }
 
@@ -48,7 +48,7 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
         hashed_identity: generate_hashed_identity(),
         technology: "elixir",
         uuid: Commanded.UUID.uuid4(),
-        task_uuid: Commanded.UUID.uuid4(),
+        task_id: "onthemap-elixir-algae-witchcraft-uptight",
         solution_path: "test/support/testfile.txt"
       }
 
@@ -70,7 +70,7 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
         hashed_identity: successful_auth.hashed_identity,
         technology: "elixir",
         uuid: Commanded.UUID.uuid4(),
-        task_uuid: Commanded.UUID.uuid4(),
+        task_id: "onthemap-elixir-algae-witchcraft-uptight",
         solution_path: "test/support/testfile.txt"
       }
 

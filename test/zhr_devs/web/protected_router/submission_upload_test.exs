@@ -8,7 +8,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionUploadTest do
 
   @routes ZhrDevs.Web.ProtectedRouter.init([])
   @test_uploads_dir Application.compile_env!(:zhr_devs, :uploads_path)
-  @dummy_request_path "/task/haskell/izQrIwr9JWbcTanC01viB-bv5FqbP89R-s9PRDf__z8=/submission"
+  @dummy_request_path "/task/%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22elixir%22%2C%22integrations%22%3A%5B%5D%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%7D/submission"
 
   import ZhrDevs.Fixtures
 
@@ -49,6 +49,24 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionUploadTest do
 
       assert conn.status === 422
       assert conn.resp_body =~ "only .zip files are allowed"
+    end
+
+    test "raises with invalid id" do
+      invalid_id_path = String.replace(@dummy_request_path, "library_stack", "libraries")
+
+      params = %{
+        submission: %Plug.Upload{
+          path: "test/support/testfile.txt",
+          content_type: "text/plain",
+          filename: "submission.zip"
+        }
+      }
+
+      assert_raise(Plug.Conn.WrapperError, fn ->
+        conn(:post, invalid_id_path, params)
+        |> login()
+        |> ProtectedRouter.call(@routes)
+      end)
     end
   end
 

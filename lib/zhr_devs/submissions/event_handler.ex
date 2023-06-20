@@ -64,11 +64,11 @@ defmodule ZhrDevs.Submissions.EventHandler do
     :ok
   end
 
-  def handle(%TaskDownloaded{task_uuid: task_uuid}, _meta) do
-    :ok = TaskDownloads.increment_downloads(task_uuid, :task)
+  def handle(%TaskDownloaded{task_id: task_id}, _meta) do
+    :ok = TaskDownloads.increment_downloads(task_id, :task)
   end
 
-  def handle(%TestCasesDownloaded{task_uuid: task_uuid}, _meta) do
-    :ok = TaskDownloads.increment_downloads(task_uuid, :test_cases)
+  def handle(%TestCasesDownloaded{task_id: task_id}, _meta) do
+    :ok = TaskDownloads.increment_downloads(task_id, :test_cases)
   end
 end

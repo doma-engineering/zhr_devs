@@ -1,5 +1,5 @@
 %{
-  "algae_goo": {:git, "https://github.com/doma-engineering/algae-goo.git", "5794dbdce7ef733e81b43b98168ae03dde9f67dd", [branch: "main"]},
+  "algae_goo": {:git, "https://github.com/doma-engineering/algae-goo.git", "41232a9fc93b2fd06e6437bb711880611e8eee45", [branch: "main"]},
   "backoff": {:hex, :backoff, "1.1.6", "83b72ed2108ba1ee8f7d1c22e0b4a00cfe3593a67dbc792799e8cce9f42f796b", [:rebar3], [], "hexpm", "cf0cfff8995fb20562f822e5cc47d8ccf664c5ecdc26a684cbe85c225f9d7c39"},
   "bunt": {:hex, :bunt, "0.2.1", "e2d4792f7bc0ced7583ab54922808919518d0e57ee162901a16a1b6664ef3b14", [:mix], [], "hexpm", "a330bfb4245239787b15005e66ae6845c9cd524a288f0d141c148b02603777a5"},
   "castore": {:hex, :castore, "1.0.3", "7130ba6d24c8424014194676d608cb989f62ef8039efd50ff4b3f33286d06db8", [:mix], [], "hexpm", "680ab01ef5d15b161ed6a95449fac5c6b8f60055677a8e79acf01b27baa4390b"},
@@ -47,7 +47,7 @@
   "ueberauth": {:hex, :ueberauth, "0.10.5", "806adb703df87e55b5615cf365e809f84c20c68aa8c08ff8a416a5a6644c4b02", [:mix], [{:plug, "~> 1.5", [hex: :plug, repo: "hexpm", optional: false]}], "hexpm", "3efd1f31d490a125c7ed453b926f7c31d78b97b8a854c755f5c40064bf3ac9e1"},
   "ueberauth_github": {:hex, :ueberauth_github, "0.8.2", "6e12332172ebfadb6fbe2feaeddbd8c421f8ebf9d425d1367c2dce2a35f6bf21", [:mix], [{:oauth2, "~> 1.0 or ~> 2.0", [hex: :oauth2, repo: "hexpm", optional: false]}, {:ueberauth, "~> 0.7", [hex: :ueberauth, repo: "hexpm", optional: false]}], "hexpm", "98ed414ee313bd754135ab9689e8f16863c5691d11c8526800457cce6153d4e2"},
   "ueberauth_google": {:hex, :ueberauth_google, "0.10.2", "b85b3de6070e7bc71bbec3d4dbe2de805b004ae9c19efeb31531f9134ede4033", [:mix], [{:oauth2, "~> 1.0 or ~> 2.0", [hex: :oauth2, repo: "hexpm", optional: false]}, {:ueberauth, "~> 0.10.0", [hex: :ueberauth, repo: "hexpm", optional: false]}], "hexpm", "fcf987749db5e2d890240ce61223c61ee6ac1d638c3378bf1eeeb0e6332e5a12"},
-  "uptight": {:git, "https://github.com/doma-engineering/uptight.git", "f401b98f15d1b057d7d52c8a7949cbf7d223cee2", [branch: "main"]},
+  "uptight": {:git, "https://github.com/doma-engineering/uptight.git", "42f7f7ac29f69572faa2f4e35ae7783c9104f834", [branch: "main"]},
   "websock": {:hex, :websock, "0.5.1", "c496036ce95bc26d08ba086b2a827b212c67e7cabaa1c06473cd26b40ed8cf10", [:mix], [], "hexpm", "b9f785108b81cd457b06e5f5dabe5f65453d86a99118b2c0a515e1e296dc2d2c"},
   "websock_adapter": {:hex, :websock_adapter, "0.5.1", "292e6c56724e3457e808e525af0e9bcfa088cc7b9c798218e78658c7f9b85066", [:mix], [{:bandit, ">= 0.6.0", [hex: :bandit, repo: "hexpm", optional: true]}, {:plug, "~> 1.14", [hex: :plug, repo: "hexpm", optional: false]}, {:plug_cowboy, "~> 2.6", [hex: :plug_cowboy, repo: "hexpm", optional: true]}, {:websock, "~> 0.5", [hex: :websock, repo: "hexpm", optional: false]}], "hexpm", "8e2e1544bfde5f9d0442f9cec2f5235398b224f75c9e06b60557debf64248ec1"},
   "witchcraft_goo": {:git, "https://github.com/doma-engineering/witchcraft-goo.git", "e86072d9d87e5f677239a1ef369b2c8c801ed2f5", [branch: "main"]},

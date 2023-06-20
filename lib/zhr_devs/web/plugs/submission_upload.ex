@@ -14,22 +14,29 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
 
   alias ZhrDevs.Submissions.Commands.SubmitSolution
 
+  alias ZhrDevs.Web.Decoder.FromUrlEncoded
+
+  alias ZhrDevs.Submissions
+
   import ZhrDevs.Web.Presentation.Helper, only: [json_error: 1]
+  import Uptight.Assertions
 
   def init([]), do: []
 
   def call(
-        %{body_params: %{"submission" => %Plug.Upload{path: submission_tmp_path} = upload}} =
-          conn,
+        %{params: %{"submission" => %Plug.Upload{path: submission_tmp_path} = upload}} = conn,
         _opts
       ) do
     uuid4 = Commanded.UUID.uuid4()
     hashed_identity = get_session(conn, :hashed_identity)
     upload_path = upload_path(uuid4)
 
+    assert %Submissions.Task{} = task_id = FromUrlEncoded.call(conn.params["task_id"], :task),
+           "Invalid task_id"
+
     with :ok <- check_mime_type(upload),
-         :ok <- File.cp!(submission_tmp_path, upload_path),
-         :ok <- submit_solution(uuid4, hashed_identity, conn.params) do
+         :ok <- File.cp!(submission_tmp_path, upload_path(uuid4)),
+         :ok <- submit_solution(uuid4, hashed_identity, task_id) do
       conn
       |> put_resp_content_type("application/json")
       |> send_resp(200, Jason.encode!(%{uuid4: uuid4}))
@@ -57,18 +64,19 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
     Path.join(@upload_dir, "#{uuid}.zip")
   end
 
-  defp submit_solution(uuid, hashed_identity, params) do
+  defp submit_solution(uuid, hashed_identity, %ZhrDevs.Submissions.Task{} = task_id) do
     opts = [
       uuid: uuid,
       hashed_identity: hashed_identity,
-      technology: Map.get(params, "technology"),
-      task_uuid: Map.get(params, "task_uuid"),
+      technology: task_id.programming_language.language.text,
+      task_id: task_id,
       solution_path: upload_path(uuid)
     ]
 
     SubmitSolution.dispatch(opts)
   end
 
+  @spec check_mime_type(Plug.Upload.t()) :: :ok | {:error, String.t()}
   defp check_mime_type(%Plug.Upload{content_type: content_type, path: _path}) do
     if do_check_mime_type(content_type) do
       :ok

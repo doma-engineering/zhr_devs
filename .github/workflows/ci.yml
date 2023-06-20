@@ -1,8 +1,8 @@
 name: CI
 env:
-  ELIXIR_VERSION: "1.14.2"
+  ELIXIR_VERSION: "1.14.5"
   MIX_ENV: test
-  OTP_VERSION: "25.0.3"
+  OTP_VERSION: "26.0"
 
 on:
   push:

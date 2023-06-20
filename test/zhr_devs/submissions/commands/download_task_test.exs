@@ -18,7 +18,10 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
 
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads
 
-  @task_uuid Commanded.UUID.uuid4() |> Uptight.Base.mk_url!()
+  alias Uptight.Text, as: T
+
+  @task_id "%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22elixir%22%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%2C%22integrations%22%3A%5B%5D%7D"
+  @task ZhrDevs.Web.Decoder.FromUrlEncoded.call(@task_id, :task)
 
   describe "DownloadTask command" do
     setup :verify_on_exit!
@@ -32,7 +35,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
     } do
       :ok =
         DownloadTask.dispatch(
-          task_uuid: @task_uuid.encoded,
+          task_id: @task,
           hashed_identity: hashed_identity.encoded,
           technology: "elixir"
         )
@@ -50,18 +53,18 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
       :ok =
         SubmitSolution.dispatch(
           hashed_identity: hashed_identity.encoded,
-          task_uuid: @task_uuid.encoded,
+          task_id: @task,
           technology: "elixir",
           solution_path: "test/support/testfile.txt"
         )
 
       wait_for_event(App, SolutionSubmitted, fn event ->
-        event.task_uuid.encoded === @task_uuid.encoded
+        event.task_id.text === @task_id
       end)
 
       :ok =
         DownloadTask.dispatch(
-          task_uuid: @task_uuid.encoded,
+          task_id: @task,
           hashed_identity: hashed_identity.encoded,
           technology: "elixir"
         )
@@ -75,11 +78,14 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
 
     @tag :skip
     test "download of task increments global tasks read model", %{hid: hashed_identity} do
-      independent_task_uuid = Commanded.UUID.uuid4()
+      independent_task_id =
+        "%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22haskell%22%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%2C%22integrations%22%3A%5B%5D%7D"
+
+      task = ZhrDevs.Web.Decoder.FromUrlEncoded.call(independent_task_id, :task)
 
       :ok =
         DownloadTask.dispatch(
-          task_uuid: independent_task_uuid,
+          task_id: task,
           hashed_identity: hashed_identity.encoded,
           technology: "elixir"
         )
@@ -90,11 +96,11 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
 
       # Testing of global shared resources aren't easy
 
-      :timer.sleep(50)
+      :timer.sleep(250)
 
       downloads = TaskDownloads.get_downloads()
 
-      assert %{task: 1, test_cases: 0} == Map.fetch!(downloads, independent_task_uuid)
+      assert %{task: 1, test_cases: 0} == Map.fetch!(downloads, T.new!(independent_task_id))
     end
   end
 end

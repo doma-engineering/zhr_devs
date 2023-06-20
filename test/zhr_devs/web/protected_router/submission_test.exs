@@ -4,6 +4,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionTest do
 
   alias ZhrDevs.Web.ProtectedRouter
 
+  @raw_task_id "%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22elixir%22%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%2C%22integrations%22%3A%5B%5D%7D"
   @routes ZhrDevs.Web.ProtectedRouter.init([])
 
   import ZhrDevs.Fixtures, only: [login: 1]
@@ -20,7 +21,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionTest do
       assert %{
                "counter" => 0,
                "task" => %{
-                 "id" => "elixir-0-dev"
+                 "id" => @raw_task_id
                },
                "technology" => "elixir",
                "invitations" => %{"invited" => [], "interested" => ["Company X"]}

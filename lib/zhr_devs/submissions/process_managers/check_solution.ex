@@ -42,7 +42,7 @@ defmodule ZhrDevs.Submissions.ProcessManagers.CheckSolution do
   def handle(%__MODULE__{status: :new}, %Events.SolutionSubmitted{} = event) do
     %Commands.StartCheckSolution{
       solution_uuid: event.uuid,
-      task_uuid: event.task_uuid,
+      task_id: event.task_id,
       solution_path: event.solution_path
     }
   end

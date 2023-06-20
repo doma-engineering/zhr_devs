@@ -17,6 +17,12 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
 
   alias ZhrDevs.Submissions.SubmissionIdentity
 
+  @raw_task_id "%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22elixir%22%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%2C%22integrations%22%3A%5B%5D%7D"
+  @task_id ZhrDevs.Web.Decoder.FromUrlEncoded.call(
+             @raw_task_id,
+             :task
+           )
+
   describe "SolutionSubmitted command" do
     setup :verify_on_exit!
 
@@ -24,7 +30,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
       valid_opts = fn identity ->
         [
           hashed_identity: DomaOAuth.hash(identity),
-          task_uuid: "Jaju6yAv1oZ23NcjJk-1JkOrxCemsH_K-9iRRw0sYRg=",
+          task_id: @task_id,
           technology: "elixir",
           solution_path: "test/support/testfile.txt"
         ]
@@ -95,7 +101,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
         fn event ->
           assert %{
                    solution_path: %Uptight.Text{text: "test/support/testfile.txt"},
-                   task_uuid: %Uptight.Base.Urlsafe{},
+                   task_id: %Uptight.Text{text: @raw_task_id},
                    uuid: %Uptight.Base.Urlsafe{},
                    technology: :elixir
                  } = event

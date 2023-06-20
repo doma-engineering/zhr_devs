@@ -19,7 +19,7 @@ defmodule ZhrDevs.Submissions.Commands.CompleteCheckSolutionTest do
 
       command = %CompleteCheckSolution{
         solution_uuid: solution_uuid,
-        task_uuid: "doesn't matter",
+        task_id: "onthemap-elixir-algae-witchcraft-uptight",
         points: 1
       }
 
@@ -35,7 +35,7 @@ defmodule ZhrDevs.Submissions.Commands.CompleteCheckSolutionTest do
 
       command = %CompleteCheckSolution{
         solution_uuid: solution_uuid,
-        task_uuid: "doesn't matter",
+        task_id: "onthemap-elixir-algae-witchcraft-uptight",
         points: 100
       }
 
@@ -50,7 +50,7 @@ defmodule ZhrDevs.Submissions.Commands.CompleteCheckSolutionTest do
     def simulate_check_started(solution_uuid) do
       command = %StartCheckSolution{
         solution_uuid: solution_uuid,
-        task_uuid: "doesn't matter",
+        task_id: "onthemap-elixir-algae-witchcraft-uptight",
         solution_path: "doesn't matter"
       }
 
