@@ -9,7 +9,7 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 # build_submission_opts = fn identity, task, solution_path ->
 #   [
 #     hashed_identity: DomaOAuth.hash(identity),
-#     task_uuid: DomaOAuth.hash(task),
+#     task_id: "onthemap-elixir-algae-witchcraft-uptight",
 #     technology: "elixir",
 #     solution_path: solution_path
 #   ]

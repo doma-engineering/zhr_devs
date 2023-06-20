@@ -64,11 +64,11 @@ defmodule ZhrDevs.Submissions.EventHandler do
     :ok
   end
 
-  def handle(%TaskDownloaded{task_uuid: task_uuid}, _meta) do
-    :ok = TaskDownloads.increment_downloads(task_uuid.encoded, :task)
+  def handle(%TaskDownloaded{task_id: task_id}, _meta) when is_binary(task_id) do
+    :ok = TaskDownloads.increment_downloads(task_id, :task)
   end
 
-  def handle(%TestCasesDownloaded{task_uuid: task_uuid}, _meta) do
-    :ok = TaskDownloads.increment_downloads(task_uuid.encoded, :test_cases)
+  def handle(%TestCasesDownloaded{task_id: task_id}, _meta) when is_binary(task_id) do
+    :ok = TaskDownloads.increment_downloads(task_id, :test_cases)
   end
 end

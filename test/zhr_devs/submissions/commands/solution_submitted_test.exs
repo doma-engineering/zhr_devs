@@ -24,7 +24,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
       valid_opts = fn identity ->
         [
           hashed_identity: DomaOAuth.hash(identity),
-          task_uuid: "Jaju6yAv1oZ23NcjJk-1JkOrxCemsH_K-9iRRw0sYRg=",
+          task_id: "onthemap-elixir-algae-witchcraft-uptight",
           technology: "elixir",
           solution_path: "test/support/testfile.txt"
         ]
@@ -95,7 +95,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
         fn event ->
           assert %{
                    solution_path: %Uptight.Text{text: "test/support/testfile.txt"},
-                   task_uuid: %Uptight.Base.Urlsafe{},
+                   task_id: %Uptight.Text{text: "onthemap-elixir-algae-witchcraft-uptight"},
                    uuid: %Uptight.Base.Urlsafe{},
                    technology: :elixir
                  } = event

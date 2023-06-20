@@ -18,7 +18,9 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
 
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads
 
-  @task_uuid Commanded.UUID.uuid4() |> Uptight.Base.mk_url!()
+  alias Uptight.Text, as: T
+
+  @task_id T.new!("onthemap-elixir-algae-witchcraft-uptight")
 
   describe "DownloadTask command" do
     setup :verify_on_exit!
@@ -32,7 +34,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
     } do
       :ok =
         DownloadTask.dispatch(
-          task_uuid: @task_uuid.encoded,
+          task_id: @task_id.text,
           hashed_identity: hashed_identity.encoded,
           technology: "elixir"
         )
@@ -50,18 +52,18 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
       :ok =
         SubmitSolution.dispatch(
           hashed_identity: hashed_identity.encoded,
-          task_uuid: @task_uuid.encoded,
+          task_id: @task_id.text,
           technology: "elixir",
           solution_path: "test/support/testfile.txt"
         )
 
       wait_for_event(App, SolutionSubmitted, fn event ->
-        event.task_uuid.encoded === @task_uuid.encoded
+        event.task_id.text === @task_id.text
       end)
 
       :ok =
         DownloadTask.dispatch(
-          task_uuid: @task_uuid.encoded,
+          task_id: @task_id.text,
           hashed_identity: hashed_identity.encoded,
           technology: "elixir"
         )
@@ -75,11 +77,11 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
 
     @tag :skip
     test "download of task increments global tasks read model", %{hid: hashed_identity} do
-      independent_task_uuid = Commanded.UUID.uuid4()
+      independent_task_id = Commanded.UUID.uuid4()
 
       :ok =
         DownloadTask.dispatch(
-          task_uuid: independent_task_uuid,
+          task_id: independent_task_id,
           hashed_identity: hashed_identity.encoded,
           technology: "elixir"
         )
@@ -94,7 +96,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
 
       downloads = TaskDownloads.get_downloads()
 
-      assert %{task: 1, test_cases: 0} == Map.fetch!(downloads, independent_task_uuid)
+      assert %{task: 1, test_cases: 0} == Map.fetch!(downloads, independent_task_id)
     end
   end
 end

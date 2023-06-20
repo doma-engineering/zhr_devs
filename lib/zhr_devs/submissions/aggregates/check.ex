@@ -38,7 +38,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Check do
       ) do
     %Events.SolutionCheckStarted{
       solution_uuid: command.solution_uuid,
-      task_uuid: command.task_uuid,
+      task_id: command.task_id,
       solution_path: command.solution_path
     }
   end
@@ -51,7 +51,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Check do
   def execute(%__MODULE__{status: :started}, %Commands.CompleteCheckSolution{} = cmd) do
     %Events.SolutionCheckCompleted{
       solution_uuid: cmd.solution_uuid,
-      task_uuid: cmd.task_uuid,
+      task_id: cmd.task_id,
       points: cmd.points
     }
   end

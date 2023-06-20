@@ -23,7 +23,7 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
           required(:technology) => atom(),
           required(:uuid) => Urlsafe.t(),
           required(:hashed_identity) => Urlsafe.t(),
-          required(:task_uuid) => Urlsafe.t(),
+          required(:task_id) => T.t(),
           required(:solution_path) => list(Urlsafe.t()),
           required(:submission_identity) => SubmissionIdentity.t()
         }
@@ -53,10 +53,10 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
 
       technology = unpack_technology(opts)
 
-      task_uuid =
+      task_id =
         opts
-        |> Keyword.fetch!(:task_uuid)
-        |> Uptight.Base.mk_url!()
+        |> Keyword.fetch!(:task_id)
+        |> T.new!()
 
       uuid =
         opts
@@ -69,7 +69,7 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
         uuid: uuid,
         hashed_identity: hashed_identity,
         technology: technology,
-        task_uuid: task_uuid,
+        task_id: task_id,
         solution_path: solution_path,
         submission_identity:
           SubmissionIdentity.new(hashed_identity: hashed_identity, technology: technology)

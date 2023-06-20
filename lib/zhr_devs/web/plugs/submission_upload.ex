@@ -59,7 +59,7 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
       uuid: uuid,
       hashed_identity: hashed_identity,
       technology: Map.get(params, "technology"),
-      task_uuid: Map.get(params, "task_uuid"),
+      task_id: Map.get(params, "task_id"),
       solution_path: upload_path(uuid)
     ]
 
