@@ -1,21 +1,16 @@
 # ZhrDevs
 
-**TODO: Add description**
+**Development env setup**
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `zhr_devs` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:zhr_devs, "~> 0.1.0"}
-  ]
-end
+- Initialize the event_store (the configuration for database is in config files) for development, run:
+```bash
+mix event_store.create
+mix event_store.init
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/zhr_devs>.
+- If you plan to work on the front-end part only, currently there is no solution to connect is with the running backend, so mock API calls in the templates.
 
+- To run application:
+```bash
+cd assets && yarn build && cd .. && iex -S mix
+```
