@@ -91,7 +91,9 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
     T.new!(solution_path)
   end
 
-  defp valid_zip_file?(solution_path) do
-    ZhrDevs.Docker.zip_test(solution_path)
+  defp valid_zip_file?(solution_absolute_path) do
+    solution_absolute_path
+    |> Path.relative_to_cwd()
+    |> ZhrDevs.Docker.zip_test()
   end
 end

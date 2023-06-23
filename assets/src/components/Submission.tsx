@@ -4,7 +4,7 @@ import { Link, useParams } from 'react-router-dom'
 
 import Task from '../components/tasks/Task'
 import Invites from '../components/submission/Invites'
-import DragAndDrop from "./submission/DragAndDrop";
+import UploadCompoment from "../components/submission/UploadComponent"
 
 import type { SubmissionInfo } from "./submission/request";
 
@@ -92,7 +92,7 @@ function Submission() {
               <p className="mt-4 text-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque at felis lobortis, pulvinar justo mattis, tincidunt erat. Sed odio enim, dictum id imperdiet eget</p>
 
               <div className="max-w-full mt-4">
-                <DragAndDrop />
+                {submissionInfo && tech ? <UploadCompoment tech={tech} taskId={'MjzJjpWMFMtmfA3FEfu3h0-l3MJvk_RiHabe6pku6Tg='} /> : <></> }
               </div>
 
               <button className="rounded bg-purple-400 text-white p-2 mt-4">Submit</button>
