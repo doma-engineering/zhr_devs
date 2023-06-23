@@ -24,7 +24,7 @@ defmodule ZhrDevs.Docker.ZipTest do
 
       {error, status_code} ->
         Logger.error(
-          "Error while trying to run docker zip -T container: #{inspect(error)}, status code: #{status_code}}}"
+          "Error while trying to run docker zip -T error: #{inspect(error)}, status code: #{status_code}}}"
         )
 
         false

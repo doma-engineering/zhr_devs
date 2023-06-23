@@ -4,8 +4,6 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
 
   As per Plug.Upload documentation we can't trust the content_type from the client
   so we check it, but it could be not enough: https://hexdocs.pm/plug/Plug.Upload.html#module-security
-
-
   """
 
   @behaviour Plug
@@ -27,9 +25,10 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
       ) do
     uuid4 = Commanded.UUID.uuid4()
     hashed_identity = get_session(conn, :hashed_identity)
+    upload_path = upload_path(uuid4)
 
     with :ok <- check_mime_type(upload),
-         :ok <- File.cp!(submission_tmp_path, upload_path(uuid4)),
+         :ok <- File.cp!(submission_tmp_path, upload_path),
          :ok <- submit_solution(uuid4, hashed_identity, conn.params) do
       conn
       |> put_resp_content_type("application/json")
@@ -37,15 +36,19 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
       |> halt()
     else
       {:error, error} when is_binary(error) ->
+        cleanup(upload_path)
+
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(422, json_error(error))
         |> halt()
 
-      {:error, error} ->
+      {:error, _error} ->
+        cleanup(upload_path)
+
         conn
         |> put_resp_content_type("application/json")
-        |> send_resp(500, json_error(error))
+        |> send_resp(500, json_error(%{error: "Unexpected error"}))
         |> halt()
     end
   end
@@ -78,5 +81,9 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
     content_type
     |> MIME.extensions()
     |> Enum.any?(fn ext -> ext in ["zip", "x-zip", "x-zip-compressed"] end)
+  end
+
+  defp cleanup(upload_path) do
+    if File.exists?(upload_path), do: File.rm!(upload_path)
   end
 end
