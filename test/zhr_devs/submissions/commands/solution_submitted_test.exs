@@ -95,7 +95,9 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
         fn event ->
           assert %{
                    solution_path: %Uptight.Text{text: "test/support/testfile.txt"},
-                   task_id: %Uptight.Text{text: "onthemap-elixir-algae-witchcraft-uptight"},
+                   task_id: %Uptight.Text.Urlencoded{
+                     encoded: %Uptight.Text{text: "onthemap-elixir-algae-witchcraft-uptight"}
+                   },
                    uuid: %Uptight.Base.Urlsafe{},
                    technology: :elixir
                  } = event

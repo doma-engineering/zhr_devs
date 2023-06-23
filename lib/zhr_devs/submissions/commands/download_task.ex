@@ -17,6 +17,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTask do
 
   alias Uptight.Base.Urlsafe
   alias Uptight.Result
+  alias Uptight.Text.Urlencoded
 
   @fields TaskDownloaded.fields() ++ [submission_identity: nil]
   @enforce_keys Keyword.keys(@fields)
@@ -26,7 +27,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTask do
           :__struct__ => __MODULE__,
           required(:technology) => atom(),
           required(:hashed_identity) => Urlsafe.t(),
-          required(:task_id) => Urlsafe.t(),
+          required(:task_id) => Urlencoded.t(),
           required(:submission_identity) => SubmissionIdentity.t()
         }
 
@@ -58,6 +59,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTask do
         opts
         |> Keyword.fetch!(:task_id)
         |> Uptight.Text.new!()
+        |> Urlencoded.new!()
 
       %__MODULE__{
         technology: technology,

@@ -4,12 +4,12 @@ defmodule ZhrDevs.Submissions.Events.SolutionSubmitted do
   """
 
   alias Uptight.Base.Urlsafe
-  alias Uptight.Text, as: T
+  alias Uptight.Text.Urlencoded
 
   @fields [
     solution_path: nil,
     technology: nil,
-    task_id: T.new(),
+    task_id: Urlencoded.new(),
     hashed_identity: Urlsafe.new()
   ]
   @derive Jason.Encoder
@@ -19,7 +19,7 @@ defmodule ZhrDevs.Submissions.Events.SolutionSubmitted do
           :__struct__ => __MODULE__,
           required(:uuid) => Urlsafe.t(),
           required(:hashed_identity) => Urlsafe.t(),
-          required(:task_id) => T.t(),
+          required(:task_id) => Urlencoded.t(),
           required(:technology) => atom(),
           required(:solution_path) => list(Urlsafe.t())
         }

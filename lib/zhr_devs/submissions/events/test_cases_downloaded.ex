@@ -5,7 +5,7 @@ defmodule ZhrDevs.Submissions.Events.TestCasesDownloaded do
   We will send an extended version of task adding the test cases to it.
   """
   alias Uptight.Base.Urlsafe
-  alias Uptight.Text, as: T
+  alias Uptight.Text.Urlencoded
 
   alias ZhrDevs.Submissions.Events.TaskDownloaded
 
@@ -15,7 +15,7 @@ defmodule ZhrDevs.Submissions.Events.TestCasesDownloaded do
   @type t() :: %{
           :__struct__ => __MODULE__,
           required(:hashed_identity) => Urlsafe.t(),
-          required(:task_id) => T.t(),
+          required(:task_id) => Urlencoded.t(),
           required(:technology) => atom()
         }
 end
