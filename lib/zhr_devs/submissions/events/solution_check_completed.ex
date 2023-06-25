@@ -3,11 +3,11 @@ defmodule ZhrDevs.Submissions.Events.SolutionCheckCompleted do
   Solution checked event is emmited once we successfully checked the solution.
   """
   alias Uptight.Base.Urlsafe
-  alias Uptight.Text.Urlencoded
+  alias Uptight.Text.Urlencoded, as: TU
 
   @fields [
     solution_uuid: Urlsafe.new(),
-    task_id: Urlencoded.new(),
+    task_id: TU.new(),
     points: 0
   ]
   @enforce_keys Keyword.keys(@fields)

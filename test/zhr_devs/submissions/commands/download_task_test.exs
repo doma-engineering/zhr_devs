@@ -19,9 +19,9 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads
 
   alias Uptight.Text, as: T
-  alias Uptight.Text.Urlencoded
+  alias Uptight.Text.Urlencoded, as: TU
 
-  @task_id T.new!("onthemap-elixir-algae-witchcraft-uptight") |> Urlencoded.new!()
+  @task_id T.new!("onthemap-elixir-algae-witchcraft-uptight") |> TU.new!()
 
   describe "DownloadTask command" do
     setup :verify_on_exit!

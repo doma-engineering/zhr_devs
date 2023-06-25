@@ -3,11 +3,11 @@ defmodule ZhrDevs.Submissions.Events.TaskDownloaded do
   Represents an event that is emitted when user is allowed to download a task before the first submission.
   """
   alias Uptight.Base.Urlsafe
-  alias Uptight.Text.Urlencoded
+  alias Uptight.Text.Urlencoded, as: TU
 
   @fields [
     technology: nil,
-    task_id: Urlencoded.new(),
+    task_id: TU.new(),
     hashed_identity: Urlsafe.new()
   ]
   @derive Jason.Encoder
@@ -16,7 +16,7 @@ defmodule ZhrDevs.Submissions.Events.TaskDownloaded do
   @type t() :: %{
           :__struct__ => __MODULE__,
           required(:hashed_identity) => Urlsafe.t(),
-          required(:task_id) => Urlencoded.t(),
+          required(:task_id) => TU.t(),
           required(:technology) => atom()
         }
 

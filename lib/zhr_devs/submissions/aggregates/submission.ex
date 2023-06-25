@@ -26,7 +26,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
   Read more: https://github.com/commanded/commanded/blob/master/guides/Aggregates.md
   """
   alias Uptight.Base.Urlsafe
-  alias Uptight.Text.Urlencoded
+  alias Uptight.Text.Urlencoded, as: TU
 
   alias ZhrDevs.Submissions.Commands.DownloadTask
   alias ZhrDevs.Submissions.Commands.SubmitSolution
@@ -42,7 +42,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
             required(:first_attempt_at) => UtcDateTime.t(),
             required(:hashed_identity) => Urlsafe.t(),
             required(:last_attempt_at) => UtcDateTime.t(),
-            required(:task_id) => Urlencoded.t(),
+            required(:task_id) => TU.t(),
             required(:technology) => atom(),
             required(:uuid) => Urlsafe.t()
           }
