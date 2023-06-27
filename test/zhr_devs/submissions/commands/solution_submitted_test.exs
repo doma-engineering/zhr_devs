@@ -17,6 +17,10 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
 
   alias ZhrDevs.Submissions.SubmissionIdentity
 
+  @task_id ZhrDevs.Submissions.Task.from_uri(
+             "%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22elixir%22%2C%22integrations%22%3A%5B%5D%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%7D"
+           )
+
   describe "SolutionSubmitted command" do
     setup :verify_on_exit!
 
@@ -24,7 +28,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
       valid_opts = fn identity ->
         [
           hashed_identity: DomaOAuth.hash(identity),
-          task_id: "onthemap-elixir-algae-witchcraft-uptight",
+          task_id: @task_id,
           technology: "elixir",
           solution_path: "test/support/testfile.txt"
         ]
@@ -96,7 +100,10 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
           assert %{
                    solution_path: %Uptight.Text{text: "test/support/testfile.txt"},
                    task_id: %Uptight.Text.Urlencoded{
-                     encoded: %Uptight.Text{text: "onthemap-elixir-algae-witchcraft-uptight"}
+                     encoded: %Uptight.Text{
+                       text:
+                         "%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22elixir%22%2C%22integrations%22%3A%5B%5D%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%7D"
+                     }
                    },
                    uuid: %Uptight.Base.Urlsafe{},
                    technology: :elixir

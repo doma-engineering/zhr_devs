@@ -18,10 +18,9 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
 
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads
 
-  alias Uptight.Text, as: T
-  alias Uptight.Text.Urlencoded, as: TU
-
-  @task_id T.new!("onthemap-elixir-algae-witchcraft-uptight") |> TU.new!()
+  @task_id ZhrDevs.Submissions.Task.from_uri(
+             "%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22elixir%22%2C%22integrations%22%3A%5B%5D%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%7D"
+           )
 
   describe "DownloadTask command" do
     setup :verify_on_exit!
@@ -35,7 +34,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
     } do
       :ok =
         DownloadTask.dispatch(
-          task_id: @task_id.encoded.text,
+          task_id: @task_id,
           hashed_identity: hashed_identity.encoded,
           technology: "elixir"
         )
@@ -53,18 +52,18 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
       :ok =
         SubmitSolution.dispatch(
           hashed_identity: hashed_identity.encoded,
-          task_id: @task_id.encoded.text,
+          task_id: @task_id,
           technology: "elixir",
           solution_path: "test/support/testfile.txt"
         )
 
       wait_for_event(App, SolutionSubmitted, fn event ->
-        event.task_id.encoded.text === @task_id.encoded.text
+        event.task_id === @task_id |> ZhrDevs.Submissions.Task.to_uri()
       end)
 
       :ok =
         DownloadTask.dispatch(
-          task_id: @task_id.encoded.text,
+          task_id: @task_id,
           hashed_identity: hashed_identity.encoded,
           technology: "elixir"
         )

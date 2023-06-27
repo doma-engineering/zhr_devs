@@ -57,8 +57,7 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
       task_id =
         opts
         |> Keyword.fetch!(:task_id)
-        |> T.new!()
-        |> TU.new!()
+        |> ZhrDevs.Submissions.Task.to_uri()
 
       uuid =
         opts

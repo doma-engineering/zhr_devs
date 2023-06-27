@@ -4,8 +4,6 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
 
   As per Plug.Upload documentation we can't trust the content_type from the client
   so we check it, but it could be not enough: https://hexdocs.pm/plug/Plug.Upload.html#module-security
-
-
   """
 
   @behaviour Plug
@@ -14,6 +12,7 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
 
   @upload_dir Application.compile_env!(:zhr_devs, :uploads_path)
 
+  alias Uptight.Text, as: T
   alias ZhrDevs.Submissions.Commands.SubmitSolution
 
   import ZhrDevs.Web.Presentation.Helper, only: [json_error: 1]
@@ -21,16 +20,17 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
   def init([]), do: []
 
   def call(
-        %{body_params: %{"submission" => %Plug.Upload{path: submission_tmp_path} = upload}} =
-          conn,
+        %{params: %{"submission" => %Plug.Upload{path: submission_tmp_path} = upload}} = conn,
         _opts
       ) do
     uuid4 = Commanded.UUID.uuid4()
     hashed_identity = get_session(conn, :hashed_identity)
 
-    with :ok <- check_mime_type(upload),
+    with %ZhrDevs.Submissions.Task{} = task_id <-
+           ZhrDevs.Submissions.Task.from_uri(conn.params["task_id"]),
+         :ok <- check_mime_type(upload),
          :ok <- File.cp!(submission_tmp_path, upload_path(uuid4)),
-         :ok <- submit_solution(uuid4, hashed_identity, conn.params) do
+         :ok <- submit_solution(uuid4, hashed_identity, task_id) do
       conn
       |> put_resp_content_type("application/json")
       |> send_resp(200, Jason.encode!(%{uuid4: uuid4}))
@@ -54,12 +54,14 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
     Path.join(@upload_dir, "#{uuid}.zip")
   end
 
-  defp submit_solution(uuid, hashed_identity, params) do
+  defp submit_solution(uuid, hashed_identity, %ZhrDevs.Submissions.Task{} = task_id) do
+    technology = T.un(task_id.programming_language)
+
     opts = [
       uuid: uuid,
       hashed_identity: hashed_identity,
-      technology: Map.get(params, "technology"),
-      task_id: Map.get(params, "task_id"),
+      technology: technology,
+      task_id: task_id,
       solution_path: upload_path(uuid)
     ]
 

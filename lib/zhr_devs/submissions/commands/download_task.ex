@@ -58,8 +58,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTask do
       task_id =
         opts
         |> Keyword.fetch!(:task_id)
-        |> Uptight.Text.new!()
-        |> TU.new!()
+        |> ZhrDevs.Submissions.Task.to_uri()
 
       %__MODULE__{
         technology: technology,
