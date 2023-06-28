@@ -53,7 +53,7 @@ defmodule ZhrDevs.Submissions do
 
     %Uptight.Text.Urlencoded{
       encoded: %{text: task_id}
-    } = ZhrDevs.Submissions.Task.to_uri(example_task)
+    } = ZhrDevs.Submissions.Task.from_raw!(example_task)
 
     %{
       technology: technology,
