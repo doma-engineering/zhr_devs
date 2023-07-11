@@ -1,5 +1,9 @@
 import Config
 
+config :zhr_devs, :server,
+  port: 4002,
+  host: "localhost"
+
 config :zhr_devs, :event_store,
   adapter: Commanded.EventStore.Adapters.InMemory,
   event_store: ZhrDevs.EventStore

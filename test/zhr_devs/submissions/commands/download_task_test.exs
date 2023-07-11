@@ -18,8 +18,9 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
 
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads
 
-  @task_id ZhrDevs.Submissions.Task.from_uri(
-             "%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22elixir%22%2C%22integrations%22%3A%5B%5D%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%7D"
+  @task_id ZhrDevs.Web.Decoder.FromUrlEncoded.call(
+             "%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22elixir%22%2C%22integrations%22%3A%5B%5D%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%7D",
+             :task
            )
 
   describe "DownloadTask command" do
@@ -58,7 +59,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
         )
 
       wait_for_event(App, SolutionSubmitted, fn event ->
-        event.task_id === @task_id |> ZhrDevs.Submissions.Task.to_uri()
+        event.task_id === ZhrDevs.Web.Encoder.ToUrlEncoded.call(@task_id)
       end)
 
       :ok =

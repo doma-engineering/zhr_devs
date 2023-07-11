@@ -17,6 +17,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTask do
 
   alias Uptight.Base.Urlsafe
   alias Uptight.Result
+  alias Uptight.Text, as: T
   alias Uptight.Text.Urlencoded, as: TU
 
   @fields TaskDownloaded.fields() ++ [submission_identity: nil]
@@ -58,7 +59,9 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTask do
       task_id =
         opts
         |> Keyword.fetch!(:task_id)
-        |> ZhrDevs.Submissions.Task.to_uri()
+        |> Jason.encode!()
+        |> T.new!()
+        |> TU.new!()
 
       %__MODULE__{
         technology: technology,

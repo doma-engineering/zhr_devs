@@ -17,8 +17,9 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
 
   alias ZhrDevs.Submissions.SubmissionIdentity
 
-  @task_id ZhrDevs.Submissions.Task.from_uri(
-             "%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22elixir%22%2C%22integrations%22%3A%5B%5D%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%7D"
+  @task_id ZhrDevs.Web.Decoder.FromUrlEncoded.call(
+             "%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22elixir%22%2C%22integrations%22%3A%5B%5D%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%7D",
+             :task
            )
 
   describe "SolutionSubmitted command" do
@@ -102,7 +103,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
                    task_id: %Uptight.Text.Urlencoded{
                      encoded: %Uptight.Text{
                        text:
-                         "%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22elixir%22%2C%22integrations%22%3A%5B%5D%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%7D"
+                         "%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22elixir%22%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%2C%22integrations%22%3A%5B%5D%7D"
                      }
                    },
                    uuid: %Uptight.Base.Urlsafe{},

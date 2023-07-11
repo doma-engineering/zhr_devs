@@ -12,8 +12,9 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
 
   @upload_dir Application.compile_env!(:zhr_devs, :uploads_path)
 
-  alias Uptight.Text, as: T
   alias ZhrDevs.Submissions.Commands.SubmitSolution
+
+  alias ZhrDevs.Web.Decoder.FromUrlEncoded
 
   import ZhrDevs.Web.Presentation.Helper, only: [json_error: 1]
 
@@ -27,7 +28,7 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
     hashed_identity = get_session(conn, :hashed_identity)
 
     with %ZhrDevs.Submissions.Task{} = task_id <-
-           ZhrDevs.Submissions.Task.from_uri(conn.params["task_id"]),
+           FromUrlEncoded.call(conn.params["task_id"], :task),
          :ok <- check_mime_type(upload),
          :ok <- File.cp!(submission_tmp_path, upload_path(uuid4)),
          :ok <- submit_solution(uuid4, hashed_identity, task_id) do
@@ -55,12 +56,10 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
   end
 
   defp submit_solution(uuid, hashed_identity, %ZhrDevs.Submissions.Task{} = task_id) do
-    technology = T.un(task_id.programming_language)
-
     opts = [
       uuid: uuid,
       hashed_identity: hashed_identity,
-      technology: technology,
+      technology: task_id.programming_language.language.text,
       task_id: task_id,
       solution_path: upload_path(uuid)
     ]

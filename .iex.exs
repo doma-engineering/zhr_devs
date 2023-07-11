@@ -5,6 +5,11 @@ alias ZhrDevs.IdentityManagement
 
 alias ZhrDevs.Submissions.Commands.SubmitSolution
 
+alias Uptight.Text, as: T
+alias Uptight.Text.Urlencoded, as: TU
+
+alias ZhrDevs.Submissions
+
 # Following functions provided to make it easier to test events in the dev environment
 # build_submission_opts = fn identity, task, solution_path ->
 #   [

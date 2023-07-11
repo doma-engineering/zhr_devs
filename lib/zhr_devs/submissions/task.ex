@@ -4,13 +4,6 @@ defmodule ZhrDevs.Submissions.Task do
   """
 
   alias Uptight.Text, as: T
-  alias Uptight.Text.Urlencoded, as: TU
-
-  @dialyzer {:nowarn_function, [new: 0, new: 1, new: 2, new: 3]}
-
-  @supported_technologies :zhr_devs
-                          |> Application.compile_env(:supported_technologies)
-                          |> Enum.map(&Atom.to_string/1)
 
   import Algae
 
@@ -19,28 +12,44 @@ defmodule ZhrDevs.Submissions.Task do
   defmodule Language do
     @moduledoc "The supported language in which task is written"
     @derive Jason.Encoder
-    defdata(Uptight.Text.t())
+    defprod(Uptight.Text.t() \\ nil)
 
     alias Uptight.Text, as: T
 
-    def new!(binary), do: %Language{language: T.new!(binary)}
+    def new!(%T{} = language), do: %Language{language: language}
 
-    def from_raw!(%Language{language: language}) do
-      T.un(language)
+    def from_raw!(binary) do
+      binary |> T.new!() |> new!()
+    end
+
+    defimpl Jason.Encoder, for: Language do
+      def encode(value, opts) do
+        value.language
+        |> T.un()
+        |> Jason.Encode.string(opts)
+      end
     end
   end
 
   defmodule Library do
     @moduledoc "The libraries used in task"
     @derive Jason.Encoder
-    defdata(Uptight.Text.t())
+    defprod(Uptight.Text.t() \\ nil)
 
     alias Uptight.Text, as: T
 
-    def new!(binary), do: %Library{library: T.new!(binary)}
+    def new!(%T{} = library), do: %Library{library: library}
 
-    def from_raw!(%Library{library: library}) do
-      T.un(library)
+    def from_raw!(binary) do
+      binary |> T.new!() |> new!()
+    end
+
+    defimpl Jason.Encoder, for: Library do
+      def encode(value, opts) do
+        value.library
+        |> T.un()
+        |> Jason.Encode.string(opts)
+      end
     end
   end
 
@@ -50,61 +59,36 @@ defmodule ZhrDevs.Submissions.Task do
     alias Uptight.Text, as: T
 
     @derive Jason.Encoder
-    defdata(Uptight.Text.t())
+    defprod(Uptight.Text.t() \\ nil)
 
-    def new!(binary), do: %Integration{integration: T.new!(binary)}
+    def new!(%T{} = integration), do: %Integration{integration: integration}
 
-    def from_raw!(%Integration{integration: integration}) do
-      T.un(integration)
+    def from_raw!(binary) do
+      binary |> T.new!() |> new!()
+    end
+
+    defimpl Jason.Encoder, for: Integration do
+      def encode(value, opts) do
+        value.integration
+        |> T.un()
+        |> Jason.Encode.string(opts)
+      end
     end
   end
 
-  defimpl Jason.Encoder, for: [Language, Library, Integration] do
-    def encode(%struct{} = value, opts) do
-      value |> struct.from_raw!() |> Jason.Encode.string(opts)
-    end
-  end
-
-  defdata do
-    task_name :: Uptight.Text.t()
-    programming_language :: Language.t()
+  defprod do
+    task_name :: Uptight.Text.t() \\ nil
+    programming_language :: Language.t() \\ nil
     integrations :: list(Integration.t()) \\ []
     library_stack :: list(Library.t()) \\ []
   end
 
-  @list_keys [:integrations, :library_stack]
-
-  @spec new!(binary()) :: __MODULE__.t()
-  def new!(task_from_uri) do
-    task_from_uri
-    |> URI.decode()
-    |> Jason.decode!(keys: :atoms!)
-    |> Enum.map(fn
-      {key, nil} when key in @list_keys ->
-        {key, []}
-
-      {:task_name, value} when is_binary(value) and value != "" ->
-        {:task_name, T.new!(value)}
-
-      {:programming_language, value} when value in @supported_technologies ->
-        {:programming_language, Language.new!(value)}
-
-      {:integrations, values} when is_list(values) ->
-        {:integrations, Enum.map(values, &Integration.new!/1)}
-
-      {:library_stack, values} when is_list(values) ->
-        {:library_stack, Enum.map(values, &Library.new!/1)}
-
-      _ ->
-        raise "Invalid structure"
-    end)
-    |> then(fn fields -> struct!(__MODULE__, fields) end)
-  end
-
-  def from_raw!(%__MODULE__{} = task) do
-    task
-    |> Jason.encode!()
-    |> T.new!()
-    |> TU.new!()
+  def new!(%T{} = name, language, library_stack \\ [], integrations \\ []) do
+    %__MODULE__{
+      task_name: name,
+      programming_language: language,
+      library_stack: library_stack,
+      integrations: integrations
+    }
   end
 end
