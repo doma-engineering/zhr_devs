@@ -10,16 +10,18 @@ defmodule ZhrDevs.Submissions.Commands.StartCheckSolutionTest do
   alias ZhrDevs.Submissions.Commands.StartCheckSolution
   alias ZhrDevs.Submissions.Events.SolutionCheckStarted
 
+  alias Uptight.Text, as: T
+
   describe "StartCheckSolution command" do
     test "command generates a valid event" do
       solution_uuid = Commanded.UUID.uuid4() |> Uptight.Base.mk_url!()
-      task_uuid = Commanded.UUID.uuid4() |> Uptight.Base.mk_url!()
+      task_id = T.new!("onthemap-elixir-algae-witchcraft-uptight")
       solution_path = "doesn't matter"
 
       assert :ok =
                App.dispatch(%StartCheckSolution{
                  solution_uuid: solution_uuid,
-                 task_uuid: task_uuid,
+                 task_id: task_id,
                  solution_path: solution_path
                })
 
@@ -35,7 +37,7 @@ defmodule ZhrDevs.Submissions.Commands.StartCheckSolutionTest do
 
       command = %StartCheckSolution{
         solution_uuid: solution_uuid,
-        task_uuid: "doesn't matter",
+        task_id: "onthemap-elixir-algae-witchcraft-uptight",
         solution_path: "doesn't matter"
       }
 
@@ -49,7 +51,7 @@ defmodule ZhrDevs.Submissions.Commands.StartCheckSolutionTest do
 
       command = %StartCheckSolution{
         solution_uuid: solution_uuid,
-        task_uuid: "doesn't matter",
+        task_id: "onthemap-elixir-algae-witchcraft-uptight",
         solution_path: "doesn't matter"
       }
 

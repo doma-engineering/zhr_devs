@@ -8,7 +8,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionUploadTest do
 
   @routes ZhrDevs.Web.ProtectedRouter.init([])
   @test_uploads_dir Application.compile_env!(:zhr_devs, :uploads_path)
-  @dummy_request_path "/task/haskell/izQrIwr9JWbcTanC01viB-bv5FqbP89R-s9PRDf__z8=/submission"
+  @dummy_request_path "/task/%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22elixir%22%2C%22integrations%22%3A%5B%5D%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%7D/submission"
 
   import ZhrDevs.Fixtures
 

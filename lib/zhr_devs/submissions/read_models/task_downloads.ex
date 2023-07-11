@@ -3,14 +3,14 @@ defmodule ZhrDevs.Submissions.ReadModels.TaskDownloads do
   This read-model is for global view on how many task and test cases downloads happens over time
   """
 
-  @typep task_uuid :: String.t()
+  @typep task_id :: String.t()
   @typep downloads :: %{
            task: non_neg_integer(),
            test_cases: non_neg_integer()
          }
   @typep download_kind :: :task | :test_cases
 
-  @typep tasks :: %{task_uuid() => downloads()}
+  @typep tasks :: %{task_id() => downloads()}
 
   @type t :: %{
           __struct__: __MODULE__,
@@ -29,9 +29,9 @@ defmodule ZhrDevs.Submissions.ReadModels.TaskDownloads do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
-  @spec increment_downloads(task_uuid(), download_kind()) :: :ok
-  def increment_downloads(task_uuid, download_kind) when download_kind in @supported_kinds do
-    GenServer.call(__MODULE__, {:increment, task_uuid, download_kind})
+  @spec increment_downloads(task_id(), download_kind()) :: :ok
+  def increment_downloads(task_id, download_kind) when download_kind in @supported_kinds do
+    GenServer.call(__MODULE__, {:increment, task_id, download_kind})
   end
 
   @spec get_downloads() :: tasks()
@@ -47,21 +47,21 @@ defmodule ZhrDevs.Submissions.ReadModels.TaskDownloads do
   end
 
   @impl GenServer
-  def handle_call({:increment, task_uuid, download_kind}, _from, state) do
-    {:reply, :ok, do_increment(state, task_uuid, download_kind)}
+  def handle_call({:increment, task_id, download_kind}, _from, state) do
+    {:reply, :ok, do_increment(state, task_id, download_kind)}
   end
 
   def handle_call(:get_downloads, _from, state) do
     {:reply, state.tasks, state}
   end
 
-  defp do_increment(state, task_uuid, download_kind) do
+  defp do_increment(state, task_id, download_kind) do
     updated_downloads =
       state.tasks
-      |> Map.get(task_uuid)
+      |> Map.get(task_id)
       |> do_update_downloads(download_kind)
 
-    tasks = Map.put(state.tasks, task_uuid, updated_downloads)
+    tasks = Map.put(state.tasks, task_id, updated_downloads)
 
     %__MODULE__{tasks: tasks}
   end

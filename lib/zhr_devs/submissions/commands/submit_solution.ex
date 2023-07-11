@@ -12,6 +12,7 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
   alias Uptight.Base.Urlsafe
   alias Uptight.Result
   alias Uptight.Text, as: T
+  alias Uptight.Text.Urlencoded, as: TU
 
   import ZhrDevs.Submissions.Commands.Parsing.Shared
 
@@ -23,7 +24,7 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
           required(:technology) => atom(),
           required(:uuid) => Urlsafe.t(),
           required(:hashed_identity) => Urlsafe.t(),
-          required(:task_uuid) => Urlsafe.t(),
+          required(:task_id) => TU.t(),
           required(:solution_path) => list(Urlsafe.t()),
           required(:submission_identity) => SubmissionIdentity.t()
         }
@@ -53,10 +54,12 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
 
       technology = unpack_technology(opts)
 
-      task_uuid =
+      task_id =
         opts
-        |> Keyword.fetch!(:task_uuid)
-        |> Uptight.Base.mk_url!()
+        |> Keyword.fetch!(:task_id)
+        |> Jason.encode!()
+        |> T.new!()
+        |> TU.new!()
 
       uuid =
         opts
@@ -69,7 +72,7 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
         uuid: uuid,
         hashed_identity: hashed_identity,
         technology: technology,
-        task_uuid: task_uuid,
+        task_id: task_id,
         solution_path: solution_path,
         submission_identity:
           SubmissionIdentity.new(hashed_identity: hashed_identity, technology: technology)

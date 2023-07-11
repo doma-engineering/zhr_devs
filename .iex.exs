@@ -5,11 +5,16 @@ alias ZhrDevs.IdentityManagement
 
 alias ZhrDevs.Submissions.Commands.SubmitSolution
 
+alias Uptight.Text, as: T
+alias Uptight.Text.Urlencoded, as: TU
+
+alias ZhrDevs.Submissions
+
 # Following functions provided to make it easier to test events in the dev environment
 # build_submission_opts = fn identity, task, solution_path ->
 #   [
 #     hashed_identity: DomaOAuth.hash(identity),
-#     task_uuid: DomaOAuth.hash(task),
+#     task_id: "onthemap-elixir-algae-witchcraft-uptight",
 #     technology: "elixir",
 #     solution_path: solution_path
 #   ]

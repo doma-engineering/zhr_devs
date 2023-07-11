@@ -33,7 +33,7 @@ defmodule ZhrDevs.Web.ProtectedRouter do
 
   get("/submission/:technology", to: ZhrDevs.Web.Plugs.Submission)
 
-  post("/task/:technology/:task_uuid/submission", to: ZhrDevs.Web.Plugs.SubmissionUpload)
+  post("/task/:task_id/submission", to: ZhrDevs.Web.Plugs.SubmissionUpload)
 
   defp check_auth(conn, _opts) do
     conn

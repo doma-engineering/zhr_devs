@@ -18,7 +18,10 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
 
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads
 
-  @task_uuid Commanded.UUID.uuid4() |> Uptight.Base.mk_url!()
+  @task_id ZhrDevs.Web.Decoder.FromUrlEncoded.call(
+             "%7B%22task_name%22%3A%22onTheMap%22%2C%22programming_language%22%3A%22elixir%22%2C%22integrations%22%3A%5B%5D%2C%22library_stack%22%3A%5B%22ecto%22%2C%22postgresql%22%5D%7D",
+             :task
+           )
 
   describe "DownloadTask command" do
     setup :verify_on_exit!
@@ -32,7 +35,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
     } do
       :ok =
         DownloadTask.dispatch(
-          task_uuid: @task_uuid.encoded,
+          task_id: @task_id,
           hashed_identity: hashed_identity.encoded,
           technology: "elixir"
         )
@@ -50,18 +53,18 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
       :ok =
         SubmitSolution.dispatch(
           hashed_identity: hashed_identity.encoded,
-          task_uuid: @task_uuid.encoded,
+          task_id: @task_id,
           technology: "elixir",
           solution_path: "test/support/testfile.txt"
         )
 
       wait_for_event(App, SolutionSubmitted, fn event ->
-        event.task_uuid.encoded === @task_uuid.encoded
+        event.task_id === ZhrDevs.Web.Encoder.ToUrlEncoded.call(@task_id)
       end)
 
       :ok =
         DownloadTask.dispatch(
-          task_uuid: @task_uuid.encoded,
+          task_id: @task_id,
           hashed_identity: hashed_identity.encoded,
           technology: "elixir"
         )
@@ -75,11 +78,11 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
 
     @tag :skip
     test "download of task increments global tasks read model", %{hid: hashed_identity} do
-      independent_task_uuid = Commanded.UUID.uuid4()
+      independent_task_id = Commanded.UUID.uuid4()
 
       :ok =
         DownloadTask.dispatch(
-          task_uuid: independent_task_uuid,
+          task_id: independent_task_id,
           hashed_identity: hashed_identity.encoded,
           technology: "elixir"
         )
@@ -94,7 +97,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
 
       downloads = TaskDownloads.get_downloads()
 
-      assert %{task: 1, test_cases: 0} == Map.fetch!(downloads, independent_task_uuid)
+      assert %{task: 1, test_cases: 0} == Map.fetch!(downloads, independent_task_id)
     end
   end
 end

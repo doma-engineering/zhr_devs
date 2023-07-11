@@ -44,11 +44,22 @@ defmodule ZhrDevs.Submissions do
   end
 
   def details(hashed_identity, technology) do
+    example_task = %ZhrDevs.Submissions.Task{
+      task_name: Uptight.Text.new!("onTheMap"),
+      programming_language: Uptight.Text.new!(technology),
+      library_stack: [Uptight.Text.new!("ecto"), Uptight.Text.new!("postgresql")],
+      integrations: []
+    }
+
+    %Uptight.Text.Urlencoded{
+      encoded: %{text: task_id}
+    } = ZhrDevs.Web.Encoder.ToUrlEncoded.call(example_task)
+
     %{
       technology: technology,
       counter: attempts(hashed_identity, technology),
       task: %{
-        id: "#{technology}-0-dev",
+        id: task_id,
         description: "This task is not exists currently"
       },
       invitations: %{
