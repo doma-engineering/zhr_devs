@@ -10,6 +10,9 @@ defmodule ZhrDevs.Web.PublicRouter do
 
   alias ZhrDevs.Web.AuthCallback
 
+  # We're not exposing headers here lol
+  plug(Corsica, origins: "*", allow_headers: ["authorization", "content-type"])
+
   plug(Plug.Logger)
 
   plug(Plug.Static,

@@ -28,6 +28,7 @@ defmodule ZhrDevs.MixProject do
   defp deps do
     [
       {:plug_cowboy, "~> 2.6"},
+      {:corsica, "~> 1.3"},
       {:doma_oauth, github: "doma-engineering/doma_oauth", tag: "0.1.1"},
       {:algae_goo, github: "doma-engineering/algae-goo", branch: "main"},
       {:uptight, github: "doma-engineering/uptight", branch: "main"},

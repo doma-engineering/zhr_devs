@@ -5,19 +5,24 @@ import Submission from './components/Submission'
 
 import Root from './components/Root'
 
-const Router = createBrowserRouter([
-  {
-    path: "/my",
-    element: <Root />,
-    children: [
-      {
-        path: '', element: <Tasks />
-      },
-      {
-        path: 'submissions/:tech', element: <Submission />
-      }
-    ]
-  }
-])
+// Interface that accepts host and port of the backend
+export interface Routed {
+    host: string,
+    port: string
+}
 
-export default Router
+// A react component that takes Routed props and returns a react Router with createBrowserRouter.
+export const Router = ({ host, port }: Routed) => createBrowserRouter([
+    {
+        path: "/my",
+        element: <Root host={host} port={port} />,
+        children: [
+            {
+                path: '', element: <Tasks host={host} port={port} />
+            },
+            {
+                path: 'submissions/:tech', element: <Submission host={host} port={port} />
+            }
+        ]
+    }
+])

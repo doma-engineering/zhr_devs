@@ -1,10 +1,11 @@
 import { RouterProvider } from 'react-router-dom';
 import './App.css';
 
-import router from './router'
+import { Router } from './router'
 
 function App() {
-  return <RouterProvider router={router} />
+    const router_concrete = Router({ host: 'localhost', port: '4001' });
+    return <RouterProvider router={router_concrete} />
 }
 
 export default App;

@@ -28,7 +28,7 @@ _pw_root=$(./priv/dev/gensecret.exs)
 _sk_seed=$(./priv/dev/gensecret.exs)
 _user=$(whoami)
 
-echo "Checking existing ~/.pgpass for existing passwords for user phoenix and ${_user}..."
+echo "Checking existing ~/.pgpass for existing passwords for user phoenix and ${_user} for port #${_pgsql_dev_port}..."
 # To find it we grep for 127.0.0.1:${_pgsql_dev_port}:*:phoenix:.* and 127.0.0.1:${_pgsql_dev_port}:*:${_user}:.*
 # Then we store those in corresponding variables if we find them.
 if grep -q "127.0.0.1:${_pgsql_dev_port}:\*:phoenix:" "${HOME}/.pgpass"; then
@@ -36,6 +36,7 @@ if grep -q "127.0.0.1:${_pgsql_dev_port}:\*:phoenix:" "${HOME}/.pgpass"; then
   _pw_phoenix=$(grep "127.0.0.1:${_pgsql_dev_port}:\*:phoenix:" "${HOME}/.pgpass" | cut -d ':' -f 5)
 else
     echo "Writing password for user phoenix to ~/.pgpass..."
+    echo "" >> "${HOME}/.pgpass"
     echo "127.0.0.1:${_pgsql_dev_port}:*:phoenix:${_pw_phoenix}" >> "${HOME}/.pgpass"
     chmod 0600 "${HOME}/.pgpass"
 fi
@@ -44,6 +45,7 @@ if grep -q "127.0.0.1:${_pgsql_dev_port}:\*:${_user}:" "${HOME}/.pgpass"; then
     _pw_root=$(grep "127.0.0.1:${_pgsql_dev_port}:\*:${_user}:" "${HOME}/.pgpass" | cut -d ':' -f 5)
 else
     echo "Writing password for user ${_user} to ~/.pgpass..."
+    echo "" >> "${HOME}/.pgpass"
     echo "127.0.0.1:${_pgsql_dev_port}:*:${_user}:${_pw_root}" >> "${HOME}/.pgpass"
     chmod 0600 "${HOME}/.pgpass"
 fi

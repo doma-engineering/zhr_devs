@@ -1,14 +1,15 @@
 import Navbar from './Navbar'
 import { Outlet } from 'react-router-dom'
+import { Routed } from '../router'
 
-function Root() {
-  return (
-    <div>
-      <Navbar />
+function Root(_props: Routed) {
+    return (
+        <div>
+            <Navbar />
 
-      <Outlet />
-    </div>
-  );
+            <Outlet />
+        </div>
+    );
 }
 
 export default Root;
