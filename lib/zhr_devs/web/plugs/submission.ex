@@ -1,6 +1,6 @@
 defmodule ZhrDevs.Web.Plugs.Submission do
   @moduledoc """
-  Returns an information that user would need to individual submission page
+  Information regarding an individual submission page.
   """
 
   @behaviour Plug
