@@ -1,20 +1,22 @@
 import ApiError from "../../api_error"
 
 type Task = {
-  technology: string,
-  counter: number
+    technology: string,
+    counter: number
 }
 
 type Tasks = {
-  tasks: [Task]
+    tasks: [Task]
 }
 
-export default async function fetchTasks(): Promise<Tasks | ApiError> {
-  const opts = {
-    headers: {
-      "Content-Type": "application/json",
+export default async function fetchTasks(host: string, port: string): Promise<Tasks | ApiError> {
+    const opts = {
+        headers: {
+            "Content-Type": "application/json",
+        }
     }
-  }
 
-  return fetch('/my/tasks/', opts).then(response => response.json())
+    const url = `${window.location.protocol}//${host}:${port}/my/tasks`
+
+    return fetch(url, opts).then(response => response.json())
 }

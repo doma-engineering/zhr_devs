@@ -10,19 +10,19 @@ defmodule ZhrDevs.Web.ProtectedRouter do
   @session_secrets Application.compile_env!(:zhr_devs, :server)[:session]
   @session_options Keyword.merge(@session_secrets, store: :cookie)
 
-  plug(Plug.Session, @session_options)
-  plug(:fetch_session)
-  plug(:check_auth)
-  plug(:match)
-  plug(:dispatch)
-
   plug(Plug.Parsers,
-    pass: ["application/json", "application/zip", "multipart/form-data"],
+    pass: ["application/json", "multipart/form-data"],
     parsers: [
       {:json, json_decoder: Jason},
       {:multipart, length: Application.compile_env!(:zhr_devs, :max_upload_size)}
     ]
   )
+
+  plug(Plug.Session, @session_options)
+  plug(:fetch_session)
+  plug(:check_auth)
+  plug(:match)
+  plug(:dispatch)
 
   get "/" do
     conn = put_resp_content_type(conn, "text/html")
