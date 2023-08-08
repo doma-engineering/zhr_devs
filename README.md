@@ -30,8 +30,6 @@ mix event_store.create
 mix event_store.init
 ```
 
-- If you plan to work on the front-end part only, currently there is no solution to connect it with the running backend, so mock API calls in the templates.
-
 - To run application:
 
 ```bash
