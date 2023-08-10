@@ -14,7 +14,7 @@ config :ueberauth, Ueberauth.Strategy.Google.OAuth,
   client_secret: "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
 ```
 
-- If you don't run a global postgresql on default port, but would rather have it local, run:
+# If you don't run a global postgresql on default port, but would rather have it local, run:
 
 ```bash
 make dev
