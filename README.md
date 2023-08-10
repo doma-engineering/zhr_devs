@@ -23,15 +23,37 @@ mix test && echo ok || echo ko
 
 - If you want to drop the database: `make danger_zone_i_am_sure_i_want_to_clean_dev_state`
 
-- Initialize the event_store (the configuration for database is in config files) for development, run:
+- To run application:
+
+```bash
+make iex
+```
+
+- To run just the PGSQL server after a reboot (when the PGSQL server isn't running):
+
+```bsah
+make start
+```
+
+# If you run a global PGSQL on a default port
+
+## You shouldn't
+
+### But still
+
+Everything will work out of the box, just don't forget to initialize the event_store (the configuration for database is in config files) for development, run:
 
 ```bash
 mix event_store.create
 mix event_store.init
 ```
 
-- To run application:
+And also you won't get to use `make` commands, you'll have to compile yarn stuff yourself:
 
 ```bash
-cd assets && yarn build && cd .. && iex -S mix
+cd assets && yarn install && yarn build && cd ..
 ```
+
+Afterwards, you'll be able to just `iex -S mix` to get the freshest build.
+
+In principle, just running this chain of yarn commands in a separate terminal or running `make priv/static` should hot-load new compiled JS files but I normally recompile everything.

@@ -21,6 +21,16 @@ pg_ctl:
 
 start: pg_ctl
 
+stop:
+	pg_ctl -D ./pgdata -l logfile stop || true
+
+priv/static: assets/src/**/* assets/src/*
+	cd assets && yarn install && yarn build
+
+iex: priv/static start
+	iex -S mix
+
+
 # Create database and run migrations.
 # To run the recipe for `pgdata/pg_hba.conf`, we use $(MAKE) command followed by the name of the target.
 # It is necessary, because we need to create roles in an insecure trust setting, before applying more secure settings.
