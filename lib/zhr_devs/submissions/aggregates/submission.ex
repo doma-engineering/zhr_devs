@@ -42,7 +42,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
             required(:first_attempt_at) => UtcDateTime.t(),
             required(:hashed_identity) => Urlsafe.t(),
             required(:last_attempt_at) => UtcDateTime.t(),
-            # TODO: Would be cute to refactor all the Text.t() to Uptight.UUID.t().
+            # Would be cute to refactor all the Text.t() to Uptight.UUID.t().
             # However, we'll need to implement it first in Uptight.
             required(:task_uuid) => Text.t(),
             required(:technology) => atom(),
@@ -54,7 +54,8 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
   @enforce_keys Keyword.keys(SolutionSubmitted.aggregate_fields()) ++ [:attempts, :uuid]
   defstruct @fields
 
-  # TODO: Not a huge fan of this hack, if something can be empty, it should be `Option.st(t())`, where `st` stands for `specific type`.
+  # Not a huge fan of this hack, if something can be empty, it should be `Option.st(t())`.
+  # # (`st` stands for `specific type`).
   #
   # Speaking of which, we should have a Maybe / Option implemented in Uptight.
   # Better yet, it can be improved in Algae (or wherever it is defined).
