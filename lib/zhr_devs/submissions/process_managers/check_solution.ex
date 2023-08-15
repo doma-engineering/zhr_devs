@@ -45,7 +45,6 @@ defmodule ZhrDevs.Submissions.ProcessManagers.CheckSolution do
       task_uuid: event.task_uuid,
       solution_path: event.solution_path
     }
-    |> IO.inspect(label: "Starting check solution command from process manager")
   end
 
   ### State mutators ###

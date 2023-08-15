@@ -17,7 +17,6 @@ defmodule ZhrDevs.Submissions.Aggregates.Check do
   defstruct [:solution_uuid, status: :new]
 
   alias Uptight.Text
-  alias Uptight.Base.Urlsafe
 
   @type t() ::
           %{

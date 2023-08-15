@@ -45,12 +45,6 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
   #### Private functions ####
 
   defp parse(opts) do
-    # if length(opts) == 0 do
-    #   throw("No options provided")
-    # end
-
-    opts
-
     Result.new(fn ->
       hashed_identity =
         opts
