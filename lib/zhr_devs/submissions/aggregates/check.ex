@@ -16,12 +16,12 @@ defmodule ZhrDevs.Submissions.Aggregates.Check do
   """
   defstruct [:solution_uuid, status: :new]
 
-  alias Uptight.Base.Urlsafe
+  alias Uptight.Text
 
   @type t() ::
           %{
             :__struct__ => __MODULE__,
-            required(:solution_uuid) => Urlsafe.t(),
+            required(:solution_uuid) => Text.t(),
             required(:status) => :new | :started | :completed,
             required(:execution_errors) => [String.t()] | []
           }

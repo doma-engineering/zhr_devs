@@ -31,6 +31,7 @@ defmodule ZhrDevs.MixProject do
       {:corsica, "~> 1.3"},
       {:doma_oauth, github: "doma-engineering/doma_oauth", tag: "0.1.1"},
       {:algae_goo, github: "doma-engineering/algae-goo", branch: "main"},
+      {:witchcraft_goo, github: "doma-engineering/witchcraft-goo", branch: "main"},
       {:uptight, github: "doma-engineering/uptight", branch: "main"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.2", only: [:dev], runtime: false},

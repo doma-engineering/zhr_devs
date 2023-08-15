@@ -41,7 +41,10 @@ defmodule ZhrDevs.IdentityManagement.Commands.Login do
       identity = opts |> Keyword.fetch!(:identity) |> T.new() |> Result.from_ok()
 
       hashed_identity =
-        opts |> Keyword.fetch!(:hashed_identity) |> Uptight.Base.mk_url() |> Result.from_ok()
+        opts
+        |> Keyword.fetch!(:hashed_identity)
+        |> Uptight.Base.mk_url()
+        |> Result.from_ok()
 
       %__MODULE__{
         identity: identity,
