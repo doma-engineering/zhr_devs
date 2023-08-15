@@ -21,10 +21,10 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
   @type t :: %{
           :__struct__ => __MODULE__,
           required(:technology) => atom(),
-          required(:uuid) => Urlsafe.t(),
+          required(:uuid) => T.t(),
           required(:hashed_identity) => Urlsafe.t(),
-          required(:task_uuid) => Urlsafe.t(),
-          required(:solution_path) => list(Urlsafe.t()),
+          required(:task_uuid) => T.t(),
+          required(:solution_path) => list(T.t()),
           required(:submission_identity) => SubmissionIdentity.t()
         }
   @typep error() :: String.t() | struct()
@@ -45,6 +45,12 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
   #### Private functions ####
 
   defp parse(opts) do
+    # if length(opts) == 0 do
+    #   throw("No options provided")
+    # end
+
+    opts
+
     Result.new(fn ->
       hashed_identity =
         opts
@@ -56,12 +62,12 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
       task_uuid =
         opts
         |> Keyword.fetch!(:task_uuid)
-        |> Uptight.Base.mk_url!()
+        |> T.new!()
 
       uuid =
         opts
         |> Keyword.get(:uuid, Commanded.UUID.uuid4())
-        |> Uptight.Base.mk_url!()
+        |> T.new!()
 
       solution_path = check_solution_path(opts)
 

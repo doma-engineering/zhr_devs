@@ -19,6 +19,6 @@ defmodule ZhrDevs.Submissions.Commands.Parsing.Shared do
     assert passed_technology_downcase in @supported_technologies,
            "Technology #{passed_technology_downcase} is not supported"
 
-    String.to_existing_atom(passed_technology_downcase)
+    String.to_existing_atom(passed_technology_downcase) |> IO.inspect(label: "LMAO")
   end
 end

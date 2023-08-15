@@ -10,7 +10,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
 
   Command functions (execute/2):
     A command function receives the aggregate's state and the command to execute. It must return the resultant domain events, which may be one event or multiple events.
-    
+
     You can return a single event or a list of events: %Event{}, [%Event{}], {:ok, %Event{}}, or {:ok, [%Event{}]}.
     To respond without returning an event you can return :ok, nil or an empty list as either [] or {:ok, []}.
     For business rule violations and errors you may return an {:error, error} tagged tuple or raise an exception.
@@ -25,6 +25,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
 
   Read more: https://github.com/commanded/commanded/blob/master/guides/Aggregates.md
   """
+  alias Uptight.Text
   alias Uptight.Base.Urlsafe
 
   alias ZhrDevs.Submissions.Commands.DownloadTask
@@ -41,9 +42,10 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
             required(:first_attempt_at) => UtcDateTime.t(),
             required(:hashed_identity) => Urlsafe.t(),
             required(:last_attempt_at) => UtcDateTime.t(),
-            required(:task_uuid) => Urlsafe.t(),
+            # TODO: Would be cute to refactor all the Text.t() to Uptight.UUID.t(), but we'll need to implement it first in Uptight.
+            required(:task_uuid) => Text.t(),
             required(:technology) => atom(),
-            required(:uuid) => Urlsafe.t()
+            required(:uuid) => Text.t()
           }
 
   @fields SolutionSubmitted.aggregate_fields() ++
@@ -51,6 +53,14 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
   @enforce_keys Keyword.keys(SolutionSubmitted.aggregate_fields()) ++ [:attempts, :uuid]
   defstruct @fields
 
+  # TODO: Not a huge fan of this hack, if something can be empty, it should be `Option.st(t())`, where `st` stands for `specific type`.
+  #
+  # Speaking of which, we should have a Maybe / Option implemented in Uptight or, better yet, improved in Algae (or wherever it is defined).
+  # The idea is that we should be able to use a type similar to `Uptight.Result.sum(e_t, a_t)` and `Uptight.Result.possibly(a_t)`.
+  # This way we will preserve a lot more information about the type than just `Maybe.t()`.
+  #
+  # P.S.
+  # But without these facilities, this hack is pretty neat, good job on coming up with it!
   @new Urlsafe.new()
 
   def execute(%__MODULE__{attempts: 2}, _command) do

@@ -18,7 +18,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
 
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads
 
-  @task_uuid Commanded.UUID.uuid4() |> Uptight.Base.mk_url!()
+  @task_uuid Commanded.UUID.uuid4() |> Uptight.Text.new!()
 
   describe "DownloadTask command" do
     setup :verify_on_exit!
@@ -32,7 +32,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
     } do
       :ok =
         DownloadTask.dispatch(
-          task_uuid: @task_uuid.encoded,
+          task_uuid: @task_uuid.text,
           hashed_identity: hashed_identity.encoded,
           technology: "elixir"
         )
@@ -50,18 +50,18 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
       :ok =
         SubmitSolution.dispatch(
           hashed_identity: hashed_identity.encoded,
-          task_uuid: @task_uuid.encoded,
+          task_uuid: @task_uuid.text,
           technology: "elixir",
           solution_path: "test/support/testfile.txt"
         )
 
       wait_for_event(App, SolutionSubmitted, fn event ->
-        event.task_uuid.encoded === @task_uuid.encoded
+        event.task_uuid.text === @task_uuid.text
       end)
 
       :ok =
         DownloadTask.dispatch(
-          task_uuid: @task_uuid.encoded,
+          task_uuid: @task_uuid.text,
           hashed_identity: hashed_identity.encoded,
           technology: "elixir"
         )

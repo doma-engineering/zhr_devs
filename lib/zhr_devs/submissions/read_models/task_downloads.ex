@@ -3,7 +3,9 @@ defmodule ZhrDevs.Submissions.ReadModels.TaskDownloads do
   This read-model is for global view on how many task and test cases downloads happens over time
   """
 
-  @typep task_uuid :: String.t()
+  alias Uptight.Text
+
+  @typep task_uuid :: Text.t()
   @typep downloads :: %{
            task: non_neg_integer(),
            test_cases: non_neg_integer()
@@ -14,7 +16,7 @@ defmodule ZhrDevs.Submissions.ReadModels.TaskDownloads do
 
   @type t :: %{
           __struct__: __MODULE__,
-          tasks: tasks
+          tasks: tasks()
         }
 
   @default_counters %{task: 0, test_cases: 0}

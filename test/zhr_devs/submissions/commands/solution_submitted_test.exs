@@ -1,4 +1,7 @@
 defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
+  @moduledoc """
+  Tests for the `SolutionSubmitted` command.
+  """
   use ExUnit.Case, async: true
 
   import Commanded.Assertions.EventAssertions
@@ -8,6 +11,8 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
   import Hammox
 
   import ZhrDevs.Web.Presentation.Helper, only: [extract_error: 1]
+
+  import Quark.SKI
 
   alias Commanded.Aggregates.Aggregate
 
@@ -24,8 +29,8 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
       valid_opts = fn identity ->
         [
           hashed_identity: DomaOAuth.hash(identity),
-          task_uuid: "Jaju6yAv1oZ23NcjJk-1JkOrxCemsH_K-9iRRw0sYRg=",
-          technology: "elixir",
+          task_uuid: "b96a7c71-1fd5-4336-a48d-3e55a6f4fce5",
+          technology: "Elixir",
           solution_path: "test/support/testfile.txt"
         ]
       end
@@ -95,8 +100,8 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
         fn event ->
           assert %{
                    solution_path: %Uptight.Text{text: "test/support/testfile.txt"},
-                   task_uuid: %Uptight.Base.Urlsafe{},
-                   uuid: %Uptight.Base.Urlsafe{},
+                   task_uuid: %Uptight.Text{},
+                   uuid: %Uptight.Text{},
                    technology: :elixir
                  } = event
         end
@@ -159,19 +164,23 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
 
       assert :ok = Commands.SubmitSolution.dispatch(opts)
 
-      encoded_uuid = Uptight.Base.mk_url!(uuid)
+      uuid = uuid |> Uptight.Text.new!()
 
       assert_correlated(
         App,
         Events.SolutionSubmitted,
-        fn solution_submitted -> solution_submitted.uuid == encoded_uuid end,
+        fn solution_submitted -> solution_submitted.uuid == uuid end,
         Events.SolutionCheckStarted,
-        fn check_started -> check_started.solution_uuid == encoded_uuid end
+        fn check_started -> check_started.solution_uuid == uuid end
       )
     end
 
     defp submission_identity(opts) do
       opts
+      |> Keyword.update!(
+        :technology,
+        k(ZhrDevs.Submissions.Commands.Parsing.Shared.unpack_technology(opts))
+      )
       |> Keyword.take([:hashed_identity, :technology])
       |> SubmissionIdentity.new()
       |> to_string()
