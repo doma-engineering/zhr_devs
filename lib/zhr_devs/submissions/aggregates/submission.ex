@@ -25,8 +25,8 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
 
   Read more: https://github.com/commanded/commanded/blob/master/guides/Aggregates.md
   """
-  alias Uptight.Text
   alias Uptight.Base.Urlsafe
+  alias Uptight.Text
 
   alias ZhrDevs.Submissions.Commands.DownloadTask
   alias ZhrDevs.Submissions.Commands.SubmitSolution
@@ -42,7 +42,8 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
             required(:first_attempt_at) => UtcDateTime.t(),
             required(:hashed_identity) => Urlsafe.t(),
             required(:last_attempt_at) => UtcDateTime.t(),
-            # TODO: Would be cute to refactor all the Text.t() to Uptight.UUID.t(), but we'll need to implement it first in Uptight.
+            # TODO: Would be cute to refactor all the Text.t() to Uptight.UUID.t().
+            # However, we'll need to implement it first in Uptight.
             required(:task_uuid) => Text.t(),
             required(:technology) => atom(),
             required(:uuid) => Text.t()
@@ -55,7 +56,8 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
 
   # TODO: Not a huge fan of this hack, if something can be empty, it should be `Option.st(t())`, where `st` stands for `specific type`.
   #
-  # Speaking of which, we should have a Maybe / Option implemented in Uptight or, better yet, improved in Algae (or wherever it is defined).
+  # Speaking of which, we should have a Maybe / Option implemented in Uptight.
+  # Better yet, it can be improved in Algae (or wherever it is defined).
   # The idea is that we should be able to use a type similar to `Uptight.Result.sum(e_t, a_t)` and `Uptight.Result.possibly(a_t)`.
   # This way we will preserve a lot more information about the type than just `Maybe.t()`.
   #

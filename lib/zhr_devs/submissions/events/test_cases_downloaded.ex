@@ -4,8 +4,8 @@ defmodule ZhrDevs.Submissions.Events.TestCasesDownloaded do
 
   We will send an extended version of task adding the test cases to it.
   """
-  alias Uptight.Text
   alias Uptight.Base.Urlsafe
+  alias Uptight.Text
 
   alias ZhrDevs.Submissions.Events.TaskDownloaded
 
