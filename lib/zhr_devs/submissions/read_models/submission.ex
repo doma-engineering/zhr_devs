@@ -8,9 +8,20 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
 
   defstruct attempts: %{}
 
-  @technologies Application.compile_env(:zhr_devs, :supported_technologies)
+  @technologies Application.compile_env(:zhr_devs, :task_support)
   @type technology() ::
-          :elixir | :haskell | :lean | :typescript | :python | :rust | :kotlin | :java
+          :elixir
+          | :goo
+          | :haskell
+          | :lean
+          | :typescript
+          | :python
+          | :rust
+          | :kotlin
+          | :java
+          | :unity
+  @type task_names() ::
+          :on_the_map | :hanooy_maps | :cuake
   @type attempts_for_technology() :: %{technology() => UpToCounter.t()}
   @type t :: %{
           :__struct__ => __MODULE__,

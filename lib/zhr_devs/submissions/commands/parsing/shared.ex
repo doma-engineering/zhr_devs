@@ -6,8 +6,8 @@ defmodule ZhrDevs.Submissions.Commands.Parsing.Shared do
   import Uptight.Assertions
 
   @supported_technologies Enum.map(
-                            Application.compile_env(:zhr_devs, :supported_technologies),
-                            &Atom.to_string/1
+                            Application.compile_env(:zhr_devs, :task_support),
+                            fn {technology, _} -> technology |> Atom.to_string() end
                           )
 
   def unpack_technology(opts) do

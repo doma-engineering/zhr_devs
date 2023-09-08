@@ -6,8 +6,8 @@ defmodule ZhrDevs.Web.Plugs.Submission do
   @behaviour Plug
 
   @supported_technologies :zhr_devs
-                          |> Application.compile_env(:supported_technologies)
-                          |> Enum.map(&Atom.to_string/1)
+                          |> Application.compile_env(:task_support)
+                          |> Enum.map(fn {technology, _} -> technology |> Atom.to_string() end)
 
   import Plug.Conn
 

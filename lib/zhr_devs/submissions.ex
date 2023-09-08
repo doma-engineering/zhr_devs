@@ -33,23 +33,23 @@ defmodule ZhrDevs.Submissions do
     end
   end
 
-  def attempts(hashed_identity, tech) do
+  def attempts(hashed_identity, name, technology) do
     case lookup_submissions_registry(hashed_identity) do
       [{pid, _}] when is_pid(pid) ->
-        Submission.attempts(hashed_identity, tech)
+        Submission.attempts(hashed_identity, name, technology)
 
       _ ->
         0
     end
   end
 
-  def details(hashed_identity, technology) do
+  def details(hashed_identity, name, technology) do
     %{
       technology: technology,
-      counter: attempts(hashed_identity, technology),
+      counter: attempts(hashed_identity, name, technology),
       task: %{
         id: "#{technology}-0-dev",
-        description: "This task is not exists currently"
+        description: "This task does not currently exist."
       },
       invitations: %{
         invited: [],
@@ -58,7 +58,7 @@ defmodule ZhrDevs.Submissions do
     }
   end
 
-  defdelegate increment_attempts(hashed_identity, technology), to: Submission
+  defdelegate increment_attempts(hashed_identity, name, technology), to: Submission
 
   defp lookup_submissions_registry(hashed_identity) do
     Registry.lookup(ZhrDevs.Registry, {:submissions, hashed_identity})
