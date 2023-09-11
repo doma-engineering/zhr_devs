@@ -14,7 +14,7 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
 
       trigger_event = %SolutionSubmitted{
         hashed_identity: successful_auth.hashed_identity,
-        technology: "elixir",
+        technology: "goo",
         uuid: Commanded.UUID.uuid4(),
         task_uuid: Commanded.UUID.uuid4(),
         solution_path: "test/support/testfile.txt"
@@ -26,15 +26,15 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
     test "with spawned identity - allows to increment without constraints", %{event: event} do
       start_supervised!({Submission, event})
 
-      assert Submissions.increment_attempts(event.hashed_identity, "elixir") == :ok
+      assert Submissions.increment_attempts(event.hashed_identity, "goo") == :ok
 
-      assert Submissions.increment_attempts(event.hashed_identity, "elixir") ==
+      assert Submissions.increment_attempts(event.hashed_identity, "goo") ==
                {:error, :max_attempts_reached}
 
-      assert %{technology: :elixir, counter: 2} =
+      assert %{technology: :goo, counter: 2} =
                event.hashed_identity
                |> Submissions.attempts()
-               |> Enum.find(&(&1.technology == :elixir))
+               |> Enum.find(&(&1.technology == :goo))
     end
 
     test "with spawned identity without any submissions yet - returns default", %{event: event} do
@@ -46,7 +46,7 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
     setup do
       trigger_event = %SolutionSubmitted{
         hashed_identity: generate_hashed_identity(),
-        technology: "elixir",
+        technology: "goo",
         uuid: Commanded.UUID.uuid4(),
         task_uuid: Commanded.UUID.uuid4(),
         solution_path: "test/support/testfile.txt"
@@ -68,7 +68,7 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
 
       trigger_event = %SolutionSubmitted{
         hashed_identity: successful_auth.hashed_identity,
-        technology: "elixir",
+        technology: "goo",
         uuid: Commanded.UUID.uuid4(),
         task_uuid: Commanded.UUID.uuid4(),
         solution_path: "test/support/testfile.txt"
@@ -80,10 +80,10 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
     test "return counters for all supported technologies", %{event: trigger_event} do
       start_supervised!({Submission, trigger_event})
 
-      for tech <- Application.get_env(:zhr_devs, :supported_technologies) do
+      for {tech, _} <- Application.get_env(:zhr_devs, :task_support) do
         tech_string = Atom.to_string(tech)
 
-        counter = if tech == :elixir, do: 1, else: 0
+        counter = if tech == :goo, do: 1, else: 0
 
         assert Submissions.attempts(trigger_event.hashed_identity, tech_string) == counter
       end

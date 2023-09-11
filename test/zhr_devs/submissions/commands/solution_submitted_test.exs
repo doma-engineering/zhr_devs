@@ -30,7 +30,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
         [
           hashed_identity: DomaOAuth.hash(identity),
           task_uuid: "b96a7c71-1fd5-4336-a48d-3e55a6f4fce5",
-          technology: "Elixir",
+          technology: "Goo",
           solution_path: "test/support/testfile.txt"
         ]
       end
@@ -102,7 +102,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
                    solution_path: %Uptight.Text{text: "test/support/testfile.txt"},
                    task_uuid: %Uptight.Text{},
                    uuid: %Uptight.Text{},
-                   technology: :elixir
+                   technology: :goo
                  } = event
         end
       )
@@ -123,7 +123,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
 
       assert %Aggregates.Submission{
                attempts: 1,
-               technology: :elixir,
+               technology: :goo,
                hashed_identity: %Uptight.Base.Urlsafe{encoded: ^hashed_identity}
              } = Aggregate.aggregate_state(App, Aggregates.Submission, submission_identity(opts))
     end
@@ -148,7 +148,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
 
       assert %Aggregates.Submission{
                attempts: 2,
-               technology: :elixir,
+               technology: :goo,
                hashed_identity: %Uptight.Base.Urlsafe{encoded: ^hashed_identity}
              } = Aggregate.aggregate_state(App, Aggregates.Submission, submission_identity(opts))
     end
@@ -177,11 +177,11 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
 
     defp submission_identity(opts) do
       opts
-      |> Keyword.update!(
-        :technology,
-        k(ZhrDevs.Submissions.Commands.Parsing.Shared.unpack_technology(opts))
-      )
-      |> Keyword.take([:hashed_identity, :technology])
+      # |> Keyword.update!(
+      # :task_uuid,
+      # k(ZhrDevs.Submissions.Commands.Parsing.Shared.unpack_technology(opts))
+      # )
+      |> Keyword.take([:hashed_identity, :task_uuid])
       |> SubmissionIdentity.new()
       |> to_string()
     end

@@ -46,7 +46,7 @@ defmodule ZhrDevs.Submissions.EventHandler do
       {:error, {:already_started, _}} ->
         ZhrDevs.Submissions.increment_attempts(
           solution_submitted.hashed_identity,
-          solution_submitted.technology
+          solution_submitted.task_uuid
         )
 
       other_error ->

@@ -20,6 +20,7 @@ defmodule ZhrDevs.Submissions.SubmissionIdentity do
           required(:task_uuid) => Text.t()
         }
 
+  @spec new(keyword()) :: t()
   def new(opts) do
     opts
     |> Enum.into(%{})
@@ -27,6 +28,7 @@ defmodule ZhrDevs.Submissions.SubmissionIdentity do
   end
 
   defimpl String.Chars do
+    @spec to_string(ZhrDevs.Submissions.SubmissionIdentity.t()) :: nonempty_binary
     def to_string(%SubmissionIdentity{hashed_identity: hashed_identity, task_uuid: task_uuid}) do
       "#{hashed_identity}:#{task_uuid}"
     end

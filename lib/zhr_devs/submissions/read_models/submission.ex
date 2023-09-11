@@ -6,9 +6,11 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
 
   alias ZhrDevs.Submissions.ReadModels.Submission
 
+  alias Uptight.Text
+
   defstruct attempts: %{}
 
-  @technologies Application.compile_env(:zhr_devs, :task_support)
+  # @technologies Application.compile_env(:zhr_devs, :task_support)
   @type technology() ::
           :elixir
           | :goo
@@ -27,19 +29,21 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
           :__struct__ => __MODULE__,
           required(:attempts) => attempts_for_technology()
         }
+  @default_counter UpToCounter.new(2, 0, true)
 
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
 
-  def start_link(%SolutionSubmitted{hashed_identity: hashed_identity} = event) do
-    GenServer.start_link(__MODULE__, event, name: via_tuple(hashed_identity))
+  def start_link(%SolutionSubmitted{task_uuid: task_uuid} = event) do
+    GenServer.start_link(__MODULE__, event, name: via_tuple(task_uuid))
   end
 
-  @spec increment_attempts(hashed_identity :: Uptight.Base.Urlsafe.t(), String.t()) ::
+  @spec increment_attempts(hashed_identity :: Uptight.Base.Urlsafe.t(), Text.t()) ::
           :ok | {:error, :max_attempts_reached}
-  def increment_attempts(hashed_identity, technology) do
-    technology_atom = safe_string_to_existing_atom(technology)
-
-    GenServer.call(via_tuple(hashed_identity), {:increment_attempts, technology_atom})
+  def increment_attempts(hashed_identity, task_uuid) do
+    GenServer.call(
+      via_tuple(hashed_identity),
+      {:increment_attempts, task_uuid}
+    )
   end
 
   def attempts(hashed_identity) do
@@ -50,20 +54,21 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
     GenServer.call(via_tuple(hashed_identity), {:attempts, technology})
   end
 
+  # TODO: having a function and a static value with the same name is a bad idea
   def default_counter, do: do_extract_attempts(new_attempts())
 
   ### GenServer callbacks ###
   @impl GenServer
-  def init(%SolutionSubmitted{technology: technology}) do
-    technology_atom = safe_string_to_existing_atom(technology)
-    {:ok, attempts} = do_increment_attempts(new().attempts, technology_atom)
+  def init(%SolutionSubmitted{task_uuid: task_uuid}) do
+    # technology_atom = safe_string_to_existing_atom(technology)
+    {:ok, attempts} = do_increment_attempts(new().attempts, task_uuid)
 
     {:ok, %__MODULE__{attempts: attempts}}
   end
 
   @impl GenServer
-  def handle_call({:increment_attempts, technology}, _from, state) do
-    case do_increment_attempts(state.attempts, technology) do
+  def handle_call({:increment_attempts, task_uuid}, _from, state) do
+    case do_increment_attempts(state.attempts, task_uuid) do
       {:ok, new_attempts} ->
         {:reply, :ok, %__MODULE__{state | attempts: new_attempts}}
 
@@ -90,25 +95,29 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
     {:via, Registry, {ZhrDevs.Registry, {:submissions, to_string(hashed_identity)}}}
   end
 
-  defp do_increment_attempts(attempts, technology_atom) do
-    tech_counter = Map.fetch!(attempts, technology_atom)
+  defp do_increment_attempts(attempts, task_uuid) do
+    task_uuid_counter =
+      Map.fetch(attempts, task_uuid)
+      |> case do
+        {:ok, y} -> y
+        :error -> @default_counter
+      end
 
-    case UpToCounter.increment(tech_counter) do
-      ^tech_counter ->
+    case UpToCounter.increment(task_uuid) do
+      ^task_uuid_counter ->
         {:error, :max_attempts_reached}
 
       new_counter ->
-        {:ok, Map.put(attempts, technology_atom, new_counter)}
+        # If only we had a thing that returns Result<E, A>...
+        {:ok, Map.put(attempts, task_uuid, new_counter)}
     end
   end
 
   defp do_extract_attempts(state_attempts) do
-    Enum.reduce(state_attempts, [], fn {technology, %UpToCounter{i: i}}, acc ->
-      [%{technology: technology, counter: i} | acc]
+    Enum.reduce(state_attempts, [], fn {task_uuid, %UpToCounter{i: i}}, acc ->
+      [%{task_uuid: task_uuid, counter: i} | acc]
     end)
   end
-
-  @default_counter UpToCounter.new(2, 0, true)
 
   defp new do
     %Submission{
@@ -117,7 +126,8 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
   end
 
   defp new_attempts do
-    Enum.map(@technologies, fn technology -> {technology, @default_counter} end) |> Map.new()
+    # Enum.map(@technologies, fn technology -> {technology, @default_counter} end) |> Map.new()
+    %{}
   end
 
   defp safe_string_to_existing_atom(term) when is_binary(term) do

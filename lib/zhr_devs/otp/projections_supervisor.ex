@@ -2,6 +2,8 @@ defmodule ZhrDevs.Otp.ProjectionsSupervisor do
   @moduledoc """
   This is a high-level supervisor that will supervise all the projections,
   since we want them to be in-memory.
+
+  TODO: In-memory for what? Just for testing? We sometimes write them to JSONB in database, don't we?
   """
 
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads

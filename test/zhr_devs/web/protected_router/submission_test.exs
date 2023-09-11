@@ -11,7 +11,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionTest do
   describe "call/2" do
     test "displays information if technology is supported" do
       conn =
-        conn(:get, "/submission/elixir")
+        conn(:get, "/submission/goo")
         |> login()
         |> ProtectedRouter.call(@routes)
 

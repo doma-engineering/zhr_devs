@@ -8,6 +8,7 @@ defmodule ZhrDevs.Web.Plugs.Submission do
   @supported_technologies :zhr_devs
                           |> Application.compile_env(:task_support)
                           |> Enum.map(fn {technology, _} -> technology |> Atom.to_string() end)
+  # |> IO.inspect(label: "Supported technologies:")
 
   import Plug.Conn
 
@@ -15,18 +16,18 @@ defmodule ZhrDevs.Web.Plugs.Submission do
 
   def init([]), do: []
 
-  def call(%{params: %{"technology" => technology}} = conn, _)
+  def call(%{params: %{"technology" => technology, "name" => name}} = conn, _)
       when technology in @supported_technologies do
-    send_json(conn, 200, get_details(conn, technology))
+    send_json(conn, 200, get_details(conn, name, technology))
   end
 
   def call(conn, _opts) do
     send_json(conn, 422, %{error: "Invalid parameters", status: 422})
   end
 
-  defp get_details(conn, technology) do
+  defp get_details(conn, name, technology) do
     conn
     |> get_session(:hashed_identity)
-    |> ZhrDevs.Submissions.details(technology)
+    |> ZhrDevs.Submissions.details(name, technology)
   end
 end

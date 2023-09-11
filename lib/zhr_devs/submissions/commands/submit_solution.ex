@@ -72,7 +72,7 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
         task_uuid: task_uuid,
         solution_path: solution_path,
         submission_identity:
-          SubmissionIdentity.new(hashed_identity: hashed_identity, technology: technology)
+          SubmissionIdentity.new(hashed_identity: hashed_identity, task_uuid: task_uuid)
       }
     end)
   end

@@ -34,7 +34,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
         DownloadTask.dispatch(
           task_uuid: @task_uuid.text,
           hashed_identity: hashed_identity.encoded,
-          technology: "elixir"
+          technology: "goo"
         )
 
       assert_receive_event(
@@ -51,7 +51,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
         SubmitSolution.dispatch(
           hashed_identity: hashed_identity.encoded,
           task_uuid: @task_uuid.text,
-          technology: "elixir",
+          technology: "goo",
           solution_path: "test/support/testfile.txt"
         )
 
@@ -63,7 +63,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
         DownloadTask.dispatch(
           task_uuid: @task_uuid.text,
           hashed_identity: hashed_identity.encoded,
-          technology: "elixir"
+          technology: "goo"
         )
 
       assert_receive_event(
@@ -81,7 +81,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
         DownloadTask.dispatch(
           task_uuid: independent_task_uuid,
           hashed_identity: hashed_identity.encoded,
-          technology: "elixir"
+          technology: "goo"
         )
 
       wait_for_event(App, TaskDownloaded, fn event ->
