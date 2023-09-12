@@ -1,6 +1,8 @@
 defmodule ZhrDevs.IdentityManagement.CommandsTest do
   use ExUnit.Case, async: true
 
+  @moduletag :capture_log
+
   import Commanded.Assertions.EventAssertions
 
   import ZhrDevs.Web.Presentation.Helper, only: [extract_error: 1]

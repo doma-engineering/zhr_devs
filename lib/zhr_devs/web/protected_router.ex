@@ -62,7 +62,9 @@ defmodule ZhrDevs.Web.ProtectedRouter do
 
   defp lookup_identity(nil), do: :unauthenticated
 
-  defp lookup_identity(hashed_identity) do
+  defp lookup_identity(binary_hashed_identity) do
+    hashed_identity = Uptight.Base.mk_url!(binary_hashed_identity)
+
     case IdentityManagement.get_identity(hashed_identity) do
       {:ok, _pid} ->
         :ok

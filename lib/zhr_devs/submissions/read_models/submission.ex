@@ -91,8 +91,8 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
   end
 
   ### Private functions ###
-  defp via_tuple(hashed_identity) do
-    {:via, Registry, {ZhrDevs.Registry, {:submissions, to_string(hashed_identity)}}}
+  defp via_tuple(%Uptight.Base.Urlsafe{} = hashed_identity) do
+    {:via, Registry, {ZhrDevs.Registry, {:submissions, hashed_identity}}}
   end
 
   defp do_increment_attempts(attempts, task) do

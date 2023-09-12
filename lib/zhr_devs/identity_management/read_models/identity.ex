@@ -41,7 +41,7 @@ defmodule ZhrDevs.IdentityManagement.ReadModels.Identity do
     {:reply, :ok, %__MODULE__{state | login_at: new_login_at}}
   end
 
-  defp via_tuple(hashed_identity) do
-    {:via, Registry, {ZhrDevs.Registry, {:identity, to_string(hashed_identity)}}}
+  defp via_tuple(%Uptight.Base.Urlsafe{} = hashed_identity) do
+    {:via, Registry, {ZhrDevs.Registry, {:identity, hashed_identity}}}
   end
 end

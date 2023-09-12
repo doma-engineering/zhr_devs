@@ -1,6 +1,8 @@
 defmodule ZhrDevs.Submissions.Commands.CompleteCheckSolutionTest do
   use ExUnit.Case, async: true
 
+  @moduletag :capture_log
+
   import Commanded.Assertions.EventAssertions
 
   alias Commanded.Aggregates.Aggregate
