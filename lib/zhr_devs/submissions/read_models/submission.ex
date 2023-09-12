@@ -39,10 +39,10 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
 
   @spec increment_attempts(hashed_identity :: Uptight.Base.Urlsafe.t(), Text.t()) ::
           :ok | {:error, :max_attempts_reached}
-  def increment_attempts(hashed_identity, task_uuid) do
+  def increment_attempts(hashed_identity, %ZhrDevs.Task{} = task) do
     GenServer.call(
-      via_tuple(hashed_identity),
-      {:increment_attempts, task_uuid}
+      via_tuple(task),
+      {:increment_attempts, task}
     )
   end
 
@@ -103,7 +103,7 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
         :error -> @default_counter
       end
 
-    case UpToCounter.increment(task_uuid) do
+    case UpToCounter.increment(task_uuid_counter) do
       ^task_uuid_counter ->
         {:error, :max_attempts_reached}
 

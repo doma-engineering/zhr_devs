@@ -61,6 +61,8 @@ defmodule ZhrDevs.Submissions do
   defdelegate increment_attempts(hashed_identity, task_uuid), to: Submission
 
   defp lookup_submissions_registry(hashed_identity) do
+    dbg(hashed_identity)
+
     Registry.lookup(ZhrDevs.Registry, {:submissions, hashed_identity})
   end
 end

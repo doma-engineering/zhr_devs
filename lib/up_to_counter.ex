@@ -26,5 +26,5 @@ defmodule UpToCounter do
     %__MODULE__{counter | i: i + 1}
   end
 
-  def increment(counter), do: counter
+  def increment(%__MODULE__{} = counter), do: counter
 end
