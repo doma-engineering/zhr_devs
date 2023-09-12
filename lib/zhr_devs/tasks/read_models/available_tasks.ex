@@ -13,6 +13,13 @@ defmodule ZhrDevs.Tasks.ReadModels.AvailableTasks do
     Agent.start_link(fn -> available_tasks end, name: __MODULE__)
   end
 
+  @spec get_task_by_uuid(Uptight.Text.t()) :: ZhrDevs.Task.t() | nil
+  def get_task_by_uuid(%Uptight.Text{} = uuid) do
+    Agent.get(__MODULE__, fn available_tasks ->
+      Enum.find(available_tasks, fn task -> task.uuid == uuid end)
+    end)
+  end
+
   def get_available_tasks() do
     Agent.get(__MODULE__, fn available_tasks -> available_tasks end)
   end

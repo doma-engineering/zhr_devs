@@ -8,6 +8,12 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
 
   import ZhrDevs.Fixtures
 
+  @task %ZhrDevs.Task{
+    uuid: Uptight.Text.new!("1"),
+    name: :on_the_map,
+    technology: :goo
+  }
+
   describe "increment_attemps/2" do
     setup do
       successful_auth = generate_successful_auth(:github)
@@ -16,7 +22,7 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
         hashed_identity: successful_auth.hashed_identity,
         technology: "goo",
         uuid: Commanded.UUID.uuid4(),
-        task_uuid: Commanded.UUID.uuid4(),
+        task_uuid: @task.uuid,
         solution_path: "test/support/testfile.txt"
       }
 
@@ -26,19 +32,20 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
     test "with spawned identity - allows to increment without constraints", %{event: event} do
       start_supervised!({Submission, event})
 
-      assert Submissions.increment_attempts(event.hashed_identity, "goo") == :ok
+      assert Submissions.increment_attempts(event.hashed_identity, @task) == :ok
+      assert Submissions.increment_attempts(event.hashed_identity, @task) == :ok
 
-      assert Submissions.increment_attempts(event.hashed_identity, "goo") ==
+      assert Submissions.increment_attempts(event.hashed_identity, @task) ==
                {:error, :max_attempts_reached}
 
-      assert %{technology: :goo, counter: 2} =
+      assert %{task: @task, counter: 2} =
                event.hashed_identity
                |> Submissions.attempts()
-               |> Enum.find(&(&1.technology == :goo))
+               |> Enum.find(&(&1.task.technology == :goo))
     end
 
     test "with spawned identity without any submissions yet - returns default", %{event: event} do
-      assert event.hashed_identity |> Submissions.attempts() |> Enum.all?(&(&1.counter == 0))
+      assert event.hashed_identity |> Submissions.attempts() === []
     end
   end
 
@@ -48,7 +55,7 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
         hashed_identity: generate_hashed_identity(),
         technology: "goo",
         uuid: Commanded.UUID.uuid4(),
-        task_uuid: Commanded.UUID.uuid4(),
+        task_uuid: @task.uuid,
         solution_path: "test/support/testfile.txt"
       }
 
@@ -59,34 +66,6 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
       pid = start_supervised!({Submission, event})
 
       assert {:error, {:already_started, ^pid}} = Submission.start_link(event)
-    end
-  end
-
-  describe "attempts/2" do
-    setup do
-      successful_auth = generate_successful_auth(:github)
-
-      trigger_event = %SolutionSubmitted{
-        hashed_identity: successful_auth.hashed_identity,
-        technology: "goo",
-        uuid: Commanded.UUID.uuid4(),
-        task_uuid: Commanded.UUID.uuid4(),
-        solution_path: "test/support/testfile.txt"
-      }
-
-      %{event: trigger_event}
-    end
-
-    test "return counters for all supported technologies", %{event: trigger_event} do
-      start_supervised!({Submission, trigger_event})
-
-      for {tech, _} <- Application.get_env(:zhr_devs, :task_support) do
-        tech_string = Atom.to_string(tech)
-
-        counter = if tech == :goo, do: 1, else: 0
-
-        assert Submissions.attempts(trigger_event.hashed_identity, tech_string) == counter
-      end
     end
   end
 end
