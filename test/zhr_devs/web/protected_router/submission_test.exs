@@ -11,7 +11,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionTest do
   describe "call/2" do
     test "displays information if technology is supported" do
       conn =
-        conn(:get, "/submission/goo")
+        conn(:get, "/submission/nt/on_the_map/goo")
         |> login()
         |> ProtectedRouter.call(@routes)
 
@@ -20,9 +20,9 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionTest do
       assert %{
                "counter" => 0,
                "task" => %{
-                 "id" => "elixir-0-dev"
+                 "id" => "goo-0-dev"
                },
-               "technology" => "elixir",
+               "technology" => "goo",
                "invitations" => %{"invited" => [], "interested" => ["Company X"]}
              } = Jason.decode!(conn.resp_body)
     end

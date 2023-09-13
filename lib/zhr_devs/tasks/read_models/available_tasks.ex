@@ -20,6 +20,15 @@ defmodule ZhrDevs.Tasks.ReadModels.AvailableTasks do
     end)
   end
 
+  @spec get_task_by_name_technology(Uptight.Text.t(), Uptight.Text.t()) :: ZhrDevs.Task.t() | nil
+  def get_task_by_name_technology(%Uptight.Text{} = name, %Uptight.Text{} = technology) do
+    Agent.get(__MODULE__, fn available_tasks ->
+      Enum.find(available_tasks, fn task ->
+        task.name == name and task.technology == technology
+      end)
+    end)
+  end
+
   def get_available_tasks() do
     Agent.get(__MODULE__, fn available_tasks -> available_tasks end)
   end
