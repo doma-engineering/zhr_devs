@@ -52,8 +52,7 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
     GenServer.call(via_tuple(hashed_identity), {:attempts, task})
   end
 
-  # TODO: having a function and a static value with the same name is a bad idea
-  def default_counter, do: do_extract_attempts(new_attempts())
+  def default_attempts, do: do_extract_attempts(new_attempts())
 
   ### GenServer callbacks ###
   @impl GenServer
