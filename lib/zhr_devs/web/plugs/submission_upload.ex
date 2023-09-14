@@ -43,12 +43,12 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
         |> send_resp(422, json_error(error))
         |> halt()
 
-      {:error, _error} ->
+      {:error, error} ->
         cleanup(upload_path)
 
         conn
         |> put_resp_content_type("application/json")
-        |> send_resp(500, json_error(%{error: "Unexpected error"}))
+        |> send_resp(500, json_error(%{error: error}))
         |> halt()
     end
   end

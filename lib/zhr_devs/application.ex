@@ -10,6 +10,8 @@ defmodule ZhrDevs.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      {Registry, keys: :unique, name: ZhrDevs.Registry},
+      {DynamicSupervisor, strategy: :one_for_one, name: ZhrDevs.DynamicSupervisor},
       ZhrDevs.App,
       ProjectionsSupervisor,
       ProcessManagersSupervisor,

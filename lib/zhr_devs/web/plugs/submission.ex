@@ -3,9 +3,9 @@ defmodule ZhrDevs.Web.Plugs.Submission do
   Information regarding an individual submission page.
   """
 
-  alias ZhrDevs.Tasks.ReadModels.AvailableTasks
   alias Uptight.Result
-  alias Uptight.Text
+
+  alias ZhrDevs.Tasks.ReadModels.AvailableTasks
 
   @behaviour Plug
 
@@ -35,13 +35,10 @@ defmodule ZhrDevs.Web.Plugs.Submission do
 
   defp get_details(conn, name, technology) do
     Result.new(fn ->
-      # TODO: Bug is obvious here, available_tasks is empty while running
-      # mix test test/zhr_devs/web/protected_router/submission_test.exs:12
-      AvailableTasks.get_available_tasks() |> dbg()
+      name = String.to_existing_atom(name)
+      technology = String.to_existing_atom(technology)
 
-      %ZhrDevs.Task{} =
-        task =
-        AvailableTasks.get_task_by_name_technology(name |> Text.new!(), technology |> Text.new!())
+      %ZhrDevs.Task{} = task = AvailableTasks.get_task_by_name_technology(name, technology)
 
       conn
       |> get_session(:hashed_identity)

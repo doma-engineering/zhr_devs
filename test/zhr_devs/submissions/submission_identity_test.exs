@@ -1,8 +1,9 @@
 defmodule ZhrDevs.Submissions.SubmissionIdentityTest do
   use ExUnit.Case, async: true
 
-  alias ZhrDevs.Submissions.SubmissionIdentity
   alias Uptight.Text
+
+  alias ZhrDevs.Submissions.SubmissionIdentity
 
   import ZhrDevs.Fixtures
 

@@ -12,8 +12,6 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
 
   import ZhrDevs.Web.Presentation.Helper, only: [extract_error: 1]
 
-  import Quark.SKI
-
   alias Commanded.Aggregates.Aggregate
 
   alias ZhrDevs.App

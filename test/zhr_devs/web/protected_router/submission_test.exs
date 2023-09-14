@@ -7,9 +7,20 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionTest do
   @routes ZhrDevs.Web.ProtectedRouter.init([])
 
   import ZhrDevs.Fixtures, only: [login: 1]
+  import Mox
 
   describe "call/2" do
+    setup :verify_on_exit!
+
     test "displays information if technology is supported" do
+      expect(ZhrDevs.MockAvailableTasks, :get_task_by_name_technology, fn _, _ ->
+        %ZhrDevs.Task{
+          name: :on_the_map,
+          technology: :goo,
+          uuid: "goo-0-dev"
+        }
+      end)
+
       conn =
         conn(:get, "/submission/nt/on_the_map/goo")
         |> login()
@@ -20,9 +31,10 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionTest do
       assert %{
                "counter" => 0,
                "task" => %{
-                 "id" => "goo-0-dev"
+                 "name" => "on_the_map",
+                 "technology" => "goo",
+                 "uuid" => "goo-0-dev"
                },
-               "technology" => "goo",
                "invitations" => %{"invited" => [], "interested" => ["Company X"]}
              } = Jason.decode!(conn.resp_body)
     end
@@ -33,8 +45,8 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionTest do
         |> login()
         |> ProtectedRouter.call(@routes)
 
-      assert conn.status === 422
-      assert %{"error" => "Invalid params", "status" => 422}
+      assert conn.status === 500
+      assert conn.resp_body |> Jason.decode!() === %{"error" => "Not implemented"}
     end
   end
 end

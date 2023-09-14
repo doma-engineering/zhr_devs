@@ -7,7 +7,7 @@ defmodule ZhrDevs.Otp.ProjectionsSupervisor do
   """
 
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads
-  alias ZhrDevs.Tasks.ReadModels.AvailableTasks
+  alias ZhrDevs.Tasks.ReadModels.AvailableTasksAgent
 
   @dialyzer {:no_return, {:init, 1}}
 
@@ -20,9 +20,7 @@ defmodule ZhrDevs.Otp.ProjectionsSupervisor do
   @impl Supervisor
   def init([]) do
     children = [
-      {Registry, keys: :unique, name: ZhrDevs.Registry},
-      {DynamicSupervisor, strategy: :one_for_one, name: ZhrDevs.DynamicSupervisor},
-      AvailableTasks,
+      AvailableTasksAgent,
       TaskDownloads
     ]
 

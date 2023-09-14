@@ -1,4 +1,7 @@
 defmodule ZhrDevs.Tasks.Commands.SupportTask do
+  @moduledoc """
+  This command is used to add a new task into the system.
+  """
   alias ZhrDevs.App
 
   alias Uptight.Result

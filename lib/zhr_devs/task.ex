@@ -9,13 +9,14 @@ defmodule ZhrDevs.Task do
   import Algae
   import Uptight.Assertions
 
-  alias Uptight.Text
   alias Uptight.Result
+  alias Uptight.Text
 
   # The supported `technology -> [task_name]`s pairs from config.
   # It's stored as a kwlist in :zhr_devs, :task_support
   @supported Application.compile_env(:zhr_devs, :task_support)
 
+  @derive Jason.Encoder
   defprod do
     uuid :: Text.t()
     name :: :atom \\ nil

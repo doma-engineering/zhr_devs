@@ -1,39 +1,24 @@
 defmodule ZhrDevs.Tasks.ReadModels.AvailableTasks do
-  @moduledoc """
-  Read model that holds a list with available tasks.
+  @moduledoc false
 
-  This read model is listen to events in ZhrDevs.Tasks.EventHandler
-  And reacts accordingly to the events:
-  - When TaskSupported event is fired, it adds the task to the list of available tasks.
-  """
+  @callback get_task_by_uuid(Uptight.Text.t()) :: ZhrDevs.Task.t() | nil
+  @callback get_task_by_name_technology(atom(), atom()) :: ZhrDevs.Task.t() | nil
+  @callback get_available_tasks() :: [ZhrDevs.Task.t()]
+  @callback add_task(ZhrDevs.Task.t()) :: :ok
 
-  use Agent
+  def get_task_by_uuid(uuid), do: impl().get_task_by_uuid(uuid)
 
-  def start_link(available_tasks \\ []) do
-    Agent.start_link(fn -> available_tasks end, name: __MODULE__)
-  end
+  def get_task_by_name_technology(name, technology),
+    do: impl().get_task_by_name_technology(name, technology)
 
-  @spec get_task_by_uuid(Uptight.Text.t()) :: ZhrDevs.Task.t() | nil
-  def get_task_by_uuid(%Uptight.Text{} = uuid) do
-    Agent.get(__MODULE__, fn available_tasks ->
-      Enum.find(available_tasks, fn task -> task.uuid == uuid end)
-    end)
-  end
+  def get_available_tasks, do: impl().get_available_tasks()
+  def add_task(task), do: impl().add_task(task)
 
-  @spec get_task_by_name_technology(Uptight.Text.t(), Uptight.Text.t()) :: ZhrDevs.Task.t() | nil
-  def get_task_by_name_technology(%Uptight.Text{} = name, %Uptight.Text{} = technology) do
-    Agent.get(__MODULE__, fn available_tasks ->
-      Enum.find(available_tasks, fn task ->
-        task.name == name and task.technology == technology
-      end)
-    end)
-  end
-
-  def get_available_tasks() do
-    Agent.get(__MODULE__, fn available_tasks -> available_tasks end)
-  end
-
-  def add_task(%ZhrDevs.Task{} = task) do
-    Agent.update(__MODULE__, fn available_tasks -> [task | available_tasks] end)
-  end
+  defp impl,
+    do:
+      Application.get_env(
+        :zhr_devs,
+        :available_tasks_module,
+        ZhrDevs.Tasks.ReadModels.AvailableTasksAgent
+      )
 end

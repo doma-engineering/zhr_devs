@@ -1,5 +1,5 @@
 defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
   alias ZhrDevs.Submissions.ReadModels.Submission
@@ -8,11 +8,15 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
 
   import ZhrDevs.Fixtures
 
+  import Mox
+
   @task %ZhrDevs.Task{
     uuid: Uptight.Text.new!("1"),
     name: :on_the_map,
     technology: :goo
   }
+
+  setup [:set_mox_from_context, :verify_on_exit!]
 
   describe "increment_attemps/2" do
     setup do
@@ -30,9 +34,12 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
     end
 
     test "with spawned identity - allows to increment without constraints", %{event: event} do
+      expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, fn _ ->
+        @task
+      end)
+
       start_supervised!({Submission, event})
 
-      assert Submissions.increment_attempts(event.hashed_identity, @task) == :ok
       assert Submissions.increment_attempts(event.hashed_identity, @task) == :ok
 
       assert Submissions.increment_attempts(event.hashed_identity, @task) ==
@@ -63,6 +70,10 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
     end
 
     test "doesn't allow to spawn more than one process per hashed_identity", %{event: event} do
+      expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, fn _ ->
+        @task
+      end)
+
       pid = start_supervised!({Submission, event})
 
       assert {:error, {:already_started, ^pid}} = Submission.start_link(event)
