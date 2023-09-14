@@ -6,8 +6,6 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
 
   alias ZhrDevs.Submissions.ReadModels.Submission
 
-  alias Uptight.Text
-
   defstruct attempts: %{}
 
   # @technologies Application.compile_env(:zhr_devs, :task_support)
@@ -37,7 +35,7 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
     GenServer.start_link(__MODULE__, event, name: via_tuple(event.hashed_identity))
   end
 
-  @spec increment_attempts(hashed_identity :: Uptight.Base.Urlsafe.t(), Text.t()) ::
+  @spec increment_attempts(hashed_identity :: Uptight.Base.Urlsafe.t(), ZhrDevs.Task.t()) ::
           :ok | {:error, :max_attempts_reached}
   def increment_attempts(hashed_identity, %ZhrDevs.Task{} = task) do
     GenServer.call(

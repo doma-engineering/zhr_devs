@@ -8,7 +8,7 @@ defmodule ZhrDevs.Tasks.Commands.SupportTask do
 
   defstruct [:task_uuid, :technology, :name]
 
-  @spec dispatch(Keyword.t()) :: :ok | {:error, Result.err()}
+  @spec dispatch(Keyword.t()) :: :ok | {:error, Result.Err.t()}
   def dispatch(opts) do
     uuid = Keyword.fetch!(opts, :uuid)
     name = Keyword.fetch!(opts, :name)

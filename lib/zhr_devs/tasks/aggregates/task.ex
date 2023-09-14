@@ -26,7 +26,7 @@ defmodule ZhrDevs.Tasks.Aggregates.Task do
   import Algae
 
   defprod do
-    uuid :: Text.t() \\ nil
+    uuid :: Uptight.Text.t() \\ nil
     name :: :atom \\ nil
     technology :: :atom \\ nil
     show :: boolean \\ false
