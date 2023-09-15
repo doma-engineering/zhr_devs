@@ -6,4 +6,4 @@ set -xeuo pipefail
 
 mix test
 mix dialyzer
-# mix credo
+mix credo --strict

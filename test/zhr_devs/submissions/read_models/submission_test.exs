@@ -1,9 +1,9 @@
 defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
   use ExUnit.Case, async: false
 
+  alias ZhrDevs.Submissions
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
   alias ZhrDevs.Submissions.ReadModels.Submission
-  alias ZhrDevs.Submissions
 
   import ZhrDevs.Fixtures
 
