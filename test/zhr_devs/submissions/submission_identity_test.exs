@@ -1,6 +1,8 @@
 defmodule ZhrDevs.Submissions.SubmissionIdentityTest do
   use ExUnit.Case, async: true
 
+  @moduletag :capture_log
+
   alias Uptight.Text
 
   alias ZhrDevs.Submissions.SubmissionIdentity

@@ -11,7 +11,7 @@ defmodule ZhrDevs.IdentityManagement do
     DynamicSupervisor.start_child(ZhrDevs.DynamicSupervisor, {Identity, logged_in_event})
   end
 
-  def get_identity(hashed_identity) do
+  def get_identity(%Uptight.Base.Urlsafe{} = hashed_identity) do
     case Registry.lookup(ZhrDevs.Registry, {:identity, hashed_identity}) do
       [{pid, _}] when is_pid(pid) ->
         {:ok, pid}

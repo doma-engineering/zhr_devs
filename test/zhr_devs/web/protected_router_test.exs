@@ -28,7 +28,7 @@ defmodule ZhrDevs.Web.ProtectedRouterTest do
     test "with authenticated identity and no spawned process - threat as :unauthenticated, halt connection" do
       conn =
         conn(:get, "/")
-        |> init_test_session(%{hashed_identity: "nonesense"})
+        |> init_test_session(%{hashed_identity: DomaOAuth.hash("nonesense@gmail.com")})
         |> ProtectedRouter.call(@routes)
 
       assert conn.halted

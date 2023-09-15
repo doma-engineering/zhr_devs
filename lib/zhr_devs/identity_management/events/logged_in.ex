@@ -20,3 +20,15 @@ defmodule ZhrDevs.IdentityManagement.Events.LoggedIn do
     login_at :: UtcDateTime.t()
   end
 end
+
+defimpl Commanded.Serialization.JsonDecoder, for: ZhrDevs.IdentityManagement.Events.LoggedIn do
+  alias ZhrDevs.IdentityManagement.Events.LoggedIn
+
+  def decode(%LoggedIn{} = event) do
+    %LoggedIn{
+      identity: Uptight.Text.new(event.identity),
+      hashed_identity: Uptight.Base.mk_url!(event.hashed_identity),
+      login_at: UtcDateTime.new(event.login_at)
+    }
+  end
+end

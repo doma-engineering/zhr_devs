@@ -32,3 +32,17 @@ defmodule ZhrDevs.Submissions.Events.SolutionSubmitted do
     Keyword.delete(@fields, :solution_path)
   end
 end
+
+defimpl Commanded.Serialization.JsonDecoder, for: ZhrDevs.Submissions.Events.SolutionSubmitted do
+  alias ZhrDevs.Submissions.Events.SolutionSubmitted
+
+  def decode(%SolutionSubmitted{} = event) do
+    %SolutionSubmitted{
+      uuid: Uptight.Text.new!(event.uuid),
+      task_uuid: Uptight.Text.new!(event.task_uuid),
+      hashed_identity: Uptight.Base.mk_url!(event.hashed_identity),
+      technology: String.to_existing_atom(event.technology),
+      solution_path: Uptight.Text.new!(event.solution_path)
+    }
+  end
+end

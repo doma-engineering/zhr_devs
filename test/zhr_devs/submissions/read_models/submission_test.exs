@@ -1,6 +1,8 @@
 defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
   use ExUnit.Case, async: false
 
+  @moduletag :capture_log
+
   alias ZhrDevs.Submissions
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
   alias ZhrDevs.Submissions.ReadModels.Submission
@@ -24,11 +26,11 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
       successful_auth = generate_successful_auth(:github)
 
       trigger_event = %SolutionSubmitted{
-        hashed_identity: successful_auth.hashed_identity,
+        hashed_identity: Uptight.Base.mk_url!(successful_auth.hashed_identity),
         technology: "goo",
-        uuid: Commanded.UUID.uuid4(),
-        task_uuid: @task.uuid,
-        solution_path: "test/support/testfile.txt"
+        uuid: Commanded.UUID.uuid4() |> Uptight.Text.new!(),
+        task_uuid: Commanded.UUID.uuid4() |> Uptight.Text.new!(),
+        solution_path: Uptight.Text.new!("test/support/testfile.txt")
       }
 
       %{event: trigger_event}
@@ -61,12 +63,14 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
 
   describe "start_link/1" do
     setup do
+      successful_auth = generate_successful_auth(:github)
+
       trigger_event = %SolutionSubmitted{
-        hashed_identity: generate_hashed_identity(),
+        hashed_identity: Uptight.Base.mk_url!(successful_auth.hashed_identity),
         technology: "goo",
-        uuid: Commanded.UUID.uuid4(),
-        task_uuid: @task.uuid,
-        solution_path: "test/support/testfile.txt"
+        uuid: Commanded.UUID.uuid4() |> Uptight.Text.new!(),
+        task_uuid: Commanded.UUID.uuid4() |> Uptight.Text.new!(),
+        solution_path: Uptight.Text.new!("test/support/testfile.txt")
       }
 
       %{event: trigger_event}
