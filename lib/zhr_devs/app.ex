@@ -23,4 +23,5 @@ defmodule ZhrDevs.App do
 
   router(ZhrDevs.IdentityManagement.EventsRouter)
   router(ZhrDevs.Submissions.EventsRouter)
+  router(ZhrDevs.Tasks.EventsRouter)
 end

@@ -44,9 +44,13 @@ defmodule ZhrDevs.Submissions.EventHandler do
         :ok
 
       {:error, {:already_started, _}} ->
+        %ZhrDevs.Task{} =
+          task =
+          ZhrDevs.Tasks.ReadModels.AvailableTasks.get_task_by_uuid(solution_submitted.task_uuid)
+
         ZhrDevs.Submissions.increment_attempts(
           solution_submitted.hashed_identity,
-          solution_submitted.technology
+          task
         )
 
       other_error ->

@@ -65,7 +65,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTask do
         hashed_identity: hashed_identity,
         task_uuid: task_uuid,
         submission_identity:
-          SubmissionIdentity.new(hashed_identity: hashed_identity, technology: technology)
+          SubmissionIdentity.new(hashed_identity: hashed_identity, task_uuid: task_uuid)
       }
     end)
   end

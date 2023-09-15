@@ -1,6 +1,8 @@
 defmodule ZhrDevs.Submissions.SubmissionIdentityTest do
   use ExUnit.Case, async: true
 
+  alias Uptight.Text
+
   alias ZhrDevs.Submissions.SubmissionIdentity
 
   import ZhrDevs.Fixtures
@@ -10,16 +12,20 @@ defmodule ZhrDevs.Submissions.SubmissionIdentityTest do
       %Uptight.Base.Urlsafe{encoded: encoded} =
         hashed_identity = identity_generator() |> DomaOAuth.hash() |> Uptight.Base.mk_url!()
 
-      identity = SubmissionIdentity.new(hashed_identity: hashed_identity, technology: :elixir)
+      %Text{text: text} = random_uuid = Commanded.UUID.uuid4() |> Text.new!()
 
-      assert "#{encoded}:elixir" == Kernel.to_string(identity)
+      identity = SubmissionIdentity.new(hashed_identity: hashed_identity, task_uuid: random_uuid)
+
+      assert "#{encoded}:#{text}" == Kernel.to_string(identity)
     end
   end
 
   describe "new/1" do
     test "with valid opts - builds a struct correctly" do
-      assert %SubmissionIdentity{hashed_identity: "hashed_identity", technology: :elixir} =
-               SubmissionIdentity.new(hashed_identity: "hashed_identity", technology: :elixir)
+      random_uuid = Commanded.UUID.uuid4()
+
+      assert %SubmissionIdentity{hashed_identity: "hashed_identity", task_uuid: ^random_uuid} =
+               SubmissionIdentity.new(hashed_identity: "hashed_identity", task_uuid: random_uuid)
     end
 
     test "with invalid opts - raises an error" do

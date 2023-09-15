@@ -8,11 +8,11 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionUploadTest do
 
   @routes ZhrDevs.Web.ProtectedRouter.init([])
   @test_uploads_dir Application.compile_env!(:zhr_devs, :uploads_path)
-  @dummy_request_path "/task/haskell/izQrIwr9JWbcTanC01viB-bv5FqbP89R-s9PRDf__z8=/submission"
+  @dummy_request_path "/task/nt/on_the_map/goo/goo-0-dev/submission"
 
   import ZhrDevs.Fixtures
 
-  setup_all :setup_dirs
+  setup_all [:setup_dirs]
 
   describe "submission upload" do
     setup :verify_on_exit!

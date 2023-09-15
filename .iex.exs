@@ -15,3 +15,13 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 #   ]
 # To check actual Check aggregate state:
 # Commanded.Aggregates.Aggregate.aggregate_state(ZhrDevs.App, ZhrDevs.Submissions.Aggregates.Check, solution_uuid)
+
+### Task supporting commands ###
+
+# To 'support' the task you need to dispatch the SupportTask command to the Task aggregate.
+# Below you can find a valid command that would do just that.
+# To generate an a uuid you can use the Commanded.UUID.uuid4() function.
+#
+# ZhrDevs.Tasks.Commands.SupportTask.dispatch(technology: "goo", name: "on_the_map", uuid: "4e62f04b-3a3e-4650-a023-67c26f256922")
+
+### End Task supporting commands ###

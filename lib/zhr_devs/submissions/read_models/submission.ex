@@ -8,51 +8,66 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
 
   defstruct attempts: %{}
 
-  @technologies Application.compile_env(:zhr_devs, :supported_technologies)
+  # @technologies Application.compile_env(:zhr_devs, :task_support)
   @type technology() ::
-          :elixir | :haskell | :lean | :typescript | :python | :rust | :kotlin | :java
-  @type attempts_for_technology() :: %{technology() => UpToCounter.t()}
+          :elixir
+          | :goo
+          | :haskell
+          | :lean
+          | :typescript
+          | :python
+          | :rust
+          | :kotlin
+          | :java
+          | :unity
+  @type task_names() ::
+          :on_the_map | :hanooy_maps | :cuake
+  @type attempts_for_technology() :: %{ZhrDevs.Task.t() => UpToCounter.t()}
   @type t :: %{
           :__struct__ => __MODULE__,
           required(:attempts) => attempts_for_technology()
         }
+  @default_counter UpToCounter.new(2, 0, true)
 
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
 
-  def start_link(%SolutionSubmitted{hashed_identity: hashed_identity} = event) do
-    GenServer.start_link(__MODULE__, event, name: via_tuple(hashed_identity))
+  def start_link(%SolutionSubmitted{} = event) do
+    GenServer.start_link(__MODULE__, event, name: via_tuple(event.hashed_identity))
   end
 
-  @spec increment_attempts(hashed_identity :: Uptight.Base.Urlsafe.t(), String.t()) ::
+  @spec increment_attempts(hashed_identity :: Uptight.Base.Urlsafe.t(), ZhrDevs.Task.t()) ::
           :ok | {:error, :max_attempts_reached}
-  def increment_attempts(hashed_identity, technology) do
-    technology_atom = safe_string_to_existing_atom(technology)
-
-    GenServer.call(via_tuple(hashed_identity), {:increment_attempts, technology_atom})
+  def increment_attempts(hashed_identity, %ZhrDevs.Task{} = task) do
+    GenServer.call(
+      via_tuple(hashed_identity),
+      {:increment_attempts, task}
+    )
   end
 
   def attempts(hashed_identity) do
     GenServer.call(via_tuple(hashed_identity), :attempts)
   end
 
-  def attempts(hashed_identity, technology) do
-    GenServer.call(via_tuple(hashed_identity), {:attempts, technology})
+  def attempts(hashed_identity, %ZhrDevs.Task{} = task) do
+    GenServer.call(via_tuple(hashed_identity), {:attempts, task})
   end
 
-  def default_counter, do: do_extract_attempts(new_attempts())
+  def default_attempts, do: do_extract_attempts(new_attempts())
 
   ### GenServer callbacks ###
   @impl GenServer
-  def init(%SolutionSubmitted{technology: technology}) do
-    technology_atom = safe_string_to_existing_atom(technology)
-    {:ok, attempts} = do_increment_attempts(new().attempts, technology_atom)
+  def init(%SolutionSubmitted{task_uuid: task_uuid}) do
+    # technology_atom = safe_string_to_existing_atom(technology)
+    task = ZhrDevs.Tasks.ReadModels.AvailableTasks.get_task_by_uuid(task_uuid)
+
+    {:ok, attempts} = do_increment_attempts(new().attempts, task)
 
     {:ok, %__MODULE__{attempts: attempts}}
   end
 
   @impl GenServer
-  def handle_call({:increment_attempts, technology}, _from, state) do
-    case do_increment_attempts(state.attempts, technology) do
+  def handle_call({:increment_attempts, task_uuid}, _from, state) do
+    case do_increment_attempts(state.attempts, task_uuid) do
       {:ok, new_attempts} ->
         {:reply, :ok, %__MODULE__{state | attempts: new_attempts}}
 
@@ -65,13 +80,14 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
     {:reply, do_extract_attempts(state.attempts), state}
   end
 
-  def handle_call({:attempts, technology}, _from, state) do
-    technology_atom = safe_string_to_existing_atom(technology)
+  def handle_call({:attempts, task}, _from, state) do
+    case Map.get(state.attempts, task) do
+      %UpToCounter{i: counter} ->
+        {:reply, counter, state}
 
-    {^technology_atom, %UpToCounter{i: counter}} =
-      Enum.find(state.attempts, fn {t, _} -> t == technology_atom end)
-
-    {:reply, counter, state}
+      nil ->
+        {:reply, 0, state}
+    end
   end
 
   ### Private functions ###
@@ -79,25 +95,29 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
     {:via, Registry, {ZhrDevs.Registry, {:submissions, to_string(hashed_identity)}}}
   end
 
-  defp do_increment_attempts(attempts, technology_atom) do
-    tech_counter = Map.fetch!(attempts, technology_atom)
+  defp do_increment_attempts(attempts, task) do
+    task_uuid_counter =
+      Map.fetch(attempts, task)
+      |> case do
+        {:ok, y} -> y
+        :error -> @default_counter
+      end
 
-    case UpToCounter.increment(tech_counter) do
-      ^tech_counter ->
+    case UpToCounter.increment(task_uuid_counter) do
+      ^task_uuid_counter ->
         {:error, :max_attempts_reached}
 
       new_counter ->
-        {:ok, Map.put(attempts, technology_atom, new_counter)}
+        # If only we had a thing that returns Result<E, A>...
+        {:ok, Map.put(attempts, task, new_counter)}
     end
   end
 
   defp do_extract_attempts(state_attempts) do
-    Enum.reduce(state_attempts, [], fn {technology, %UpToCounter{i: i}}, acc ->
-      [%{technology: technology, counter: i} | acc]
+    Enum.reduce(state_attempts, [], fn {task, %UpToCounter{i: i}}, acc ->
+      [%{task: task, counter: i} | acc]
     end)
   end
-
-  @default_counter UpToCounter.new(2, 0, true)
 
   defp new do
     %Submission{
@@ -106,12 +126,6 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
   end
 
   defp new_attempts do
-    Enum.map(@technologies, fn technology -> {technology, @default_counter} end) |> Map.new()
+    %{}
   end
-
-  defp safe_string_to_existing_atom(term) when is_binary(term) do
-    String.to_existing_atom(term)
-  end
-
-  defp safe_string_to_existing_atom(term) when is_atom(term), do: term
 end
