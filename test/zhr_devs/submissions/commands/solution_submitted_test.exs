@@ -4,6 +4,8 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
   """
   use ExUnit.Case, async: true
 
+  @moduletag :capture_log
+
   import Commanded.Assertions.EventAssertions
 
   import ZhrDevs.Fixtures

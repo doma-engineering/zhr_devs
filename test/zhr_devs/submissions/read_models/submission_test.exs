@@ -3,12 +3,13 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
 
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
   alias ZhrDevs.Submissions.ReadModels.Submission
-
   alias ZhrDevs.Submissions
 
   import ZhrDevs.Fixtures
 
   import Mox
+
+  require Logger
 
   @task %ZhrDevs.Task{
     uuid: Uptight.Text.new!("1"),
@@ -42,6 +43,8 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
 
       assert Submissions.increment_attempts(event.hashed_identity, @task) == :ok
 
+      Logger.warn("Starting with max attempts reached")
+
       assert Submissions.increment_attempts(event.hashed_identity, @task) ==
                {:error, :max_attempts_reached}
 
@@ -74,6 +77,7 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
         @task
       end)
 
+      Logger.warn("Starting supervised process 1")
       pid = start_supervised!({Submission, event})
 
       assert {:error, {:already_started, ^pid}} = Submission.start_link(event)
