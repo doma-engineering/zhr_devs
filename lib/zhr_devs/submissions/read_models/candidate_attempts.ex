@@ -1,14 +1,15 @@
-defmodule ZhrDevs.Submissions.ReadModels.Submission do
+defmodule ZhrDevs.Submissions.ReadModels.CandidateAttempts do
   @moduledoc """
   Represents all submissions of user.
   """
   use GenServer
 
-  alias ZhrDevs.Submissions.ReadModels.Submission
+  alias ZhrDevs.Submissions.ReadModels.CandidateAttempts
+
+  alias ZhrDevs.Tasks.ReadModels.AvailableTasks
 
   defstruct attempts: %{}
 
-  # @technologies Application.compile_env(:zhr_devs, :task_support)
   @type technology() ::
           :elixir
           | :goo
@@ -54,15 +55,14 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
 
   def default_attempts, do: do_extract_attempts(new_attempts())
 
-  def default_counter() do
+  def default_counter do
     @default_counter
   end
 
   ### GenServer callbacks ###
   @impl GenServer
   def init(%SolutionSubmitted{task_uuid: task_uuid}) do
-    # technology_atom = safe_string_to_existing_atom(technology)
-    task = ZhrDevs.Tasks.ReadModels.AvailableTasks.get_task_by_uuid(task_uuid)
+    task = AvailableTasks.get_task_by_uuid(task_uuid)
 
     {:ok, attempts} = do_increment_attempts(new().attempts, task)
 
@@ -126,12 +126,14 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
   end
 
   defp new do
-    %Submission{
+    %CandidateAttempts{
       attempts: new_attempts()
     }
   end
 
   defp new_attempts do
-    %{}
+    AvailableTasks.get_available_tasks()
+    |> Enum.map(fn task -> {task, @default_counter} end)
+    |> Map.new()
   end
 end

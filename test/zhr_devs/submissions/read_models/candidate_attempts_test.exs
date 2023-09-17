@@ -5,7 +5,7 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
 
   alias ZhrDevs.Submissions
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
-  alias ZhrDevs.Submissions.ReadModels.Submission
+  alias ZhrDevs.Submissions.ReadModels.CandidateAttempts
 
   import ZhrDevs.Fixtures
 
@@ -37,13 +37,17 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
     end
 
     test "with spawned identity - allows to increment without constraints", %{event: event} do
-      expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, fn _ ->
+      ZhrDevs.MockAvailableTasks
+      |> expect(:get_task_by_uuid, fn _ ->
         @task
       end)
+      |> expect(:get_available_tasks, fn ->
+        [@task]
+      end)
 
-      start_supervised!({Submission, event})
+      start_supervised!({CandidateAttempts, event})
 
-      assert Submissions.increment_attempts(event.hashed_identity, @task) == :ok
+      assert CandidateAttempts.increment_attempts(event.hashed_identity, @task) == :ok
 
       Logger.warn("Starting with max attempts reached")
 
@@ -57,6 +61,10 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
     end
 
     test "with spawned identity without any submissions yet - returns default", %{event: event} do
+      expect(ZhrDevs.MockAvailableTasks, :get_available_tasks, fn ->
+        []
+      end)
+
       assert event.hashed_identity |> Submissions.attempts() === []
     end
   end
@@ -77,14 +85,18 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
     end
 
     test "doesn't allow to spawn more than one process per hashed_identity", %{event: event} do
-      expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, fn _ ->
+      ZhrDevs.MockAvailableTasks
+      |> expect(:get_task_by_uuid, fn _ ->
         @task
+      end)
+      |> expect(:get_available_tasks, fn ->
+        [@task]
       end)
 
       Logger.warn("Starting supervised process 1")
-      pid = start_supervised!({Submission, event})
+      pid = start_supervised!({CandidateAttempts, event})
 
-      assert {:error, {:already_started, ^pid}} = Submission.start_link(event)
+      assert {:error, {:already_started, ^pid}} = CandidateAttempts.start_link(event)
     end
   end
 end

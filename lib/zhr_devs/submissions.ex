@@ -4,12 +4,12 @@ defmodule ZhrDevs.Submissions do
   """
 
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
-  alias ZhrDevs.Submissions.ReadModels.Submission
+  alias ZhrDevs.Submissions.ReadModels.CandidateAttempts
 
   def spawn_submission(%SolutionSubmitted{} = submitted_solution_event) do
     DynamicSupervisor.start_child(
       ZhrDevs.DynamicSupervisor,
-      {Submission, submitted_solution_event}
+      {CandidateAttempts, submitted_solution_event}
     )
   end
 
@@ -23,21 +23,21 @@ defmodule ZhrDevs.Submissions do
     end
   end
 
-  @spec attempts(Uptight.Text.t()) :: Submission.t()
+  @spec attempts(Uptight.Text.t()) :: CandidateAttempts.t()
   def attempts(hashed_identity) do
     case lookup_submissions_registry(hashed_identity) do
       [{pid, _}] when is_pid(pid) ->
-        Submission.attempts(hashed_identity)
+        CandidateAttempts.attempts(hashed_identity)
 
       _ ->
-        Submission.default_attempts()
+        CandidateAttempts.default_attempts()
     end
   end
 
   def attempts(hashed_identity, %ZhrDevs.Task{} = task) do
     case lookup_submissions_registry(hashed_identity) do
       [{pid, _}] when is_pid(pid) ->
-        Submission.attempts(hashed_identity, task)
+        CandidateAttempts.attempts(hashed_identity, task)
 
       _ ->
         0
@@ -56,7 +56,7 @@ defmodule ZhrDevs.Submissions do
     }
   end
 
-  defdelegate increment_attempts(hashed_identity, task), to: Submission
+  defdelegate increment_attempts(hashed_identity, task), to: CandidateAttempts
 
   defp lookup_submissions_registry(hashed_identity) do
     Registry.lookup(ZhrDevs.Registry, {:submissions, hashed_identity})
