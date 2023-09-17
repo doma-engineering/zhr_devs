@@ -54,10 +54,10 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
       assert Submissions.increment_attempts(event.hashed_identity, @task) ==
                {:error, :max_attempts_reached}
 
-      assert %{task: @task, counter: 2} =
+      assert %{name: @task.name, technology: @task.technology, counter: 2} ==
                event.hashed_identity
                |> Submissions.attempts()
-               |> Enum.find(&(&1.task.technology == :goo))
+               |> Enum.find(&(&1.technology == :goo))
     end
 
     test "with spawned identity without any submissions yet - returns default", %{event: event} do

@@ -121,7 +121,7 @@ defmodule ZhrDevs.Submissions.ReadModels.CandidateAttempts do
   @spec do_extract_attempts(attempts :: attempts_for_technology()) :: list()
   def do_extract_attempts(state_attempts) do
     Enum.reduce(state_attempts, [], fn {task, %UpToCounter{i: i}}, acc ->
-      [%{task: task, counter: i} | acc]
+      [%{name: task.name, technology: task.technology, counter: i} | acc]
     end)
   end
 
