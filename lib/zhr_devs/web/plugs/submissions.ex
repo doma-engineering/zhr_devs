@@ -6,6 +6,8 @@ defmodule ZhrDevs.Web.Plugs.Submissions do
 
   @behaviour Plug
 
+  alias ZhrDevs.Tasks.ReadModels.AvailableTasks
+
   import Plug.Conn
 
   import ZhrDevs.Web.Shared, only: [send_json: 3]
@@ -17,8 +19,20 @@ defmodule ZhrDevs.Web.Plugs.Submissions do
   end
 
   defp get_submissions(conn) do
-    conn
-    |> get_session(:hashed_identity)
-    |> ZhrDevs.Submissions.attempts()
+    atts = conn |> get_session(:hashed_identity) |> ZhrDevs.Submissions.attempts()
+    # Get all the tasks from attempts, these are keys
+    att_tasks = Enum.map(atts, fn {k, _v} -> k end)
+    av_tasks = AvailableTasks.get_available_tasks()
+    # Tasks that aren't in submissions
+    extra_tasks =
+      Enum.filter(av_tasks |> IO.inspect(), fn v ->
+        not Enum.member?(att_tasks, v)
+      end)
+
+    # Add extra_tasks to atts, but shape each one to be an attempt
+    (Enum.map(extra_tasks, fn v ->
+       {v, ZhrDevs.Submissions.ReadModels.Submission.default_counter()}
+     end)
+     |> ZhrDevs.Submissions.ReadModels.Submission.do_extract_attempts()) ++ atts
   end
 end

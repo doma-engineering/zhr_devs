@@ -24,7 +24,7 @@ start: pg_ctl
 stop:
 	pg_ctl -D ./pgdata -l logfile stop || true
 
-priv/static: assets/src/**/* assets/src/*
+priv/static: assets/src assets/src/*/* assets/src/**/* assets/src/*
 	cd assets && yarn install && yarn build
 
 iex: priv/static start

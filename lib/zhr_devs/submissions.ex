@@ -23,6 +23,7 @@ defmodule ZhrDevs.Submissions do
     end
   end
 
+  @spec attempts(Uptight.Text.t()) :: Submission.t()
   def attempts(hashed_identity) do
     case lookup_submissions_registry(hashed_identity) do
       [{pid, _}] when is_pid(pid) ->

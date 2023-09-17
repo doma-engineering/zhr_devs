@@ -54,6 +54,10 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
 
   def default_attempts, do: do_extract_attempts(new_attempts())
 
+  def default_counter() do
+    @default_counter
+  end
+
   ### GenServer callbacks ###
   @impl GenServer
   def init(%SolutionSubmitted{task_uuid: task_uuid}) do
@@ -113,7 +117,9 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
     end
   end
 
-  defp do_extract_attempts(state_attempts) do
+  # It's so hard to type lists ffs
+  @spec do_extract_attempts(attempts :: attempts_for_technology()) :: list()
+  def do_extract_attempts(state_attempts) do
     Enum.reduce(state_attempts, [], fn {task, %UpToCounter{i: i}}, acc ->
       [%{task: task, counter: i} | acc]
     end)

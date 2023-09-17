@@ -5,7 +5,9 @@ export type SubmissionInfo = {
     counter: number,
     task: {
         id: string,
-        description: string
+        name: string,
+        technology: string,
+        // description: string
     }
     invitations: {
         invited: string[],

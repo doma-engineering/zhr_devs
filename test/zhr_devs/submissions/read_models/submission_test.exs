@@ -21,7 +21,7 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
 
   setup [:set_mox_from_context, :verify_on_exit!]
 
-  describe "increment_attemps/2" do
+  describe "increment_attempts/2" do
     setup do
       successful_auth = generate_successful_auth(:github)
 
