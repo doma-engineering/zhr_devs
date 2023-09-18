@@ -19,6 +19,7 @@ defmodule ZhrDevs.Web.Plugs.Tasks do
   defp get_submissions(conn) do
     conn
     |> get_session(:hashed_identity)
+    |> Uptight.Base.mk_url!()
     |> ZhrDevs.Submissions.attempts()
   end
 end

@@ -37,19 +37,12 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
     end
 
     test "with spawned identity - allows to increment without constraints", %{event: event} do
-      ZhrDevs.MockAvailableTasks
-      |> expect(:get_task_by_uuid, fn _ ->
-        @task
-      end)
-      |> expect(:get_available_tasks, fn ->
-        [@task]
-      end)
+      expect(ZhrDevs.MockAvailableTasks, :get_available_tasks, fn -> [@task] end)
 
-      start_supervised!({CandidateAttempts, event})
+      start_supervised!({CandidateAttempts, event.hashed_identity})
 
       assert CandidateAttempts.increment_attempts(event.hashed_identity, @task) == :ok
-
-      Logger.warn("Starting with max attempts reached")
+      assert CandidateAttempts.increment_attempts(event.hashed_identity, @task) == :ok
 
       assert Submissions.increment_attempts(event.hashed_identity, @task) ==
                {:error, :max_attempts_reached}
@@ -64,6 +57,8 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
       expect(ZhrDevs.MockAvailableTasks, :get_available_tasks, fn ->
         []
       end)
+
+      start_supervised!({CandidateAttempts, event.hashed_identity})
 
       assert event.hashed_identity |> Submissions.attempts() === []
     end
@@ -86,17 +81,15 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
 
     test "doesn't allow to spawn more than one process per hashed_identity", %{event: event} do
       ZhrDevs.MockAvailableTasks
-      |> expect(:get_task_by_uuid, fn _ ->
-        @task
-      end)
       |> expect(:get_available_tasks, fn ->
         [@task]
       end)
 
       Logger.warn("Starting supervised process 1")
-      pid = start_supervised!({CandidateAttempts, event})
+      pid = start_supervised!({CandidateAttempts, event.hashed_identity})
 
-      assert {:error, {:already_started, ^pid}} = CandidateAttempts.start_link(event)
+      assert {:error, {:already_started, ^pid}} =
+               CandidateAttempts.start_link(event.hashed_identity)
     end
   end
 end

@@ -4,8 +4,6 @@ defmodule ZhrDevs.Submissions.ReadModels.CandidateAttempts do
   """
   use GenServer
 
-  alias ZhrDevs.Submissions.ReadModels.CandidateAttempts
-
   alias ZhrDevs.Tasks.ReadModels.AvailableTasks
 
   defstruct attempts: %{}
@@ -29,11 +27,10 @@ defmodule ZhrDevs.Submissions.ReadModels.CandidateAttempts do
           required(:attempts) => attempts_for_technology()
         }
   @default_counter UpToCounter.new(2, 0, true)
+  @pubsub_topic "task_availability"
 
-  alias ZhrDevs.Submissions.Events.SolutionSubmitted
-
-  def start_link(%SolutionSubmitted{} = event) do
-    GenServer.start_link(__MODULE__, event, name: via_tuple(event.hashed_identity))
+  def start_link(hashed_identity) do
+    GenServer.start_link(__MODULE__, [], name: via_tuple(hashed_identity))
   end
 
   @spec increment_attempts(hashed_identity :: Uptight.Base.Urlsafe.t(), ZhrDevs.Task.t()) ::
@@ -61,12 +58,10 @@ defmodule ZhrDevs.Submissions.ReadModels.CandidateAttempts do
 
   ### GenServer callbacks ###
   @impl GenServer
-  def init(%SolutionSubmitted{task_uuid: task_uuid}) do
-    task = AvailableTasks.get_task_by_uuid(task_uuid)
+  def init(_) do
+    :ok = Commanded.PubSub.subscribe(ZhrDevs.App, @pubsub_topic)
 
-    {:ok, attempts} = do_increment_attempts(new().attempts, task)
-
-    {:ok, %__MODULE__{attempts: attempts}}
+    {:ok, %__MODULE__{attempts: new_attempts()}}
   end
 
   @impl GenServer
@@ -94,9 +89,14 @@ defmodule ZhrDevs.Submissions.ReadModels.CandidateAttempts do
     end
   end
 
+  @impl true
+  def handle_info({:task_supported, task}, state) do
+    {:noreply, %__MODULE__{state | attempts: Map.put(state.attempts, task, @default_counter)}}
+  end
+
   ### Private functions ###
   defp via_tuple(%Uptight.Base.Urlsafe{} = hashed_identity) do
-    {:via, Registry, {ZhrDevs.Registry, {:submissions, hashed_identity}}}
+    {:via, Registry, {ZhrDevs.Registry, {:candidate_attempts, hashed_identity}}}
   end
 
   defp do_increment_attempts(attempts, task) do
@@ -120,15 +120,9 @@ defmodule ZhrDevs.Submissions.ReadModels.CandidateAttempts do
   # It's so hard to type lists ffs
   @spec do_extract_attempts(attempts :: attempts_for_technology()) :: list()
   def do_extract_attempts(state_attempts) do
-    Enum.reduce(state_attempts, [], fn {task, %UpToCounter{i: i}}, acc ->
-      [%{name: task.name, technology: task.technology, counter: i} | acc]
+    Enum.map(state_attempts, fn {task, %UpToCounter{i: i}} ->
+      %{name: task.name, technology: task.technology, counter: i}
     end)
-  end
-
-  defp new do
-    %CandidateAttempts{
-      attempts: new_attempts()
-    }
   end
 
   defp new_attempts do

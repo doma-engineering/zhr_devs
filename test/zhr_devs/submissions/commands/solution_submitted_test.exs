@@ -23,14 +23,12 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
   alias ZhrDevs.Submissions.SubmissionIdentity
 
   describe "SolutionSubmitted command" do
-    setup :verify_on_exit!
-
     setup do
       valid_opts = fn identity ->
         [
           hashed_identity: DomaOAuth.hash(identity),
           task_uuid: "b96a7c71-1fd5-4336-a48d-3e55a6f4fce5",
-          technology: "Goo",
+          technology: "goo",
           solution_path: "test/support/testfile.txt"
         ]
       end

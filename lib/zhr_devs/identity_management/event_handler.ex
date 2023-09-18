@@ -38,7 +38,7 @@ defmodule ZhrDevs.IdentityManagement.EventHandler do
           "Spawned new identity projection after successful login for #{inspect(logged_in.hashed_identity)}"
         )
 
-        :ok
+        {:ok, _pid} = ZhrDevs.Submissions.spawn_candidate_attempts(logged_in.hashed_identity)
 
       {:error, {:already_started, _}} ->
         :ok = Identity.update_login_at(logged_in.hashed_identity, logged_in.login_at)

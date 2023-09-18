@@ -3,13 +3,14 @@ defmodule ZhrDevs.Submissions do
   This module is responsible for managing user submissions projections.
   """
 
-  alias ZhrDevs.Submissions.Events.SolutionSubmitted
   alias ZhrDevs.Submissions.ReadModels.CandidateAttempts
 
-  def spawn_submission(%SolutionSubmitted{} = submitted_solution_event) do
+  @typep formatted_attemts :: [%{name: atom(), technology: atom(), counter: integer()}]
+
+  def spawn_candidate_attempts(%Uptight.Base.Urlsafe{} = hashed_identity) do
     DynamicSupervisor.start_child(
       ZhrDevs.DynamicSupervisor,
-      {CandidateAttempts, submitted_solution_event}
+      {CandidateAttempts, hashed_identity}
     )
   end
 
@@ -23,17 +24,12 @@ defmodule ZhrDevs.Submissions do
     end
   end
 
-  @spec attempts(Uptight.Text.t()) :: CandidateAttempts.t()
+  @spec attempts(Uptight.Base.Urlsafe.t()) :: formatted_attemts()
   def attempts(hashed_identity) do
-    case lookup_submissions_registry(hashed_identity) do
-      [{pid, _}] when is_pid(pid) ->
-        CandidateAttempts.attempts(hashed_identity)
-
-      _ ->
-        CandidateAttempts.default_attempts()
-    end
+    CandidateAttempts.attempts(hashed_identity)
   end
 
+  @spec attempts(Uptight.Base.Urlsafe.t(), ZhrDevs.Task.t()) :: integer()
   def attempts(hashed_identity, %ZhrDevs.Task{} = task) do
     case lookup_submissions_registry(hashed_identity) do
       [{pid, _}] when is_pid(pid) ->
@@ -59,6 +55,6 @@ defmodule ZhrDevs.Submissions do
   defdelegate increment_attempts(hashed_identity, task), to: CandidateAttempts
 
   defp lookup_submissions_registry(hashed_identity) do
-    Registry.lookup(ZhrDevs.Registry, {:submissions, hashed_identity})
+    Registry.lookup(ZhrDevs.Registry, {:candidate_attempts, hashed_identity})
   end
 end
