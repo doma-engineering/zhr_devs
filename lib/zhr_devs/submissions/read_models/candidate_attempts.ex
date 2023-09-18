@@ -91,6 +91,8 @@ defmodule ZhrDevs.Submissions.ReadModels.CandidateAttempts do
 
   @impl true
   def handle_info({:task_supported, task}, state) do
+    # Here we are listening to updates from ZhrDevs.Tasks.EventHandler
+    # Which will broadcast the new task when it will be added by the admin
     {:noreply, %__MODULE__{state | attempts: Map.put(state.attempts, task, @default_counter)}}
   end
 
