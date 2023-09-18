@@ -38,7 +38,12 @@ defmodule ZhrDevs.Tasks.EventHandler do
       technology: task_supported.technology
     }
 
-    :ok = Commanded.PubSub.broadcast(ZhrDevs.App, "task_availability", {:task_supported, task})
+    :ok =
+      Commanded.PubSub.broadcast(
+        ZhrDevs.App,
+        "task_availability",
+        {:task_supported, task}
+      )
 
     AvailableTasks.add_task(task)
   end

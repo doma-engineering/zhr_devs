@@ -28,7 +28,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
         [
           hashed_identity: DomaOAuth.hash(identity),
           task_uuid: "b96a7c71-1fd5-4336-a48d-3e55a6f4fce5",
-          technology: "goo",
+          technology: "Goo",
           solution_path: "test/support/testfile.txt"
         ]
       end
