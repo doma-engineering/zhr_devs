@@ -20,6 +20,7 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 
 # To 'support' the task you need to dispatch the SupportTask command to the Task aggregate.
 # Below you can find a valid command that would do just that.
+# The UUID field will be generated automatically (using Commanded.UUID.uuid4()) during the command handling.
 #
 # ZhrDevs.Tasks.Commands.SupportTask.dispatch(technology: "goo", name: "on_the_map")
 
