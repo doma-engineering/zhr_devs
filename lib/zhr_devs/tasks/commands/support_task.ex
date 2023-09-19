@@ -6,11 +6,14 @@ defmodule ZhrDevs.Tasks.Commands.SupportTask do
 
   alias Uptight.Result
 
-  defstruct [:task_uuid, :technology, :name]
+  alias ZhrDevs.Tasks.TaskIdentity
+
+  @enforce_keys [:task_uuid, :technology, :name, :task_identity]
+  defstruct @enforce_keys
 
   @spec dispatch(Keyword.t()) :: :ok | {:error, Result.Err.t()}
   def dispatch(opts) do
-    uuid = Keyword.fetch!(opts, :uuid)
+    uuid = Commanded.UUID.uuid4()
     name = Keyword.fetch!(opts, :name)
     technology = Keyword.fetch!(opts, :technology)
 
@@ -30,7 +33,8 @@ defmodule ZhrDevs.Tasks.Commands.SupportTask do
     %ZhrDevs.Tasks.Commands.SupportTask{
       task_uuid: task.uuid,
       technology: task.technology,
-      name: task.name
+      name: task.name,
+      task_identity: TaskIdentity.new(name: task.name, technology: task.technology)
     }
   end
 end

@@ -35,10 +35,10 @@ defmodule ZhrDevs.Tasks.Aggregates.Task do
   alias ZhrDevs.Tasks.Aggregates
   alias ZhrDevs.Tasks.{Commands, Events}
 
-  # Looks like this defprod thing doesn't give us default value of 'false' as specified
-  # So we need to use this workaround with guard clause
-  def execute(%Aggregates.Task{show: show}, %Commands.SupportTask{} = command)
-      when show in [nil, false] do
+  def execute(
+        %Aggregates.Task{name: nil, uuid: nil, technology: nil},
+        %Commands.SupportTask{} = command
+      ) do
     %Events.TaskSupported{
       task_uuid: command.task_uuid,
       name: command.name,
@@ -50,7 +50,12 @@ defmodule ZhrDevs.Tasks.Aggregates.Task do
     {:error, :already_supported}
   end
 
-  def apply(%Aggregates.Task{} = task, %Events.TaskSupported{}) do
-    %Aggregates.Task{task | show: true}
+  def apply(%Aggregates.Task{}, %Events.TaskSupported{} = event) do
+    %Aggregates.Task{
+      show: true,
+      name: event.name,
+      technology: event.technology,
+      uuid: event.task_uuid
+    }
   end
 end

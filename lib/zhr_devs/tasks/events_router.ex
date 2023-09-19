@@ -19,7 +19,7 @@ defmodule ZhrDevs.Tasks.EventsRouter do
 
   alias ZhrDevs.Tasks.{Aggregates, Commands}
 
-  identify(Aggregates.Task, by: :task_uuid)
+  identify(Aggregates.Task, by: :task_identity)
 
   dispatch(Commands.SupportTask, to: Aggregates.Task)
 end
