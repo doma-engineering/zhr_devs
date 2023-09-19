@@ -28,7 +28,7 @@ defimpl Commanded.Serialization.JsonDecoder, for: ZhrDevs.IdentityManagement.Eve
     %LoggedIn{
       identity: Uptight.Text.new(event.identity),
       hashed_identity: Uptight.Base.mk_url!(event.hashed_identity),
-      login_at: UtcDateTime.new(event.login_at)
+      login_at: UtcDateTime.new(event.login_at |> DateTime.from_iso8601() |> elem(1))
     }
   end
 end

@@ -35,31 +35,16 @@ defmodule ZhrDevs.Submissions.EventHandler do
   end
 
   def handle(%SolutionSubmitted{} = solution_submitted, _meta) do
-    case ZhrDevs.Submissions.spawn_submission(solution_submitted) do
-      {:ok, _pid} ->
-        Logger.debug(
-          "Spawned new submission projection after solution submission for #{inspect(solution_submitted.hashed_identity)}"
-        )
+    %ZhrDevs.Task{} =
+      task =
+      ZhrDevs.Tasks.ReadModels.AvailableTasks.get_task_by_uuid(solution_submitted.task_uuid)
 
-        :ok
+    ZhrDevs.Submissions.increment_attempts(
+      solution_submitted.hashed_identity,
+      task
+    )
 
-      {:error, {:already_started, _}} ->
-        %ZhrDevs.Task{} =
-          task =
-          ZhrDevs.Tasks.ReadModels.AvailableTasks.get_task_by_uuid(solution_submitted.task_uuid)
-
-        ZhrDevs.Submissions.increment_attempts(
-          solution_submitted.hashed_identity,
-          task
-        )
-
-      other_error ->
-        Logger.error(
-          "Failed to spawn submission for #{inspect(solution_submitted)}: #{inspect(other_error)}"
-        )
-
-        :ok
-    end
+    :ok
   end
 
   def handle(%SolutionCheckStarted{} = event, _meta) do

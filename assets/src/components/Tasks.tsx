@@ -3,7 +3,7 @@ import fetchTasks from './tasks/request'
 import Task from './tasks/Task'
 import { Routed } from '../router'
 
-type State = [] | [{ technology: string, counter: number }]
+type State = [] | [{ technology: string, name: string, counter: number }]
 
 function TasksIndex({ host, port }: Routed) {
     const [tasks, setTasks] = useState<State>([])
@@ -37,7 +37,11 @@ function TasksIndex({ host, port }: Routed) {
         <Task technology={"kotlin"} counter={2} renderLink={true} /> */}
 
                 {tasks.map(task =>
-                    <Task technology={task.technology} counter={task.counter} renderLink={true} />
+                    <Task
+                        name={task.name}
+                        technology={task.technology}
+                        counter={task.counter}
+                        renderLink={true} />
                 )}
             </div>
         </div>

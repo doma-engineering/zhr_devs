@@ -23,8 +23,6 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
   alias ZhrDevs.Submissions.SubmissionIdentity
 
   describe "SolutionSubmitted command" do
-    setup :verify_on_exit!
-
     setup do
       valid_opts = fn identity ->
         [

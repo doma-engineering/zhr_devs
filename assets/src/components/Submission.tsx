@@ -57,11 +57,13 @@ function Submission({ host, port }: Routed) {
             <Link to="/my" className='text-gray text-sm'>Back to all tasks</Link>
             <div className="flex mt-4">
                 <div className="flex-row basis-2/6">
-                    {submissionInfo ? <Task technology={submissionInfo?.technology} counter={submissionInfo?.counter} renderLink={false} /> : <></>}
-
-                    <p className="mt-4">
-                        {submissionInfo ? submissionInfo.task.description : <></>}
-                    </p>
+                    {submissionInfo ?
+                        <Task
+                            technology={submissionInfo?.task.technology}
+                            name={submissionInfo?.task.name}
+                            counter={submissionInfo?.counter}
+                            renderLink={false} /> :
+                        <></>}
 
                     <div className="mt-4">
                         {submissionInfo ?

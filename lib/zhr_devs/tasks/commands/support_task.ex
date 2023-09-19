@@ -18,9 +18,8 @@ defmodule ZhrDevs.Tasks.Commands.SupportTask do
     technology = Keyword.fetch!(opts, :technology)
 
     case ZhrDevs.Task.parse(uuid, name, technology) do
-      %Result.Ok{} = ok_result ->
-        ok_result
-        |> Result.from_ok()
+      %Result.Ok{ok: ok} ->
+        ok
         |> to_command()
         |> App.dispatch()
 

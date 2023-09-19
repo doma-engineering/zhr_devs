@@ -2,6 +2,7 @@ import ApiError from "../../api_error"
 
 type Task = {
     technology: string,
+    name: string,
     counter: number
 }
 

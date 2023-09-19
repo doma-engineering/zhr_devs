@@ -1,4 +1,4 @@
-defmodule ZhrDevs.Web.Plugs.Submissions do
+defmodule ZhrDevs.Web.Plugs.Tasks do
   @moduledoc """
   This plug is responsible for returning of a submissions,
   which will be using to display the breakdown of how many attempts each 'task' user takes
@@ -19,6 +19,7 @@ defmodule ZhrDevs.Web.Plugs.Submissions do
   defp get_submissions(conn) do
     conn
     |> get_session(:hashed_identity)
+    |> Uptight.Base.mk_url!()
     |> ZhrDevs.Submissions.attempts()
   end
 end

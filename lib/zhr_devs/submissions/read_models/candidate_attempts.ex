@@ -1,14 +1,13 @@
-defmodule ZhrDevs.Submissions.ReadModels.Submission do
+defmodule ZhrDevs.Submissions.ReadModels.CandidateAttempts do
   @moduledoc """
   Represents all submissions of user.
   """
   use GenServer
 
-  alias ZhrDevs.Submissions.ReadModels.Submission
+  alias ZhrDevs.Tasks.ReadModels.AvailableTasks
 
   defstruct attempts: %{}
 
-  # @technologies Application.compile_env(:zhr_devs, :task_support)
   @type technology() ::
           :elixir
           | :goo
@@ -28,11 +27,10 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
           required(:attempts) => attempts_for_technology()
         }
   @default_counter UpToCounter.new(2, 0, true)
+  @pubsub_topic "task_availability"
 
-  alias ZhrDevs.Submissions.Events.SolutionSubmitted
-
-  def start_link(%SolutionSubmitted{} = event) do
-    GenServer.start_link(__MODULE__, event, name: via_tuple(event.hashed_identity))
+  def start_link(hashed_identity) do
+    GenServer.start_link(__MODULE__, [], name: via_tuple(hashed_identity))
   end
 
   @spec increment_attempts(hashed_identity :: Uptight.Base.Urlsafe.t(), ZhrDevs.Task.t()) ::
@@ -54,15 +52,16 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
 
   def default_attempts, do: do_extract_attempts(new_attempts())
 
+  def default_counter do
+    @default_counter
+  end
+
   ### GenServer callbacks ###
   @impl GenServer
-  def init(%SolutionSubmitted{task_uuid: task_uuid}) do
-    # technology_atom = safe_string_to_existing_atom(technology)
-    task = ZhrDevs.Tasks.ReadModels.AvailableTasks.get_task_by_uuid(task_uuid)
+  def init(_) do
+    :ok = Commanded.PubSub.subscribe(ZhrDevs.App, @pubsub_topic)
 
-    {:ok, attempts} = do_increment_attempts(new().attempts, task)
-
-    {:ok, %__MODULE__{attempts: attempts}}
+    {:ok, %__MODULE__{attempts: new_attempts()}}
   end
 
   @impl GenServer
@@ -90,9 +89,16 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
     end
   end
 
+  @impl true
+  def handle_info({:task_supported, task}, state) do
+    # Here we are listening to updates from ZhrDevs.Tasks.EventHandler
+    # Which will broadcast the new task when it will be added by the admin
+    {:noreply, %__MODULE__{state | attempts: Map.put(state.attempts, task, @default_counter)}}
+  end
+
   ### Private functions ###
   defp via_tuple(%Uptight.Base.Urlsafe{} = hashed_identity) do
-    {:via, Registry, {ZhrDevs.Registry, {:submissions, hashed_identity}}}
+    {:via, Registry, {ZhrDevs.Registry, {:candidate_attempts, hashed_identity}}}
   end
 
   defp do_increment_attempts(attempts, task) do
@@ -113,19 +119,17 @@ defmodule ZhrDevs.Submissions.ReadModels.Submission do
     end
   end
 
-  defp do_extract_attempts(state_attempts) do
-    Enum.reduce(state_attempts, [], fn {task, %UpToCounter{i: i}}, acc ->
-      [%{task: task, counter: i} | acc]
+  # It's so hard to type lists ffs
+  @spec do_extract_attempts(attempts :: attempts_for_technology()) :: list()
+  def do_extract_attempts(state_attempts) do
+    Enum.map(state_attempts, fn {task, %UpToCounter{i: i}} ->
+      %{name: task.name, technology: task.technology, counter: i}
     end)
   end
 
-  defp new do
-    %Submission{
-      attempts: new_attempts()
-    }
-  end
-
   defp new_attempts do
-    %{}
+    AvailableTasks.get_available_tasks()
+    |> Enum.map(fn task -> {task, @default_counter} end)
+    |> Map.new()
   end
 end

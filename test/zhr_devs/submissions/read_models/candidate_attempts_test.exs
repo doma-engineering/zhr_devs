@@ -5,7 +5,7 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
 
   alias ZhrDevs.Submissions
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
-  alias ZhrDevs.Submissions.ReadModels.Submission
+  alias ZhrDevs.Submissions.ReadModels.CandidateAttempts
 
   import ZhrDevs.Fixtures
 
@@ -21,7 +21,7 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
 
   setup [:set_mox_from_context, :verify_on_exit!]
 
-  describe "increment_attemps/2" do
+  describe "increment_attempts/2" do
     setup do
       successful_auth = generate_successful_auth(:github)
 
@@ -37,26 +37,29 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
     end
 
     test "with spawned identity - allows to increment without constraints", %{event: event} do
-      expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, fn _ ->
-        @task
-      end)
+      expect(ZhrDevs.MockAvailableTasks, :get_available_tasks, fn -> [@task] end)
 
-      start_supervised!({Submission, event})
+      start_supervised!({CandidateAttempts, event.hashed_identity})
 
-      assert Submissions.increment_attempts(event.hashed_identity, @task) == :ok
-
-      Logger.warn("Starting with max attempts reached")
+      assert CandidateAttempts.increment_attempts(event.hashed_identity, @task) == :ok
+      assert CandidateAttempts.increment_attempts(event.hashed_identity, @task) == :ok
 
       assert Submissions.increment_attempts(event.hashed_identity, @task) ==
                {:error, :max_attempts_reached}
 
-      assert %{task: @task, counter: 2} =
+      assert %{name: @task.name, technology: @task.technology, counter: 2} ==
                event.hashed_identity
                |> Submissions.attempts()
-               |> Enum.find(&(&1.task.technology == :goo))
+               |> Enum.find(&(&1.technology == :goo))
     end
 
     test "with spawned identity without any submissions yet - returns default", %{event: event} do
+      expect(ZhrDevs.MockAvailableTasks, :get_available_tasks, fn ->
+        []
+      end)
+
+      start_supervised!({CandidateAttempts, event.hashed_identity})
+
       assert event.hashed_identity |> Submissions.attempts() === []
     end
   end
@@ -77,14 +80,16 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
     end
 
     test "doesn't allow to spawn more than one process per hashed_identity", %{event: event} do
-      expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, fn _ ->
-        @task
+      ZhrDevs.MockAvailableTasks
+      |> expect(:get_available_tasks, fn ->
+        [@task]
       end)
 
       Logger.warn("Starting supervised process 1")
-      pid = start_supervised!({Submission, event})
+      pid = start_supervised!({CandidateAttempts, event.hashed_identity})
 
-      assert {:error, {:already_started, ^pid}} = Submission.start_link(event)
+      assert {:error, {:already_started, ^pid}} =
+               CandidateAttempts.start_link(event.hashed_identity)
     end
   end
 end

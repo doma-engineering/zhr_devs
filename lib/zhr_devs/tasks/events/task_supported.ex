@@ -12,6 +12,10 @@ defmodule ZhrDevs.Tasks.Events.TaskSupported do
   @derive Jason.Encoder
   defstruct @fields
 
+  @typedoc """
+  Left side of the `|` (binary()) represent raw values coming from the external world,
+  right side of the `|` (atom() & Text.t()) represent values that are used internally.
+  """
   @type t() :: %{
           :__struct__ => __MODULE__,
           required(:name) => binary() | atom(),
@@ -36,4 +40,6 @@ defimpl Commanded.Serialization.JsonDecoder, for: ZhrDevs.Tasks.Events.TaskSuppo
       technology: String.to_existing_atom(technology)
     }
   end
+
+  def decode(%TaskSupported{} = event), do: event
 end
