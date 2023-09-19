@@ -38,7 +38,7 @@ defmodule ZhrDevs.Web.Plugs.Submission do
       name = String.to_existing_atom(name)
       technology = String.to_existing_atom(technology)
 
-      AvailableTasks.get_available_tasks() |> IO.inspect()
+      AvailableTasks.get_available_tasks()
 
       %ZhrDevs.Task{} = task = AvailableTasks.get_task_by_name_technology(name, technology)
 

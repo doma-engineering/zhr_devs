@@ -13,12 +13,18 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionTest do
     setup :verify_on_exit!
 
     test "displays information if technology is supported" do
-      expect(ZhrDevs.MockAvailableTasks, :get_task_by_name_technology, fn _, _ ->
-        %ZhrDevs.Task{
-          name: :on_the_map,
-          technology: :goo,
-          uuid: "goo-0-dev"
-        }
+      task = %ZhrDevs.Task{
+        name: :on_the_map,
+        technology: :goo,
+        uuid: "goo-0-dev"
+      }
+
+      ZhrDevs.MockAvailableTasks
+      |> expect(:get_task_by_name_technology, fn _, _ ->
+        task
+      end)
+      |> expect(:get_available_tasks, fn ->
+        [task]
       end)
 
       conn =

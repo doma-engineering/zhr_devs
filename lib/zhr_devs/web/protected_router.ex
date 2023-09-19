@@ -29,7 +29,7 @@ defmodule ZhrDevs.Web.ProtectedRouter do
     send_file(conn, 200, "priv/static/index.html")
   end
 
-  get("/tasks", to: ZhrDevs.Web.Plugs.Submissions)
+  get("/tasks", to: ZhrDevs.Web.Plugs.Tasks)
 
   get("/submission/:task_uuid", to: ZhrDevs.Web.Plugs.Submission)
 
