@@ -85,7 +85,6 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
         [@task]
       end)
 
-      Logger.warn("Starting supervised process 1")
       pid = start_supervised!({CandidateAttempts, event.hashed_identity})
 
       assert {:error, {:already_started, ^pid}} =

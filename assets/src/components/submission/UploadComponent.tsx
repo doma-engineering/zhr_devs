@@ -3,9 +3,10 @@ import JSZip from "jszip";
 import SHA256 from "crypto-js/sha256";
 import WordArray from "crypto-js/lib-typedarrays";
 
-const UploadComponent: FC<{ tech: string; taskId: string }> = ({
+const UploadComponent: FC<{ tech: string; taskId: string; task: string }> = ({
   tech,
   taskId,
+  task
 }) => {
   const generateHash = async (content: Blob): Promise<string> => {
     const buffer = await content.arrayBuffer();
@@ -33,7 +34,7 @@ const UploadComponent: FC<{ tech: string; taskId: string }> = ({
       });
     }
 
-    const requestURL = `/my/task/${tech}/${taskId}/submission`;
+    const requestURL = `/my/task/nt/${task}/${tech}/${taskId}/submission`;
 
     // Generate the ZIP content
     const content = await zip.generateAsync({ type: "blob" });

@@ -54,9 +54,9 @@ defmodule ZhrDevs.Web.ProtectedRouter do
     end
   end
 
-  match _ do
-    ZhrDevs.Web.Shared.redirect_to(conn, "/my")
-  end
+  # match _ do
+  #   ZhrDevs.Web.Shared.redirect_to(conn, "/my")
+  # end
 
   defp check_session(conn), do: get_session(conn, :hashed_identity)
 
