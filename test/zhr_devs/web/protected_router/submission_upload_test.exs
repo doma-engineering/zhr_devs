@@ -56,7 +56,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionUploadTest do
     filename = "doesntmatter" <> ".zip"
     path = Path.join("/tmp/uploads", filename)
 
-    dummy_files = [{'example.ex', bytes}]
+    dummy_files = [{~c"example.ex", bytes}]
 
     {:ok, ^path} = :zip.create(path, dummy_files)
 
