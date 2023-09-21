@@ -1,13 +1,11 @@
 import ApiError from "../../api_error"
 
 export type SubmissionInfo = {
-    technology: string,
     counter: number,
     task: {
-        id: string,
+        uuid: string,
         name: string,
         technology: string,
-        // description: string
     }
     invitations: {
         invited: string[],
@@ -15,14 +13,14 @@ export type SubmissionInfo = {
     }
 }
 
-export async function fetchSubmissionInfo(technology: string, host: string, port: string): Promise<SubmissionInfo | ApiError> {
+export async function fetchSubmissionInfo(technology: string, task: string, host: string, port: string): Promise<SubmissionInfo | ApiError> {
     const opts = {
         headers: {
             "Content-Type": "application/json",
         }
     }
 
-    const url = `${window.location.protocol}//${host}:${port}/my/submission/${technology}`
+    const url = `${window.location.protocol}//${host}:${port}/my/submission/nt/${task}/${technology}`
 
     return fetch(url, opts).then(response => response.json())
 }

@@ -14,11 +14,11 @@ import { redirect } from "react-router-dom";
 type State = SubmissionInfo | undefined
 
 // const DUMMY_SUBMISSION: SubmissionInfo = {
-//   technology: 'elixir',
 //   counter: 0,
 //   task: {
-//     id: 'taskID',
-//     description: 'In this task you are working with a fictional startup’s marketing department to come up with an optimal automated bidding strategy to get the most out of an ad slot on a popular website'
+//     uuid: 'taskID',
+//     name: 'hanooy_maps',
+//     technology: 'goo'
 //   },
 //   invitations: {
 //     invited: ['Geeks', 'Ancient Greeks'],
@@ -27,30 +27,31 @@ type State = SubmissionInfo | undefined
 // }
 
 function Submission({ host, port }: Routed) {
-    const { tech } = useParams<{ tech?: string }>()
+    const { technology, task } = useParams<{ technology?: string, task?: string }>()
     const [submissionInfo, setSubmissionInfo] = useState<State>(undefined)
     const [attempt, setAttempt] = useState<number>(0)
 
-    function doFetchSubmissionInfo(tech: string) {
-        fetchSubmissionInfo(tech, host, port).then(response => {
-            if ('technology' in response) {
+    function doFetchSubmissionInfo(tech: string, task: string) {
+        fetchSubmissionInfo(tech, task, host, port).then(response => {
+            if ('task' in response) {
                 setSubmissionInfo(response)
 
                 setAttempt(response.counter + 1)
             } else {
-                return redirect("/my")
+                console.dir(response)
+                // return redirect("/my")
             }
         })
     }
 
     useEffect(() => {
-        if (tech) {
-            doFetchSubmissionInfo(tech)
+        if (technology && task) {
+            doFetchSubmissionInfo(technology, task)
             // setSubmissionInfo(DUMMY_SUBMISSION)
 
             // setAttempt(DUMMY_SUBMISSION.counter + 1)
         }
-    }, [tech])
+    }, [technology, task])
 
     return (
         <div className="mx-16 mt-12">
@@ -95,7 +96,7 @@ function Submission({ host, port }: Routed) {
                             <p className="mt-4 text-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque at felis lobortis, pulvinar justo mattis, tincidunt erat. Sed odio enim, dictum id imperdiet eget</p>
 
                             <div className="max-w-full mt-4">
-                                {submissionInfo && tech ? <UploadCompoment tech={tech} taskId={'MjzJjpWMFMtmfA3FEfu3h0-l3MJvk_RiHabe6pku6Tg='} /> : <></>}
+                                {submissionInfo && technology && task ? <UploadCompoment task={task} tech={technology} taskId={submissionInfo.task.uuid} /> : <></>}
                             </div>
 
                             <button className="rounded bg-purple-400 text-white p-2 mt-4">Submit</button>

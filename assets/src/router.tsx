@@ -21,7 +21,7 @@ export const Router = ({ host, port }: Routed) => createBrowserRouter([
                 path: '', element: <Tasks host={host} port={port} />
             },
             {
-                path: 'submissions/:tech', element: <Submission host={host} port={port} />
+                path: 'submissions/nt/:task/:technology', element: <Submission host={host} port={port} />
             }
         ]
     }
