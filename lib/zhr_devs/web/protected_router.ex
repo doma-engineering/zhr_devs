@@ -5,6 +5,8 @@ defmodule ZhrDevs.Web.ProtectedRouter do
 
   use Plug.Router
 
+  require Logger
+
   alias ZhrDevs.IdentityManagement
 
   @session_secrets Application.compile_env!(:zhr_devs, :server)[:session]
@@ -39,6 +41,8 @@ defmodule ZhrDevs.Web.ProtectedRouter do
 
   post("/task/nt/:name/:technology/:task_uuid/submission", to: ZhrDevs.Web.Plugs.SubmissionUpload)
 
+  get("/submission/:submission_uuid/download", to: ZhrDevs.Web.Plugs.DownloadSubmission)
+
   defp check_auth(conn, _opts) do
     conn
     |> check_session()
@@ -54,9 +58,17 @@ defmodule ZhrDevs.Web.ProtectedRouter do
     end
   end
 
-  # match _ do
-  #   ZhrDevs.Web.Shared.redirect_to(conn, "/my")
-  # end
+  match _ do
+    Logger.warning("No route found for #{inspect(conn.method)} #{inspect(conn.request_path)}")
+
+    case get_req_header(conn, "refferrer") do
+      [path] ->
+        ZhrDevs.Web.Shared.redirect_to(conn, path)
+
+      _ ->
+        ZhrDevs.Web.Shared.redirect_to(conn, "/my")
+    end
+  end
 
   defp check_session(conn), do: get_session(conn, :hashed_identity)
 

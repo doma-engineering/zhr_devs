@@ -5,7 +5,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
 
   import ZhrDevs.Fixtures
 
-  import Hammox
+  import Mox
 
   alias ZhrDevs.App
 
@@ -19,6 +19,13 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads
 
   @task_uuid Commanded.UUID.uuid4() |> Uptight.Text.new!()
+
+  @task %ZhrDevs.Task{
+    name: :on_the_map,
+    technology: :goo,
+    uuid: @task_uuid,
+    trigger_automatic_check: false
+  }
 
   describe "DownloadTask command" do
     setup :verify_on_exit!
@@ -45,7 +52,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
     end
 
     test "with already submitted solution emit TestCasesDownloaded event", %{hid: hashed_identity} do
-      expect(ZhrDevs.MockDocker, :zip_test, fn _solution_path -> true end)
+      expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, fn _ -> @task end)
 
       :ok =
         SubmitSolution.dispatch(

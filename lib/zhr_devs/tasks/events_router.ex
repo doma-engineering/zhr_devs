@@ -22,4 +22,5 @@ defmodule ZhrDevs.Tasks.EventsRouter do
   identify(Aggregates.Task, by: :task_identity)
 
   dispatch(Commands.SupportTask, to: Aggregates.Task)
+  dispatch(Commands.ChangeTaskMode, to: Aggregates.Task)
 end

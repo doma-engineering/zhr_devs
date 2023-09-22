@@ -1,35 +1,38 @@
 defmodule ZhrDevs.Web.ProtectedRouter.SubmissionTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use Plug.Test
 
+  alias ZhrDevs.Submissions.ReadModels.CandidateAttempts
   alias ZhrDevs.Web.ProtectedRouter
 
   @routes ZhrDevs.Web.ProtectedRouter.init([])
 
-  import ZhrDevs.Fixtures, only: [login: 1]
+  import ZhrDevs.Fixtures
   import Mox
 
+  @task %ZhrDevs.Task{
+    name: :on_the_map,
+    technology: :goo,
+    uuid: "goo-0-dev",
+    trigger_automatic_check: false
+  }
+
+  setup [:set_mox_from_context, :verify_on_exit!]
+
   describe "call/2" do
-    setup :verify_on_exit!
-
     test "displays information if technology is supported" do
-      task = %ZhrDevs.Task{
-        name: :on_the_map,
-        technology: :goo,
-        uuid: "goo-0-dev"
-      }
+      expect(ZhrDevs.MockAvailableTasks, :get_available_tasks, fn -> [@task] end)
+      expect(ZhrDevs.MockAvailableTasks, :get_task_by_name_technology, fn _, _ -> @task end)
 
-      ZhrDevs.MockAvailableTasks
-      |> expect(:get_task_by_name_technology, fn _, _ ->
-        task
-      end)
-      |> expect(:get_available_tasks, fn ->
-        [task]
-      end)
+      successful_auth = generate_successful_auth(:github)
+      login_event = generate_successful_login_event(successful_auth)
+
+      start_supervised!({ZhrDevs.IdentityManagement.ReadModels.Identity, login_event})
+      start_supervised!({CandidateAttempts, login_event.hashed_identity})
 
       conn =
         conn(:get, "/submission/nt/on_the_map/goo")
-        |> login()
+        |> Plug.Test.init_test_session(%{hashed_identity: to_string(login_event.hashed_identity)})
         |> ProtectedRouter.call(@routes)
 
       assert conn.status === 200

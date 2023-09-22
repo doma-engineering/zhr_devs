@@ -24,4 +24,9 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 #
 # ZhrDevs.Tasks.Commands.SupportTask.dispatch(technology: "goo", name: "on_the_map")
 
+# Whenever you want to change the manual task processing to automatical one,
+# you can do that by dispatching the ChangeTaskMode command:
+#
+# ZhrDevs.Tasks.Commands.ChangeTaskMode.dispatch(technology: "goo", name: "on_the_map", trigger_automatic_check: true)
+
 ### End Task supporting commands ###

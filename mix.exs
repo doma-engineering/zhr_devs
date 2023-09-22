@@ -15,7 +15,7 @@ defmodule ZhrDevs.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:logger, :bamboo, :bamboo_smtp],
       mod: {ZhrDevs.Application, []}
     ]
   end
@@ -44,7 +44,11 @@ defmodule ZhrDevs.MixProject do
       {:commanded, "~> 1.4"},
       {:jason, "~> 1.3"},
       {:eventstore, "~> 1.4"},
-      {:commanded_eventstore_adapter, "~> 1.4"}
+      {:commanded_eventstore_adapter, "~> 1.4"},
+
+      # Emails
+      {:bamboo_smtp, "~> 4.2"},
+      {:mime, "~> 1.0 or ~> 2.0"}
     ]
   end
 end

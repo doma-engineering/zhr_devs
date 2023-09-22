@@ -38,4 +38,17 @@ defmodule ZhrDevs.Tasks.ReadModels.AvailableTasksAgent do
   def add_task(%ZhrDevs.Task{} = task) do
     Agent.update(__MODULE__, fn available_tasks -> [task | available_tasks] end)
   end
+
+  @spec change_task_mode(atom(), atom(), boolean()) :: :ok
+  def change_task_mode(name, technology, new_mode) do
+    Agent.update(__MODULE__, fn available_tasks ->
+      Enum.map(available_tasks, &do_change_mode(&1, name, technology, new_mode))
+    end)
+  end
+
+  defp do_change_mode(%ZhrDevs.Task{name: name, technology: tech} = task, name, tech, mode) do
+    %ZhrDevs.Task{task | trigger_automatic_check: mode}
+  end
+
+  defp do_change_mode(%ZhrDevs.Task{} = task, _, _, _), do: task
 end

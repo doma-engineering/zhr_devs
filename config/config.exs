@@ -2,7 +2,8 @@ import Config
 
 config :zhr_devs, :server,
   port: 4001,
-  host: "localhost"
+  host: "localhost",
+  scheme: "http"
 
 config :zhr_devs,
   task_support: [
@@ -61,6 +62,11 @@ config :zhr_devs, ZhrDevs.EventStore,
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
+
+config :zhr_devs,
+  submissions_operator_email: "operator@zhr.dev"
+
+config :zhr_devs, ZhrDevs.Mailer, adapter: Bamboo.LocalAdapter
 
 # Overrides!
 

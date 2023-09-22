@@ -5,6 +5,8 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
   """
   alias ZhrDevs.App
 
+  alias ZhrDevs.Tasks.ReadModels.AvailableTasks
+
   alias ZhrDevs.Submissions.SubmissionIdentity
 
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
@@ -13,6 +15,7 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
   alias Uptight.Result
   alias Uptight.Text, as: T
 
+  import Uptight.Assertions
   import ZhrDevs.Submissions.Commands.Parsing.Shared
 
   @fields [:uuid, :submission_identity] ++ SolutionSubmitted.fields()
@@ -25,7 +28,8 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
           required(:hashed_identity) => Urlsafe.t(),
           required(:task_uuid) => T.t(),
           required(:solution_path) => list(T.t()),
-          required(:submission_identity) => SubmissionIdentity.t()
+          required(:submission_identity) => SubmissionIdentity.t(),
+          required(:trigger_automatic_check) => boolean()
         }
   @typep error() :: String.t() | struct()
 
@@ -65,12 +69,18 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
 
       solution_path = check_solution_path(opts)
 
+      task = AvailableTasks.get_task_by_uuid(task_uuid)
+
+      assert not is_nil(task),
+             "Task with uuid #{inspect(task_uuid)} is not found"
+
       %__MODULE__{
         uuid: uuid,
         hashed_identity: hashed_identity,
         technology: technology,
         task_uuid: task_uuid,
         solution_path: solution_path,
+        trigger_automatic_check: task.trigger_automatic_check,
         submission_identity:
           SubmissionIdentity.new(hashed_identity: hashed_identity, task_uuid: task_uuid)
       }
@@ -84,16 +94,6 @@ defmodule ZhrDevs.Submissions.Commands.SubmitSolution do
       raise ArgumentError, "Solution path is invalid: #{solution_path}"
     end
 
-    unless valid_zip_file?(solution_path) do
-      raise ArgumentError, "Not a zip file!"
-    end
-
     T.new!(solution_path)
-  end
-
-  defp valid_zip_file?(solution_absolute_path) do
-    solution_absolute_path
-    |> Path.relative_to_cwd()
-    |> ZhrDevs.Docker.zip_test()
   end
 end

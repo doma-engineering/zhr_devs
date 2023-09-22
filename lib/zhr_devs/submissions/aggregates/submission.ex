@@ -76,7 +76,8 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
       hashed_identity: command.hashed_identity,
       technology: command.technology,
       task_uuid: command.task_uuid,
-      solution_path: command.solution_path
+      solution_path: command.solution_path,
+      trigger_automatic_check: command.trigger_automatic_check
     }
   end
 

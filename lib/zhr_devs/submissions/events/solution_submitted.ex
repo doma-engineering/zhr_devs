@@ -10,9 +10,11 @@ defmodule ZhrDevs.Submissions.Events.SolutionSubmitted do
     solution_path: nil,
     technology: nil,
     task_uuid: Text.new!(""),
-    hashed_identity: Urlsafe.new()
+    hashed_identity: Urlsafe.new(),
+    trigger_automatic_check: false
   ]
   @derive Jason.Encoder
+  @enforce_keys Keyword.keys(@fields)
   defstruct [:uuid | @fields]
 
   @type t() :: %{
@@ -21,7 +23,8 @@ defmodule ZhrDevs.Submissions.Events.SolutionSubmitted do
           required(:hashed_identity) => Urlsafe.t(),
           required(:task_uuid) => Text.t(),
           required(:technology) => atom(),
-          required(:solution_path) => list(Text.t())
+          required(:solution_path) => list(Text.t()),
+          required(:trigger_automatic_check) => boolean()
         }
 
   def fields do
@@ -29,7 +32,9 @@ defmodule ZhrDevs.Submissions.Events.SolutionSubmitted do
   end
 
   def aggregate_fields do
-    Keyword.delete(@fields, :solution_path)
+    @fields
+    |> Keyword.delete(:solution_path)
+    |> Keyword.delete(:trigger_automatic_check)
   end
 end
 
@@ -42,7 +47,8 @@ defimpl Commanded.Serialization.JsonDecoder, for: ZhrDevs.Submissions.Events.Sol
       task_uuid: Uptight.Text.new!(event.task_uuid),
       hashed_identity: Uptight.Base.mk_url!(event.hashed_identity),
       technology: String.to_existing_atom(event.technology),
-      solution_path: Uptight.Text.new!(event.solution_path)
+      solution_path: Uptight.Text.new!(event.solution_path),
+      trigger_automatic_check: event.trigger_automatic_check
     }
   end
 end
