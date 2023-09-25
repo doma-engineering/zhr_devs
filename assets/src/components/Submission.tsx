@@ -6,8 +6,9 @@ import { Routed } from '../router'
 import Task from '../components/tasks/Task'
 import Invites from '../components/submission/Invites'
 import UploadCompoment from "../components/submission/UploadComponent"
+import ScoreTable from "../components/submission/ScoreTable"
 
-import type { SubmissionInfo } from "./submission/request";
+import type { SubmissionInfo, AttemptScore } from "./submission/request";
 
 import { redirect } from "react-router-dom";
 
@@ -23,13 +24,24 @@ type State = SubmissionInfo | undefined
 //   invitations: {
 //     invited: ['Geeks', 'Ancient Greeks'],
 //     interested: ['Apple', 'Microsoft']
-//   }
+//   },
+//   attempts: [
+//     [
+//         {division: 'junior', failure: 'Compile error', score: 0}
+//     ]
+//     // [
+//     //     {division: 'junior', failure: null, score: 150},
+//     //     {division: 'middle', failure: '', score: 400},
+//     //     {division: 'senior', failure: '', score: 1200},
+//     // ],
+//   ]
 // }
 
 function Submission({ host, port }: Routed) {
     const { technology, task } = useParams<{ technology?: string, task?: string }>()
     const [submissionInfo, setSubmissionInfo] = useState<State>(undefined)
     const [attempt, setAttempt] = useState<number>(0)
+    const [attemptScore, setAttemptScore] = useState<AttemptScore>([])
 
     function doFetchSubmissionInfo(tech: string, task: string) {
         fetchSubmissionInfo(tech, task, host, port).then(response => {
@@ -37,6 +49,7 @@ function Submission({ host, port }: Routed) {
                 setSubmissionInfo(response)
 
                 setAttempt(response.counter + 1)
+                setAttemptScore(response.attempts[response.counter])
             } else {
                 console.dir(response)
                 // return redirect("/my")
@@ -47,9 +60,10 @@ function Submission({ host, port }: Routed) {
     useEffect(() => {
         if (technology && task) {
             doFetchSubmissionInfo(technology, task)
-            // setSubmissionInfo(DUMMY_SUBMISSION)
 
+            // setSubmissionInfo(DUMMY_SUBMISSION)
             // setAttempt(DUMMY_SUBMISSION.counter + 1)
+            // setAttemptScore(DUMMY_SUBMISSION.attempts[DUMMY_SUBMISSION.counter])
         }
     }, [technology, task])
 
@@ -111,8 +125,8 @@ function Submission({ host, port }: Routed) {
                             <div className="border-b-slate-200 border-b">
                                 <span className="text-lg text-purple-400">Attempt {attempt}</span>
                             </div>
-                            <div className="text-center">
-                                <p className="text-purple-400 mt-4 text-lg">Results will be shown here</p>
+                            <div className="w-full" id="score-table">
+                                {attemptScore?.length > 0 ? <ScoreTable rows={attemptScore} /> : <p className="text-purple-400 mt-4 text-lg">Results will be shown here</p>}
                             </div>
                         </div>
                     </div>

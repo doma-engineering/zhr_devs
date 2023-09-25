@@ -1,5 +1,13 @@
 import ApiError from "../../api_error"
 
+export type AttemptScore = ScoreRow[]
+
+export type ScoreRow = {
+    division: string,
+    failure: string | null,
+    score: number
+}
+
 export type SubmissionInfo = {
     counter: number,
     task: {
@@ -10,7 +18,8 @@ export type SubmissionInfo = {
     invitations: {
         invited: string[],
         interested: string[]
-    }
+    },
+    attempts: AttemptScore[] | []
 }
 
 export async function fetchSubmissionInfo(technology: string, task: string, host: string, port: string): Promise<SubmissionInfo | ApiError> {
