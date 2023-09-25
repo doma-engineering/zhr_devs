@@ -25,19 +25,13 @@ defmodule ZhrDevs.Submissions do
   end
 
   @spec attempts(Uptight.Base.Urlsafe.t()) :: formatted_attemts()
-  def attempts(hashed_identity) do
+  def attempts(%Uptight.Base.Urlsafe{} = hashed_identity) do
     CandidateAttempts.attempts(hashed_identity)
   end
 
   @spec attempts(Uptight.Base.Urlsafe.t(), ZhrDevs.Task.t()) :: integer()
   def attempts(hashed_identity, %ZhrDevs.Task{} = task) do
-    case lookup_submissions_registry(hashed_identity) do
-      [{pid, _}] when is_pid(pid) ->
-        CandidateAttempts.attempts(hashed_identity, task)
-
-      _ ->
-        0
-    end
+    CandidateAttempts.attempts(hashed_identity, task)
   end
 
   def details(hashed_identity, %ZhrDevs.Task{} = task) do

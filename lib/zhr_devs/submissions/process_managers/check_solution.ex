@@ -29,6 +29,8 @@ defmodule ZhrDevs.Submissions.ProcessManagers.CheckSolution do
   @derive Jason.Encoder
   defstruct status: :new
 
+  def interested?(%Events.SolutionSubmitted{trigger_automatic_check: false}), do: false
+
   def interested?(%Events.SolutionSubmitted{uuid: solution_uuid}), do: {:start, solution_uuid}
 
   def interested?(%Events.SolutionCheckStarted{solution_uuid: solution_uuid}),

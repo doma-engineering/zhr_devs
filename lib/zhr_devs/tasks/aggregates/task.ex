@@ -30,6 +30,7 @@ defmodule ZhrDevs.Tasks.Aggregates.Task do
     name :: :atom \\ nil
     technology :: :atom \\ nil
     show :: boolean \\ false
+    trigger_automatic_check :: boolean \\ true
   end
 
   alias ZhrDevs.Tasks.Aggregates
@@ -42,7 +43,23 @@ defmodule ZhrDevs.Tasks.Aggregates.Task do
     %Events.TaskSupported{
       task_uuid: command.task_uuid,
       name: command.name,
-      technology: command.technology
+      technology: command.technology,
+      trigger_automatic_check: command.trigger_automatic_check
+    }
+  end
+
+  def execute(
+        %Aggregates.Task{trigger_automatic_check: trigger_automatic_check},
+        %Commands.ChangeTaskMode{trigger_automatic_check: trigger_automatic_check}
+      ) do
+    {:error, :task_mode_is_the_same}
+  end
+
+  def execute(task, %Commands.ChangeTaskMode{trigger_automatic_check: trigger_automatic_check}) do
+    %Events.TaskModeChanged{
+      name: task.name,
+      technology: task.technology,
+      trigger_automatic_check: trigger_automatic_check
     }
   end
 
@@ -57,5 +74,9 @@ defmodule ZhrDevs.Tasks.Aggregates.Task do
       technology: event.technology,
       uuid: event.task_uuid
     }
+  end
+
+  def apply(task, %Events.TaskModeChanged{trigger_automatic_check: trigger_automatic_check}) do
+    %Aggregates.Task{task | trigger_automatic_check: trigger_automatic_check}
   end
 end

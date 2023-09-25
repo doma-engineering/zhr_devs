@@ -10,8 +10,6 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
 
   import ZhrDevs.Fixtures
 
-  import Hammox
-
   import ZhrDevs.Web.Presentation.Helper, only: [extract_error: 1]
 
   alias Commanded.Aggregates.Aggregate
@@ -21,6 +19,17 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
   alias ZhrDevs.Submissions.{Aggregates, Commands, Events}
 
   alias ZhrDevs.Submissions.SubmissionIdentity
+
+  import Mox
+
+  @task %ZhrDevs.Task{
+    name: :on_the_map,
+    technology: :goo,
+    uuid: "b96a7c71-1fd5-4336-a48d-3e55a6f4fce5",
+    trigger_automatic_check: true
+  }
+
+  setup [:verify_on_exit!]
 
   describe "SolutionSubmitted command" do
     setup do
@@ -69,21 +78,8 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
       assert message =~ "javascript is not supported"
     end
 
-    test "return an error when zip -T is proof that submitted file isn't valid .zip", %{
-      valid_opts: valid_opts
-    } do
-      expect(ZhrDevs.MockDocker, :zip_test, fn _solution_path -> false end)
-
-      identity = identity_generator()
-      opts = valid_opts.(identity)
-
-      assert {:error, exception} = Commands.SubmitSolution.dispatch(opts)
-
-      assert %ArgumentError{message: "Not a zip file!"} = extract_error(exception)
-    end
-
     test "with valid arguments emits an a valid event", %{valid_opts: valid_opts} do
-      expect(ZhrDevs.MockDocker, :zip_test, fn _solution_path -> true end)
+      expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, fn _ -> @task end)
 
       identity = identity_generator()
       opts = valid_opts.(identity)
@@ -107,7 +103,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
     end
 
     test "with valid arguments aggregate state is predictable", %{valid_opts: valid_opts} do
-      expect(ZhrDevs.MockDocker, :zip_test, fn _solution_path -> true end)
+      expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, fn _ -> @task end)
 
       identity = identity_generator()
       opts = valid_opts.(identity)
@@ -127,7 +123,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
     end
 
     test "we allow to submit solution only twice", %{valid_opts: valid_opts} do
-      expect(ZhrDevs.MockDocker, :zip_test, 3, fn _solution_path -> true end)
+      expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, 3, fn _ -> @task end)
 
       identity = identity_generator()
       opts = valid_opts.(identity)
@@ -152,7 +148,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
     end
 
     test "correlated with SolutionCheckStarted event", %{valid_opts: valid_opts} do
-      expect(ZhrDevs.MockDocker, :zip_test, fn _solution_path -> true end)
+      expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, fn _ -> @task end)
 
       identity = identity_generator()
       opts = valid_opts.(identity)

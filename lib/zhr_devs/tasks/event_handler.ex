@@ -23,7 +23,7 @@ defmodule ZhrDevs.Tasks.EventHandler do
     name: __MODULE__,
     start_from: :origin
 
-  alias ZhrDevs.Tasks.Events.TaskSupported
+  alias ZhrDevs.Tasks.Events.{TaskModeChanged, TaskSupported}
 
   alias ZhrDevs.Tasks.ReadModels.AvailableTasks
 
@@ -32,11 +32,13 @@ defmodule ZhrDevs.Tasks.EventHandler do
   end
 
   def handle(%TaskSupported{} = task_supported, _meta) do
-    task = %ZhrDevs.Task{
-      uuid: task_supported.task_uuid,
-      name: task_supported.name,
-      technology: task_supported.technology
-    }
+    task =
+      ZhrDevs.Task.new!(
+        task_supported.task_uuid,
+        task_supported.name,
+        task_supported.technology,
+        task_supported.trigger_automatic_check
+      )
 
     :ok =
       Commanded.PubSub.broadcast(
@@ -46,5 +48,10 @@ defmodule ZhrDevs.Tasks.EventHandler do
       )
 
     AvailableTasks.add_task(task)
+  end
+
+  def handle(%TaskModeChanged{} = event, _meta) do
+    :ok =
+      AvailableTasks.change_task_mode(event.name, event.technology, event.trigger_automatic_check)
   end
 end

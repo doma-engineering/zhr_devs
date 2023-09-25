@@ -1,16 +1,9 @@
-defmodule ZhrDevs.Tasks.Events.TaskSupported do
+defmodule ZhrDevs.Tasks.Events.TaskModeChanged do
   @moduledoc """
-  Represents an event that is emitted when user is allowed to download a task before the first submission.
+  Represents an event that is emitted when user is changed the task processing mode (manual or automatic).
   """
-  alias Uptight.Text
-
-  @fields [
-    technology: nil,
-    name: nil,
-    trigger_automatic_check: false,
-    task_uuid: Text.new()
-  ]
-  @enforce_keys [:technology, :name, :trigger_automatic_check, :task_uuid]
+  @fields [:technology, :name, :trigger_automatic_check]
+  @enforce_keys [:technology, :name, :trigger_automatic_check]
   @derive Jason.Encoder
   defstruct @fields
 
@@ -21,29 +14,26 @@ defmodule ZhrDevs.Tasks.Events.TaskSupported do
   @type t() :: %{
           :__struct__ => __MODULE__,
           required(:name) => binary() | atom(),
-          required(:task_uuid) => binary() | Text.t(),
+          required(:trigger_automatic_check) => boolean() | boolean(),
           required(:technology) => binary() | atom()
         }
 
   def fields, do: @fields
 end
 
-defimpl Commanded.Serialization.JsonDecoder, for: ZhrDevs.Tasks.Events.TaskSupported do
-  alias ZhrDevs.Tasks.Events.TaskSupported
+defimpl Commanded.Serialization.JsonDecoder, for: ZhrDevs.Tasks.Events.TaskModeChanged do
+  alias ZhrDevs.Tasks.Events.TaskModeChanged
 
-  def decode(%TaskSupported{
+  def decode(%TaskModeChanged{
         name: name = <<_::binary>>,
-        task_uuid: task_uuid = <<_::binary>>,
         technology: technology = <<_::binary>>,
         trigger_automatic_check: trigger_automatic_check
-      }) do
-    %TaskSupported{
+      })
+      when is_boolean(trigger_automatic_check) do
+    %TaskModeChanged{
       name: String.to_existing_atom(name),
-      task_uuid: Uptight.Text.new!(task_uuid),
       technology: String.to_existing_atom(technology),
       trigger_automatic_check: trigger_automatic_check
     }
   end
-
-  def decode(%TaskSupported{} = event), do: event
 end

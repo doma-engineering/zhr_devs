@@ -30,7 +30,8 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
         technology: "goo",
         uuid: Commanded.UUID.uuid4() |> Uptight.Text.new!(),
         task_uuid: Commanded.UUID.uuid4() |> Uptight.Text.new!(),
-        solution_path: Uptight.Text.new!("test/support/testfile.txt")
+        solution_path: Uptight.Text.new!("test/support/testfile.txt"),
+        trigger_automatic_check: false
       }
 
       %{event: trigger_event}
@@ -73,7 +74,8 @@ defmodule ZhrDevs.Submissions.ReadModels.SubmissionTest do
         technology: "goo",
         uuid: Commanded.UUID.uuid4() |> Uptight.Text.new!(),
         task_uuid: Commanded.UUID.uuid4() |> Uptight.Text.new!(),
-        solution_path: Uptight.Text.new!("test/support/testfile.txt")
+        solution_path: Uptight.Text.new!("test/support/testfile.txt"),
+        trigger_automatic_check: false
       }
 
       %{event: trigger_event}

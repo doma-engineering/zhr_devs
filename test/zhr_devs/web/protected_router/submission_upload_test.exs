@@ -2,7 +2,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionUploadTest do
   use ExUnit.Case, async: true
   use Plug.Test
 
-  import Hammox
+  import Mox
 
   alias ZhrDevs.Web.ProtectedRouter
 
@@ -12,13 +12,20 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionUploadTest do
 
   import ZhrDevs.Fixtures
 
+  @task %ZhrDevs.Task{
+    name: :on_the_map,
+    technology: :goo,
+    uuid: Uptight.Text.new!("b96a7c71-1fd5-4336-a48d-3e55a6f4fce5"),
+    trigger_automatic_check: false
+  }
+
   setup_all [:setup_dirs]
 
   describe "submission upload" do
     setup :verify_on_exit!
 
     test "allow upload with valid size" do
-      expect(ZhrDevs.MockDocker, :zip_test, fn _solution_path -> true end)
+      expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, fn _ -> @task end)
 
       allowed_size = Application.get_env(:zhr_devs, :max_upload_size)
       bytes = :crypto.strong_rand_bytes(allowed_size)
