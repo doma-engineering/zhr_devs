@@ -12,7 +12,7 @@ defmodule ZhrDevs.Email do
   defp noreply(to, subject, html, text) do
     new_email(
       from: "no-reply@zhr.dev",
-      to: to.text,
+      to: to,
       subject: subject.text,
       html_body: html.text,
       text_body: text.text
@@ -45,7 +45,7 @@ defmodule ZhrDevs.Email do
     """
 
     noreply(
-      T.new!(@submissions_operator),
+      @submissions_operator,
       T.new!(@solution_submitted_subject),
       T.new!(html),
       T.new!(text)
