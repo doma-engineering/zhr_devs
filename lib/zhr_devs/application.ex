@@ -18,16 +18,19 @@ defmodule ZhrDevs.Application do
       IdentityManagement.EventHandler,
       Submissions.EventHandler,
       Tasks.EventHandler,
-      {Plug.Cowboy,
-       scheme: :http,
-       plug: ZhrDevs.Web.PublicRouter,
-       options: [
-         otp_app: :zhr_devs,
-         port: Application.get_env(:zhr_devs, :server)[:port]
-       ]}
+      cowboy_child_spec()
     ]
 
     opts = [strategy: :one_for_one, name: ZhrDevs.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp cowboy_child_spec do
+    {
+      Plug.Cowboy,
+      scheme: Application.fetch_env!(:zhr_devs, :server)[:scheme],
+      options: Application.fetch_env!(:zhr_devs, :server)[:cowboy_opts],
+      plug: ZhrDevs.Web.PublicRouter
+    }
   end
 end

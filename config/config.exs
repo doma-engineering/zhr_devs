@@ -1,9 +1,14 @@
 import Config
 
 config :zhr_devs, :server,
-  port: 4001,
   host: "localhost",
-  scheme: "http"
+  scheme: :http,
+  port: 4001
+
+config :zhr_devs, :server,
+  cowboy_opts: [
+    otp_app: :zhr_devs
+  ]
 
 config :zhr_devs,
   task_support: [

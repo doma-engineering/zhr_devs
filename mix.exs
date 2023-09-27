@@ -27,6 +27,7 @@ defmodule ZhrDevs.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:castore, "~> 1.0"},
       {:plug_cowboy, "~> 2.6"},
       {:corsica, "~> 1.3"},
       {:doma_oauth, github: "doma-engineering/doma_oauth", tag: "0.1.1"},
