@@ -8,10 +8,7 @@ config :zhr_devs, :server,
   port: port,
   cowboy_opts: [
     port: port,
-    otp_app: :zhr_devs,
-    ip: {0, 0, 0, 0, 0, 0, 0, 0},
-    keyfile: System.get_env("SSL_KEYFILE"),
-    certfile: System.get_env("SSL_CERTFILE")
+    otp_app: :zhr_devs
   ]
 
 config :zhr_devs, ZhrDevs.EventStore,
