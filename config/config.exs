@@ -7,7 +7,8 @@ config :zhr_devs, :server,
 
 config :zhr_devs, :server,
   cowboy_opts: [
-    otp_app: :zhr_devs
+    otp_app: :zhr_devs,
+    port: 4001
   ]
 
 config :zhr_devs,

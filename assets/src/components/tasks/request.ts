@@ -17,7 +17,7 @@ export default async function fetchTasks(host: string, port: string): Promise<Ta
         }
     }
 
-    const url = `${window.location.protocol}//${host}:${port}/my/tasks`
+    const url = 'my/tasks'
 
     return fetch(url, opts).then(response => response.json())
 }

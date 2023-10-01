@@ -27,7 +27,6 @@ defmodule ZhrDevs.Web.ProtectedRouter do
   plug(:dispatch)
 
   get "/" do
-    conn = put_resp_content_type(conn, "text/html")
     send_file(conn, 200, "priv/static/index.html")
   end
 
@@ -53,7 +52,8 @@ defmodule ZhrDevs.Web.ProtectedRouter do
 
       :unauthenticated ->
         conn
-        |> ZhrDevs.Web.Shared.send_json(401, %{error: "Unauthorized", code: 401})
+        |> put_resp_content_type("text/html")
+        |> send_file(401, "priv/pages/login.html")
         |> halt()
     end
   end
