@@ -86,9 +86,8 @@ defmodule ZhrDevs.Submissions.EventHandler do
 
   defp submission_url(uuid) do
     %URI{
-      scheme: to_string(Application.fetch_env!(:zhr_devs, :server)[:scheme]),
-      host: Application.fetch_env!(:zhr_devs, :server)[:host],
-      port: Application.fetch_env!(:zhr_devs, :server)[:port],
+      scheme: System.get_env("PUBLIC_SCHEME", "http"),
+      host: System.get_env("PUBLIC_HOST", "localhost"),
       path: "/my/submission/#{uuid}/download"
     }
     |> URI.to_string()
