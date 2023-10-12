@@ -11,7 +11,7 @@ defmodule ZhrDevs.Submissions.TransactionalEmailsSender do
   use Commanded.Event.Handler,
     application: ZhrDevs.App,
     name: __MODULE__,
-    start_from: :current
+    start_from: :origin
 
   alias ZhrDevs.{Email, Mailer}
 

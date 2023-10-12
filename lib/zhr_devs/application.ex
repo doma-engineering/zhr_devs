@@ -18,6 +18,7 @@ defmodule ZhrDevs.Application do
       IdentityManagement.EventHandler,
       Submissions.EventHandler,
       Tasks.EventHandler,
+      ZhrDevs.Submissions.TransactionalEmailsSender,
       cowboy_child_spec()
     ]
 
