@@ -45,7 +45,8 @@ config :zhr_devs, :event_store,
 config :ueberauth, Ueberauth,
   providers: [
     google: {Ueberauth.Strategy.Google, [default_scope: "email"]},
-    github: {Ueberauth.Strategy.Github, [default_scope: "user:email"]} # https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps
+    # https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps
+    github: {Ueberauth.Strategy.Github, [default_scope: "user:email"]}
   ]
 
 config :ueberauth, Ueberauth.Strategy.Github.OAuth,
