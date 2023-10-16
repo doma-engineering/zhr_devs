@@ -31,8 +31,22 @@ defmodule ZhrDevs.Web.PublicRouter do
   plug(:dispatch)
 
   get "/login" do
-    conn = put_resp_content_type(conn, "text/html")
-    send_file(conn, 200, "priv/pages/login.html")
+    case get_session(conn, :hashed_identity) do
+      nil ->
+        conn
+        |> put_resp_content_type("text/html")
+        |> send_file(200, "priv/pages/login.html")
+
+      _ ->
+        Web.Shared.redirect_to(conn, "/my")
+    end
+  end
+
+  get "/signout" do
+    conn
+    |> clear_session()
+    |> put_resp_content_type("text/html")
+    |> send_file(200, "priv/pages/login.html")
   end
 
   get("/auth/:provider/callback",
@@ -58,9 +72,7 @@ defmodule ZhrDevs.Web.PublicRouter do
   end
 
   match _ do
-    conn
-    |> send_resp(404, "Not found")
-    |> halt()
+    Web.Shared.redirect_to(conn, "/my")
   end
 
   @impl Plug.ErrorHandler

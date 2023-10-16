@@ -1,9 +1,15 @@
 import Config
 
 config :zhr_devs, :server,
-  port: 4001,
   host: "localhost",
-  scheme: "http"
+  scheme: :http,
+  port: 4001
+
+config :zhr_devs, :server,
+  cowboy_opts: [
+    otp_app: :zhr_devs,
+    port: 4001
+  ]
 
 config :zhr_devs,
   task_support: [
@@ -38,8 +44,9 @@ config :zhr_devs, :event_store,
 
 config :ueberauth, Ueberauth,
   providers: [
-    google: {Ueberauth.Strategy.Google, []},
-    github: {Ueberauth.Strategy.Github, []}
+    google: {Ueberauth.Strategy.Google, [default_scope: "email"]},
+    # https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps
+    github: {Ueberauth.Strategy.Github, [default_scope: "user:email"]}
   ]
 
 config :ueberauth, Ueberauth.Strategy.Github.OAuth,

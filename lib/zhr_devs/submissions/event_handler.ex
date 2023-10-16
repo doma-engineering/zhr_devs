@@ -30,8 +30,6 @@ defmodule ZhrDevs.Submissions.EventHandler do
 
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads
 
-  alias ZhrDevs.{Email, Mailer}
-
   def init do
     :ok = ZhrDevs.Queries.delete_handler_subscriptions(__MODULE__)
   end
@@ -45,8 +43,6 @@ defmodule ZhrDevs.Submissions.EventHandler do
       solution_submitted.hashed_identity,
       task
     )
-
-    maybe_notify_operator(solution_submitted, task)
   end
 
   def handle(%SolutionCheckStarted{} = event, _meta) do
@@ -61,36 +57,5 @@ defmodule ZhrDevs.Submissions.EventHandler do
 
   def handle(%TestCasesDownloaded{task_uuid: task_uuid}, _meta) do
     :ok = TaskDownloads.increment_downloads(task_uuid, :test_cases)
-  end
-
-  defp maybe_notify_operator(%SolutionSubmitted{trigger_automatic_check: false} = event, task) do
-    opts = [
-      task_name: task.name,
-      technology: task.technology,
-      submission_url: submission_url(event.uuid),
-      hashed_identity: event.hashed_identity
-    ]
-
-    opts
-    |> Email.solution_submitted()
-    |> Mailer.deliver_now!()
-
-    :ok
-  end
-
-  defp maybe_notify_operator(_solution_submitted, _task) do
-    # Skip notifying operator if automatic check is enabled
-
-    :ok
-  end
-
-  defp submission_url(uuid) do
-    %URI{
-      scheme: Application.fetch_env!(:zhr_devs, :server)[:scheme],
-      host: Application.fetch_env!(:zhr_devs, :server)[:host],
-      port: Application.fetch_env!(:zhr_devs, :server)[:port],
-      path: "/my/submission/#{uuid}/download"
-    }
-    |> URI.to_string()
   end
 end

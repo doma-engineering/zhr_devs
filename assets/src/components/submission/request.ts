@@ -20,7 +20,7 @@ export async function fetchSubmissionInfo(technology: string, task: string, host
         }
     }
 
-    const url = `${window.location.protocol}//${host}:${port}/my/submission/nt/${task}/${technology}`
+    const url = `/my/submission/nt/${task}/${technology}`
 
     return fetch(url, opts).then(response => response.json())
 }
