@@ -49,7 +49,8 @@ defmodule ZhrDevs.MixProject do
 
       # Emails
       {:bamboo_smtp, "~> 4.2"},
-      {:mime, "~> 1.0 or ~> 2.0"}
+      {:mime, "~> 1.0 or ~> 2.0"},
+      {:cron, "~> 0.1.0"}
     ]
   end
 end
