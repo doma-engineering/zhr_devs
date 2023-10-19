@@ -8,12 +8,13 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
   alias Uptight.Text, as: T
   alias Uptight.Result
 
-  @gen_multiplayer [".", "priv", "bakery", "gen_multiplayer"] |> map(&T.new!/1) |> Ubuntu.Path.new!()
+  @gen_multiplayer [".", "priv", "bakery", "gen_multiplayer"]
+                   |> map(&T.new!/1)
+                   |> Ubuntu.Path.new!()
 
   def gen_multiplayer, do: @gen_multiplayer
 
   def call() do
-
   end
 
   def build(opts \\ []) do

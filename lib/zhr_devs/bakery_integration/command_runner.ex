@@ -1,53 +1,59 @@
-# defmodule ZhrDevs.BakeryIntegration.CommandRunner do
-#   @moduledoc """
-#   Generic process that will run the given command
-#   """
-#   use GenServer
+defmodule ZhrDevs.BakeryIntegration.CommandRunner do
+  @moduledoc """
+  Generic process that will run the given command
+  """
+  use GenServer
 
-#   alias Uptight.Text, as: T
+  alias Uptight.Text, as: T
 
-#   import Witchcraft.Functor
+  import Witchcraft.Functor
 
-#   require Logger
+  require Logger
 
-#   defmodule State do
-#     defstruct [:port, :latest_output, :exit_status]
-#   end
+  defmodule State do
+    defstruct [:port, :latest_output, :exit_status]
+  end
 
-#   def init(%Ubuntu.Command{} = cmd) do
-#     port =
-#       Port.open(
-#         {:spawn_executable, cmd.path |> Ubuntu.Path.render() |> T.un()},
-#         [:binary, args: cmd.args |> map(&T.un/1)]
-#       )
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, opts)
+  end
 
-#     Port.monitor(port)
+  def init(opts) do
+    cmd = Keyword.fetch!(opts, :cmd)
 
-#     {:ok, %State{port: port}}
-#   end
+    port =
+      Port.open(
+        {:spawn_executable, cmd.path |> Ubuntu.Path.render() |> T.un()},
+        [:binary, args: cmd.args |> map(&T.un/1)]
+      )
 
-#   # This callback handles data incoming from the command's STDOUT
-#   def handle_info({port, {:data, text_line}}, %{port: port} = state) do
-#     Logger.info "Data: #{inspect text_line}"
-#     {:noreply, %State{state | latest_output: String.trim(text_line)}}
-#   end
+    Port.monitor(port)
 
-#   # This callback tells us when the process exits
-#   def handle_info({port, {:exit_status, status}}, %{port: port} = state) do
-#     Logger.info "Port exit: :exit_status: #{status}"
+    {:ok, %State{port: port}}
+  end
 
-#     new_state = %State{state | exit_status: status}
+  # This callback handles data incoming from the command's STDOUT
+  def handle_info({port, {:data, text_line}}, %{port: port} = state) do
+    Logger.info("Data: #{inspect(text_line)}")
+    {:noreply, %State{state | latest_output: String.trim(text_line)}}
+  end
 
-#     {:noreply, new_state}
-#   end
+  # This callback tells us when the process exits
+  def handle_info({port, {:exit_status, status}}, %{port: port} = state) do
+    Logger.info("Port exit: :exit_status: #{status}")
 
-#   def handle_info({:DOWN, _ref, :port, port, :normal}, state) do
-#     Logger.info "Handled :DOWN message from port: #{inspect port}"
-#     {:noreply, state}
-#   end
+    new_state = %State{state | exit_status: status}
 
-#   def handle_info(msg, state) do
-#     Logger.info "Unhandled message: #{inspect msg}"
-#     {:noreply, state}
-#   end
-# end
+    {:noreply, new_state}
+  end
+
+  def handle_info({:DOWN, _ref, :port, port, :normal}, state) do
+    Logger.info("Handled :DOWN message from port: #{inspect(port)}")
+    {:noreply, state}
+  end
+
+  def handle_info(msg, state) do
+    Logger.info("Unhandled message: #{inspect(msg)}")
+    {:noreply, state}
+  end
+end
