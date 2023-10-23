@@ -9,8 +9,8 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
 
   require Logger
 
-  alias Uptight.Text, as: T
   alias Uptight.Result
+  alias Uptight.Text, as: T
 
   @gen_multiplayer [".", "priv", "bakery", "gen_multiplayer"]
                    |> map(&T.new!/1)
@@ -77,7 +77,13 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
     :ok
   end
 
-  def output_json_path(task) do
+  def output_json_path(task) when is_atom(task) do
+    task
+    |> Atom.to_string()
+    |> output_json_path()
+  end
+
+  def output_json_path(task) when is_binary(task) do
     Path.join([File.cwd!(), "tournament", task, "output.json"])
   end
 end
