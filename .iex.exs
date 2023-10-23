@@ -30,3 +30,13 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 # ZhrDevs.Tasks.Commands.ChangeTaskMode.dispatch(technology: "goo", name: "on_the_map", trigger_automatic_check: true)
 
 ### End Task supporting commands ###
+
+# opts = [
+#  submissions_folder: %Uptight.Text{text: "/home/nox/zhr_bakery/submissions"},
+#  server_code: %Uptight.Text{text: "/home/nox/on_the_map_goo"},
+#  task: "on_the_map_goo"
+# ]
+
+# cmd = ZhrDevs.BakeryIntegration.Commands.GenMultiplayer.run(opts)
+
+# IO.inspect(cmd)

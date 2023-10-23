@@ -45,3 +45,4 @@ priv/uploads/test/*
 /config/*.secret.auto.exs
 logfile
 pgdata/
+tournament/
