@@ -18,6 +18,9 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunner do
   require Logger
 
   defmodule State do
+    @moduledoc """
+    State of the individual process
+    """
     defstruct [:port, :latest_output, :exit_status, :on_success, :on_failure]
   end
 
@@ -42,7 +45,7 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunner do
   end
 
   # This callback handles data incoming from the command's STDOUT
-  def handle_info({_port, {:data, text_line}}, state) do
+  def handle_info({port, {:data, text_line}}, %{port: port} = state) do
     {:noreply, %State{state | latest_output: String.trim(text_line)}}
   end
 
@@ -51,7 +54,7 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunner do
     Logger.info("Port exit: :exit_status: #{status}")
 
     error = %{error: :execution_stopped, context: state.latest_output, exit_status: status}
-    :ok = state.on_error.(error)
+    :ok = state.on_failure.(error)
 
     {:stop, :shutdown, state}
   end
@@ -65,7 +68,8 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunner do
 
       {:error, error} ->
         formatted_error = %{error: :on_success_not_met, context: state.latest_output}
-        :ok = state.on_error.(formatted_error)
+
+        :ok = state.on_failure.(formatted_error)
 
         {:stop, {:shutdown, {error, state.latest_output}}, state}
     end
