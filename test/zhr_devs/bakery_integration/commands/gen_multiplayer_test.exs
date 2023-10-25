@@ -10,6 +10,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
   use Witchcraft.Comonad
 
   import ExUnit.CaptureLog
+  import Commanded.Assertions.EventAssertions
 
   describe "output_json_path/1" do
     test "with atom task - returns expected path" do
@@ -72,29 +73,59 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
   end
 
   describe "on_success/1" do
-    test "with existing output file - returns :ok" do
-      output_json_path = GenMultiplayer.output_json_path(:task)
-      :ok = File.mkdir_p!([Path.dirname(output_json_path)])
-      File.write!(output_json_path, "{}")
+    defp init_aggregate_state(task_uuid, solution_uuid) do
+      :ok =
+        ZhrDevs.App.dispatch(%ZhrDevs.Submissions.Commands.StartCheckSolution{
+          task_uuid: task_uuid,
+          solution_uuid: solution_uuid,
+          solution_path: "/some/path"
+        })
 
-      on_exit(:cleanup, fn -> File.rm!(output_json_path) end)
+      wait_for_event(ZhrDevs.App, ZhrDevs.Submissions.Events.SolutionCheckStarted, fn event ->
+        event.solution_uuid == solution_uuid
+      end)
+    end
+
+    setup do
+      task_uuid = Commanded.UUID.uuid4() |> T.new!()
+      solution_uuid = Commanded.UUID.uuid4() |> T.new!()
+
+      init_aggregate_state(task_uuid, solution_uuid)
+
+      %{opts: [task_uuid: task_uuid, solution_uuid: solution_uuid]}
+    end
+
+    test "with existing output file - returns :ok", %{opts: default_opts} do
+      output_json_path = GenMultiplayer.output_json_path(:task)
+      opts = Keyword.put(default_opts, :output_json_path, output_json_path)
+
+      :ok = File.mkdir_p!([Path.dirname(output_json_path)])
+      File.write!(output_json_path, Jason.encode!(%{gen_multiplayer_score: []}))
+
+      on_exit(:cleanup, fn ->
+        File.rm_rf!(
+          Path.join([Application.fetch_env!(:zhr_devs, :output_json_backup_folder), "task_uuid"])
+        )
+      end)
 
       assert capture_log([level: :info], fn ->
-               assert :ok = GenMultiplayer.on_success(output_json_path)
+               assert :ok = GenMultiplayer.on_success(opts)
              end) =~ "Successfully generated tournament output"
     end
 
-    test "with non existing output.json file - returns error tuple" do
+    test "with non existing output.json file - returns error tuple", %{opts: default_opts} do
       output_json_path = GenMultiplayer.output_json_path(:non_existing)
+      opts = Keyword.put(default_opts, :output_json_path, output_json_path)
 
-      assert {:error, _} = GenMultiplayer.on_success(output_json_path)
+      assert {:error, _} = GenMultiplayer.on_success(opts)
     end
 
-    test "with non existing output.json file - logs an error" do
+    test "with non existing output.json file - logs an error", %{opts: default_opts} do
       output_json_path = GenMultiplayer.output_json_path(:non_existing)
+      opts = Keyword.put(default_opts, :output_json_path, output_json_path)
 
       assert capture_log([level: :error], fn ->
-               assert {:error, _} = GenMultiplayer.on_success(output_json_path)
+               assert {:error, _} = GenMultiplayer.on_success(opts)
              end) =~ "Failed to generate multiplayer"
     end
   end

@@ -24,7 +24,8 @@ config :zhr_devs,
   }
 
 config :zhr_devs,
-  submission_uploads_folder: "/home/nox/submissions"
+  submission_uploads_folder: "/home/nox/submissions",
+  output_json_backup_folder: "/home/nox/output_backup"
 
 config :zhr_devs,
   uploads_path: Path.expand("./priv/uploads/#{Mix.env()}"),

@@ -12,9 +12,13 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
   alias Uptight.Result
   alias Uptight.Text, as: T
 
+  alias ZhrDevs.Submissions.Commands.CompleteCheckSolution
+
   @gen_multiplayer [".", "priv", "bakery", "gen_multiplayer"]
                    |> map(&T.new!/1)
                    |> Ubuntu.Path.new!()
+
+  @output_json_backup_folder Application.compile_env!(:zhr_devs, :output_json_backup_folder)
 
   def gen_multiplayer, do: @gen_multiplayer
 
@@ -22,12 +26,15 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
   def run(opts) do
     case build(opts) do
       %Result.Ok{ok: fields} ->
-        cmd = Keyword.fetch!(fields, :cmd)
-        output_json_path = Keyword.fetch!(fields, :output_json_path)
+        on_success_opts = [
+          output_json_path: Keyword.fetch!(fields, :output_json_path),
+          task_uuid: Keyword.fetch!(opts, :task_uuid),
+          solution_uuid: Keyword.fetch!(opts, :solution_uuid)
+        ]
 
         opts = [
-          cmd: cmd,
-          on_success: fn -> __MODULE__.on_success(output_json_path) end,
+          cmd: Keyword.fetch!(fields, :cmd),
+          on_success: fn -> __MODULE__.on_success(on_success_opts) end,
           on_failure: fn error -> __MODULE__.on_failure(error) end
         ]
 
@@ -51,12 +58,26 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
     end)
   end
 
-  def on_success(output_file_path) do
+  def on_success(opts) do
+    output_file_path = Keyword.fetch!(opts, :output_json_path)
+    task_uuid = Keyword.fetch!(opts, :task_uuid)
+    solution_uuid = Keyword.fetch!(opts, :solution_uuid)
+
     if File.exists?(output_file_path) do
       Logger.info("Successfully generated tournament output: #{inspect(output_file_path)}")
 
-      # We want to issue a command here for sure.
-      :ok
+      complete_check_solution = %CompleteCheckSolution{
+        solution_uuid: solution_uuid,
+        task_uuid: task_uuid,
+        score: extract_score!(output_file_path)
+      }
+
+      :ok = persist_output(output_file_path, task_uuid, solution_uuid)
+
+      # We now want to safely delete the original output.json (maybe with the whole tournament dir?)
+      :ok = File.rm!(output_file_path)
+
+      ZhrDevs.App.dispatch(complete_check_solution)
     else
       Logger.error("Failed to generate multiplayer: #{inspect(output_file_path)}")
 
@@ -88,5 +109,17 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
 
   def output_json_path(task) when is_binary(task) do
     Path.join([File.cwd!(), "tournament", task, "output.json"])
+  end
+
+  defp extract_score!(path) do
+    path |> File.read!() |> Jason.decode!() |> Map.fetch!("gen_multiplayer_score")
+  end
+
+  defp persist_output(output_json_file_path, task_uuid, solution_uuid) do
+    backup_path =
+      Path.join([@output_json_backup_folder, T.un(task_uuid), "#{T.un(solution_uuid)}.json"])
+
+    :ok = File.mkdir_p!(Path.dirname(backup_path))
+    :ok = File.cp!(output_json_file_path, backup_path)
   end
 end

@@ -24,8 +24,7 @@ defmodule ZhrDevs.Submissions.Commands.CompleteCheckSolutionTest do
         task_uuid: "doesn't matter",
         score: %{
           "points" => 1
-        },
-        is_baseline: false
+        }
       }
 
       assert :ok = App.dispatch(command)
@@ -43,8 +42,7 @@ defmodule ZhrDevs.Submissions.Commands.CompleteCheckSolutionTest do
         task_uuid: "doesn't matter",
         score: %{
           "points" => 100
-        },
-        is_baseline: true
+        }
       }
 
       for _ <- 1..3, do: App.dispatch(command)
