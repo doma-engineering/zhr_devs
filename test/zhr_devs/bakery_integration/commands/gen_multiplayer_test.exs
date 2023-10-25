@@ -17,7 +17,8 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
     end
 
     test "with string task - returns expected path" do
-      assert GenMultiplayer.output_json_path("task") =~ "tournament/task/output.json"
+      assert GenMultiplayer.output_json_path("on_the_map_goo") =~
+               "tournament/on_the_map_goo/output.json"
     end
   end
 
