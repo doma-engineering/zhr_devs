@@ -30,6 +30,8 @@ defmodule ZhrDevs.Submissions.EventHandler do
 
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads
 
+  alias Uptight.Text, as: T
+
   def init do
     :ok = ZhrDevs.Queries.delete_handler_subscriptions(__MODULE__)
   end
@@ -46,24 +48,30 @@ defmodule ZhrDevs.Submissions.EventHandler do
   end
 
   def handle(%SolutionCheckStarted{solution_path: solution_path} = event, _meta) do
-    Logger.info("Solution check started: #{inspect(event)}")
-
     %ZhrDevs.Task{} =
       task = ZhrDevs.Tasks.ReadModels.AvailableTasks.get_task_by_uuid(event.task_uuid)
 
+    server_code =
+      T.new!(
+        Application.fetch_env!(:zhr_devs, :server_code_folders)[{task.name, task.technology}]
+      )
+
     opts = [
-      submissions_folder: Path.dirname(solution_path),
-      server_code:
-        Application.fetch_env!(:zhr_devs, :server_code_folders)[{task.name, task.technology}],
-      task: "#{task.name}_#{task.technology}"
+      submissions_folder: solution_path |> T.un() |> Path.dirname() |> T.new!(),
+      server_code: server_code,
+      task: "#{task.name}_#{task.technology}",
+      solution_uuid: event.solution_uuid,
+      task_uuid: event.task_uuid
     ]
 
-    case ZhrDevs.Submissions.start_automatic_check(opts) do
+    case ZhrDevs.BakeryIntegration.Commands.GenMultiplayer.run(opts) do
       {:ok, _pid} ->
+        Logger.info("[#{__MODULE__}] Solution check started: #{inspect(event)}")
+
         :ok
 
       error ->
-        error
+        {:error, error}
     end
   end
 
