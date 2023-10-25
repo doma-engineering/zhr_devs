@@ -45,10 +45,26 @@ defmodule ZhrDevs.Submissions.EventHandler do
     )
   end
 
-  def handle(%SolutionCheckStarted{} = event, _meta) do
+  def handle(%SolutionCheckStarted{solution_path: solution_path} = event, _meta) do
     Logger.info("Solution check started: #{inspect(event)}")
 
-    :ok
+    %ZhrDevs.Task{} =
+      task = ZhrDevs.Tasks.ReadModels.AvailableTasks.get_task_by_uuid(event.task_uuid)
+
+    opts = [
+      submissions_folder: Path.dirname(solution_path),
+      server_code:
+        Application.fetch_env!(:zhr_devs, :server_code_folders)[{task.name, task.technology}],
+      task: "#{task.name}_#{task.technology}"
+    ]
+
+    case ZhrDevs.Submissions.start_automatic_check(opts) do
+      {:ok, _pid} ->
+        :ok
+
+      error ->
+        error
+    end
   end
 
   def handle(%TaskDownloaded{task_uuid: task_uuid}, _meta) do

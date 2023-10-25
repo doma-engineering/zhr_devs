@@ -14,6 +14,13 @@ defmodule ZhrDevs.Submissions do
     )
   end
 
+  def start_automatic_check(opts) do
+    DynamicSupervisor.start_child(
+      ZhrDevs.Submissions.CheckSupervisor,
+      {ZhrDevs.BakeryIntegration.CommandRunner, opts}
+    )
+  end
+
   def get_submission(hashed_identity) do
     case lookup_submissions_registry(hashed_identity) do
       [{pid, _}] when is_pid(pid) ->

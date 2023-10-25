@@ -25,7 +25,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionUploadTest do
     setup :verify_on_exit!
 
     test "allow upload with valid size" do
-      expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, fn _ -> @task end)
+      expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, 2, fn _ -> @task end)
 
       allowed_size = Application.get_env(:zhr_devs, :max_upload_size)
       bytes = :crypto.strong_rand_bytes(allowed_size)
@@ -41,6 +41,8 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionUploadTest do
     end
 
     test "doesn't allow to upload files with invalid mime type" do
+      expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, fn _ -> @task end)
+
       params = %{
         submission: %Plug.Upload{
           path: "test/support/testfile.txt",

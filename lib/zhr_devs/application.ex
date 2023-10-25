@@ -6,6 +6,7 @@ defmodule ZhrDevs.Application do
 
   alias ZhrDevs.Otp.ProcessManagersSupervisor
   alias ZhrDevs.Otp.ProjectionsSupervisor
+  alias ZhrDevs.Otp.SubmissionSupervisor
 
   @impl true
   def start(_type, _args) do
@@ -15,6 +16,7 @@ defmodule ZhrDevs.Application do
       ZhrDevs.App,
       ProjectionsSupervisor,
       ProcessManagersSupervisor,
+      SubmissionSupervisor,
       IdentityManagement.EventHandler,
       Submissions.EventHandler,
       Tasks.EventHandler,

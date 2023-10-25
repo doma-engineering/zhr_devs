@@ -16,8 +16,15 @@ config :zhr_devs,
     goo: [:on_the_map],
     rust: [:hanooy_maps],
     unity: [:cuake]
-  ],
-  docker_module: ZhrDevs.Docker.Real
+  ]
+
+config :zhr_devs,
+  server_code_folders: %{
+    {:on_the_map, :goo} => "/home/nox/on_the_map_goo"
+  }
+
+config :zhr_devs,
+  submission_uploads_folder: "/home/nox/submissions"
 
 config :zhr_devs,
   uploads_path: Path.expand("./priv/uploads/#{Mix.env()}"),
