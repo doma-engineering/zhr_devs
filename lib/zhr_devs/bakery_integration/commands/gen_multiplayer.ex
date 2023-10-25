@@ -18,17 +18,20 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
 
   def gen_multiplayer, do: @gen_multiplayer
 
+  @spec run(Keyword.t()) :: {:ok, pid} | Result.Err.t()
   def run(opts) do
     case build(opts) do
       %Result.Ok{ok: fields} ->
         cmd = Keyword.fetch!(fields, :cmd)
         output_json_path = Keyword.fetch!(fields, :output_json_path)
 
-        ZhrDevs.BakeryIntegration.CommandRunner.start_link(
+        opts = [
           cmd: cmd,
           on_success: fn -> __MODULE__.on_success(output_json_path) end,
           on_failure: fn error -> __MODULE__.on_failure(error) end
-        )
+        ]
+
+        ZhrDevs.Submissions.start_automatic_check(opts)
 
       error ->
         error

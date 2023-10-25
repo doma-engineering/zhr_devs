@@ -6,6 +6,7 @@ defmodule ZhrDevs.Application do
 
   alias ZhrDevs.Otp.ProcessManagersSupervisor
   alias ZhrDevs.Otp.ProjectionsSupervisor
+  alias ZhrDevs.Otp.SubmissionSupervisor
 
   @impl true
   def start(_type, _args) do
@@ -14,7 +15,8 @@ defmodule ZhrDevs.Application do
       {DynamicSupervisor, strategy: :one_for_one, name: ZhrDevs.DynamicSupervisor},
       {Task.Supervisor, name: ZhrDevs.EmailsSendingSupervisor},
       ProjectionsSupervisor,
-      ZhrDevs.App,
+      ProcessManagersSupervisor,
+      SubmissionSupervisor,
       IdentityManagement.EventHandler,
       Submissions.EventHandler,
       Tasks.EventHandler,

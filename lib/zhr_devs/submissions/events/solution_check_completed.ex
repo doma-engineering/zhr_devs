@@ -8,7 +8,8 @@ defmodule ZhrDevs.Submissions.Events.SolutionCheckCompleted do
   @fields [
     solution_uuid: Text.new(),
     task_uuid: Text.new(),
-    points: 0
+    score: %{},
+    is_baseline: false
   ]
   @enforce_keys Keyword.keys(@fields)
   @derive Jason.Encoder
