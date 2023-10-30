@@ -22,18 +22,18 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
 
   def gen_multiplayer, do: @gen_multiplayer
 
-  @spec run(Keyword.t()) :: {:ok, pid} | Result.Err.t()
+  @spec run(Keyword.t()) :: {:ok, pid} | {:error, atom()} | Result.Err.t()
   def run(opts) do
     case build(opts) do
-      %Result.Ok{ok: fields} ->
+      %Result.Ok{ok: command_options} ->
         on_success_opts = [
-          output_json_path: Keyword.fetch!(fields, :output_json_path),
+          output_json_path: Keyword.fetch!(command_options, :output_json_path),
           task_uuid: Keyword.fetch!(opts, :task_uuid),
           solution_uuid: Keyword.fetch!(opts, :solution_uuid)
         ]
 
         opts = [
-          cmd: Keyword.fetch!(fields, :cmd),
+          cmd: Keyword.fetch!(command_options, :cmd),
           on_success: fn -> __MODULE__.on_success(on_success_opts) end,
           on_failure: fn error -> __MODULE__.on_failure(error) end
         ]
