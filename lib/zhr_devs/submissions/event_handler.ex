@@ -23,7 +23,6 @@ defmodule ZhrDevs.Submissions.EventHandler do
     name: __MODULE__,
     start_from: :origin
 
-  alias ZhrDevs.Submissions.Events.SolutionCheckStarted
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
   alias ZhrDevs.Submissions.Events.TaskDownloaded
   alias ZhrDevs.Submissions.Events.TestCasesDownloaded
@@ -45,34 +44,8 @@ defmodule ZhrDevs.Submissions.EventHandler do
       solution_submitted.hashed_identity,
       task
     )
-  end
 
-  def handle(%SolutionCheckStarted{solution_path: solution_path} = event, _meta) do
-    %ZhrDevs.Task{} =
-      task = ZhrDevs.Tasks.ReadModels.AvailableTasks.get_task_by_uuid(event.task_uuid)
-
-    server_code =
-      T.new!(
-        Application.fetch_env!(:zhr_devs, :server_code_folders)[{task.name, task.technology}]
-      )
-
-    opts = [
-      submissions_folder: solution_path |> T.un() |> Path.dirname() |> T.new!(),
-      server_code: server_code,
-      task: "#{task.name}_#{task.technology}",
-      solution_uuid: event.solution_uuid,
-      task_uuid: event.task_uuid
-    ]
-
-    case ZhrDevs.BakeryIntegration.Commands.GenMultiplayer.run(opts) do
-      {:ok, _pid} ->
-        Logger.info("[#{__MODULE__}] Solution check started: #{inspect(event)}")
-
-        :ok
-
-      error ->
-        {:error, error}
-    end
+    :ok
   end
 
   def handle(%TaskDownloaded{task_uuid: task_uuid}, _meta) do
@@ -81,5 +54,9 @@ defmodule ZhrDevs.Submissions.EventHandler do
 
   def handle(%TestCasesDownloaded{task_uuid: task_uuid}, _meta) do
     :ok = TaskDownloads.increment_downloads(task_uuid, :test_cases)
+  end
+
+  def error(:max_attempts_reached, %SolutionSubmitted{}, _meta) do
+    :skip
   end
 end

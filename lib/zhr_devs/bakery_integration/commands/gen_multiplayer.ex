@@ -24,25 +24,10 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
 
   @spec run(Keyword.t()) :: {:ok, pid} | {:error, atom()} | Result.Err.t()
   def run(opts) do
-    case build(opts) do
-      %Result.Ok{ok: command_options} ->
-        on_success_opts = [
-          output_json_path: Keyword.fetch!(command_options, :output_json_path),
-          task_uuid: Keyword.fetch!(opts, :task_uuid),
-          solution_uuid: Keyword.fetch!(opts, :solution_uuid)
-        ]
-
-        opts = [
-          cmd: Keyword.fetch!(command_options, :cmd),
-          on_success: fn -> __MODULE__.on_success(on_success_opts) end,
-          on_failure: fn error -> __MODULE__.on_failure(error) end
-        ]
-
-        ZhrDevs.Submissions.start_automatic_check(opts)
-
-      error ->
-        error
-    end
+    opts
+    |> build()
+    |> Result.from_ok()
+    |> ZhrDevs.Submissions.start_automatic_check()
   end
 
   def build(opts \\ []) do
@@ -51,9 +36,16 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
       %T{} = server_code = Keyword.fetch!(opts, :server_code)
       task = Keyword.fetch!(opts, :task)
 
+      on_success_opts = [
+        output_json_path: output_json_path(task),
+        task_uuid: Keyword.fetch!(opts, :task_uuid),
+        solution_uuid: Keyword.fetch!(opts, :solution_uuid)
+      ]
+
       [
         cmd: Ubuntu.Command.new(@gen_multiplayer, [submissions_folder, server_code]),
-        output_json_path: output_json_path(task)
+        on_success: fn -> __MODULE__.on_success(on_success_opts) end,
+        on_failure: fn error -> __MODULE__.on_failure(error) end
       ]
     end)
   end

@@ -9,10 +9,27 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 # build_submission_opts = fn identity, task, solution_path ->
 #   [
 #     hashed_identity: DomaOAuth.hash(identity),
-#     task_uuid: DomaOAuth.hash(task),
-#     technology: "elixir",
+#     task_uuid: "ab524c15-eff7-493f-82a0-4d4fed18424e",
+#     technology: "goo",
 #     solution_path: solution_path
 #   ]
+
+# :sys.get_state(ZhrDevs.BakeryIntegration.Queue)
+# [
+#   hashed_identity: "BPLA_szi6TIEB4aeYnDQX8YS3rbVrMTpHSsSWXA=",
+#   task_uuid: "504b984a-1afb-4e7b-8e75-d72afc78e0cc",
+#   technology: "goo",
+#   solution_path: "/home/nox/zhr_bakery/submissions/2.zip"
+# ]
+
+# ZhrDevs.App.dispatch(
+#   %ZhrDevs.Submissions.Commands.CompleteCheckSolution{
+#     solution_uuid: Uptight.Text.new!("47b54b5c-6aca-4592-bfb4-8faadcfd94cb"),
+#     task_uuid: Uptight.Text.new!("504b984a-1afb-4e7b-8e75-d72afc78e0cc"),
+#     score: %{"points" => 50}
+#   }
+# )
+
 # To check actual Check aggregate state:
 # Commanded.Aggregates.Aggregate.aggregate_state(ZhrDevs.App, ZhrDevs.Submissions.Aggregates.Check, solution_uuid)
 
@@ -34,7 +51,7 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 # opts = [
 #  submissions_folder: %Uptight.Text{text: "/home/nox/zhr_bakery/submissions"},
 #  server_code: %Uptight.Text{text: "/home/nox/on_the_map_goo"},
-#  task: "on_the_map_goo"
+#  task_uuid: %Uptight.Text{text: "ab524c15-eff7-493f-82a0-4d4fed18424e"}
 # ]
 
 # cmd = ZhrDevs.BakeryIntegration.Commands.GenMultiplayer.run(opts)
