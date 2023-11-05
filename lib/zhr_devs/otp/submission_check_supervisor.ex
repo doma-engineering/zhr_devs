@@ -14,10 +14,12 @@ defmodule ZhrDevs.Otp.SubmissionSupervisor do
   @impl Supervisor
   def init([]) do
     children = [
-      {DynamicSupervisor, check_supervisor_opts()}
+      {DynamicSupervisor, check_supervisor_opts()},
+      ZhrDevs.BakeryIntegration.Queue,
+      ZhrDevs.Submissions.AutomaticCheckRunner
     ]
 
-    Supervisor.init(children, strategy: :one_for_one, name: __MODULE__)
+    Supervisor.init(children, strategy: :one_for_all, name: __MODULE__)
   end
 
   defp check_supervisor_opts do

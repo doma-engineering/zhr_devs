@@ -21,7 +21,8 @@ defmodule ZhrDevs.Tasks.EventHandler do
   use Commanded.Event.Handler,
     application: ZhrDevs.App,
     name: __MODULE__,
-    start_from: :origin
+    start_from: :origin,
+    consistency: :strong
 
   alias ZhrDevs.Tasks.Events.{TaskModeChanged, TaskSupported}
 
