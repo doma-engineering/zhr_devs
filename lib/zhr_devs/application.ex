@@ -2,8 +2,7 @@ defmodule ZhrDevs.Application do
   @moduledoc false
   use Application
 
-  alias ZhrDevs.{IdentityManagement, Submissions, Tasks}
-
+  alias ZhrDevs.Otp.EventHandlersSupervisor
   alias ZhrDevs.Otp.ProcessManagersSupervisor
   alias ZhrDevs.Otp.ProjectionsSupervisor
   alias ZhrDevs.Otp.SubmissionSupervisor
@@ -18,11 +17,7 @@ defmodule ZhrDevs.Application do
       ZhrDevs.App,
       ProcessManagersSupervisor,
       SubmissionSupervisor,
-      IdentityManagement.EventHandler,
-      Submissions.EventHandler,
-      Tasks.EventHandler,
-      ZhrDevs.Submissions.TransactionalEmailsSender,
-      ProcessManagersSupervisor,
+      EventHandlersSupervisor,
       cowboy_child_spec()
     ]
 
