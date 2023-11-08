@@ -59,8 +59,8 @@ defmodule ZhrDevs.Web.PublicRouter do
   if Mix.env() == :dev do
     get "/sign-in-dev" do
       mock_auth = %DomaOAuth.Authentication.Success{
-        identity: "john.doe@gmail.com",
-        hashed_identity: DomaOAuth.hash("john.doe@gmail.com")
+        identity: "jack.doe@gmail.com",
+        hashed_identity: DomaOAuth.hash("jack.doe@gmail.com")
       }
 
       :ok = AuthCallback.dispatch_login_command(mock_auth)

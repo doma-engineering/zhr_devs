@@ -16,17 +16,17 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 
 # :sys.get_state(ZhrDevs.BakeryIntegration.Queue)
 # [
-#   hashed_identity: "BPLA_szi6TIEB4aeYnDQX8YS3rbVrMTpHSsSWXA=",
-#   task_uuid: "504b984a-1afb-4e7b-8e75-d72afc78e0cc",
+#   hashed_identity: "iWrOpjuQtkdiF0svjuldVe-nVT-siBuDErNVFqlqCeM=",
+#   task_uuid: "83a16039-b846-431f-803f-c4e51a8d0cac",
 #   technology: "goo",
-#   solution_path: "/home/nox/zhr_bakery/submissions/1.zip"
+#   solution_path: "/Users/thunderbook/Work/doma/zhr_bakery/submissions/1.zip"
 # ]
 
 # ZhrDevs.App.dispatch(
 #   %ZhrDevs.Submissions.Commands.CompleteCheckSolution{
-#     solution_uuid: Uptight.Text.new!("47b54b5c-6aca-4592-bfb4-8faadcfd94cb"),
-#     task_uuid: Uptight.Text.new!("504b984a-1afb-4e7b-8e75-d72afc78e0cc"),
-#     score: %{"points" => 50}
+#     solution_uuid: Uptight.Text.new!("f8b91697-f813-428a-94d6-ecc4ad100213"),
+#     task_uuid: Uptight.Text.new!("83a16039-b846-431f-803f-c4e51a8d0cac"),
+#     score: File.read!("score_example.json") |> Jason.decode!() |> Map.get("gen_multiplayer_score")
 #   }
 # )
 
@@ -57,3 +57,5 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 # cmd = ZhrDevs.BakeryIntegration.Commands.GenMultiplayer.run(opts)
 
 # IO.inspect(cmd)
+
+# [{pid, _}] = Registry.lookup(ZhrDevs.Registry, {:tournament_runs, Uptight.Text.new!("83a16039-b846-431f-803f-c4e51a8d0cac")})

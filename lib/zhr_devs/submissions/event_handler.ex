@@ -21,9 +21,12 @@ defmodule ZhrDevs.Submissions.EventHandler do
   use Commanded.Event.Handler,
     application: ZhrDevs.App,
     name: __MODULE__,
-    start_from: :origin
+    start_from: :origin,
+    consistency: :strong
 
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
+  alias ZhrDevs.Submissions.Events.SolutionCheckCompleted
+
   alias ZhrDevs.Submissions.Events.TaskDownloaded
   alias ZhrDevs.Submissions.Events.TestCasesDownloaded
 
@@ -46,6 +49,12 @@ defmodule ZhrDevs.Submissions.EventHandler do
     :ok
   end
 
+  def handle(%SolutionCheckCompleted{task_uuid: task_uuid, score: result}, _meta) do
+    Logger.debug("SolutionCheckCompleted: #{inspect(task_uuid)}")
+
+    ZhrDevs.Submissions.ReadModels.TournamentRuns.add_tournament_result(task_uuid, result)
+  end
+
   def handle(%TaskDownloaded{task_uuid: task_uuid}, _meta) do
     :ok = TaskDownloads.increment_downloads(task_uuid, :task)
   end
@@ -54,7 +63,7 @@ defmodule ZhrDevs.Submissions.EventHandler do
     :ok = TaskDownloads.increment_downloads(task_uuid, :test_cases)
   end
 
-  def error(:max_attempts_reached, %SolutionSubmitted{}, _meta) do
-    :skip
+  def error(_, _, %Commanded.Event.FailureContext{context: context}) do
+    {:retry, 2_000, context}
   end
 end

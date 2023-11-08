@@ -1,12 +1,24 @@
 import ApiError from "../../api_error"
 
+export type TournamentResult = {
+    hashed_id: string,
+    is_baseline: boolean,
+    norm: null,
+    team: null,
+    score: {
+        points: number
+    },
+    my: boolean
+}
+
 export type SubmissionInfo = {
     counter: number,
     task: {
         uuid: string,
         name: string,
         technology: string,
-    }
+    },
+    results: TournamentResult[] | [],
     invitations: {
         invited: string[],
         interested: string[]

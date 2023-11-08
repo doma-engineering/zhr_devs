@@ -1,0 +1,22 @@
+{
+  "gen_multiplayer_score": [
+    {
+      "hashed_id": "-HeoxYD4z_TXBdefTuKTpYxTX2VdHkC5R1WE2bxwfmA=",
+      "is_baseline": false,
+      "norm": null,
+      "score": {
+        "points": 0
+      },
+      "team": null
+    },
+    {
+      "hashed_id": "iWrOpjuQtkdiF0svjuldVe-nVT-siBuDErNVFqlqCeM=",
+      "is_baseline": true,
+      "norm": null,
+      "score": {
+        "points": 66
+      },
+      "team": null
+    }
+  ]
+}
