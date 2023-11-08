@@ -28,22 +28,26 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
       opts = [
         submissions_folder: T.new!("submissions_folder"),
         server_code: T.new!("server_code"),
-        task: :on_the_map_goo
+        task: :on_the_map_goo,
+        server_code: T.new!("server_code"),
+        task_uuid: T.new!("task-uuid"),
+        solution_uuid: T.new!("solution-uuid")
       ]
 
       assert [
                {:cmd, %Ubuntu.Command{}},
-               {:output_json_path, output_json_path}
+               {:on_success, _},
+               {:on_failure, _}
              ] = opts |> GenMultiplayer.build() |> Uptight.Result.from_ok()
-
-      assert output_json_path =~ "tournament/on_the_map_goo/output.json"
     end
 
     test "generates valid Ubuntu command" do
       opts = [
         submissions_folder: T.new!("submissions_folder"),
         server_code: T.new!("server_code"),
-        task: :on_the_map_goo
+        task: :on_the_map_goo,
+        task_uuid: T.new!("task-uuid"),
+        solution_uuid: T.new!("solution-uuid")
       ]
 
       cmd = opts |> GenMultiplayer.build() |> extract() |> Keyword.fetch!(:cmd)
@@ -59,8 +63,10 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
     test "with missing option raises KeyError" do
       opts = [
         submissions_folder: T.new!("submissions_folder"),
-        task: T.new!("task"),
-        server_code: T.new!("server_code")
+        task: :on_the_map_goo,
+        server_code: T.new!("server_code"),
+        task_uuid: T.new!("task-uuid"),
+        solution_uuid: "solution-uuid"
       ]
 
       for key <- Keyword.keys(opts) do
@@ -95,6 +101,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
       %{opts: [task_uuid: task_uuid, solution_uuid: solution_uuid]}
     end
 
+    @tag fs: true
     test "with existing output file - returns :ok", %{opts: default_opts} do
       output_json_path = GenMultiplayer.output_json_path(:task)
       opts = Keyword.put(default_opts, :output_json_path, output_json_path)

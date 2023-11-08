@@ -29,8 +29,6 @@ defmodule ZhrDevs.Submissions.EventHandler do
 
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads
 
-  alias Uptight.Text, as: T
-
   def init do
     :ok = ZhrDevs.Queries.delete_handler_subscriptions(__MODULE__)
   end
