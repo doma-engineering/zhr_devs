@@ -5,7 +5,9 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
 
   use Witchcraft.Functor
 
-  @behaviour ZhrDevs.BakeryIntegration.Commands.Command
+  alias ZhrDevs.BakeryIntegration.Commands.Command
+
+  @behaviour Command
 
   require Logger
 
@@ -22,7 +24,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
 
   def gen_multiplayer, do: @gen_multiplayer
 
-  @spec run(Keyword.t()) :: {:ok, pid} | {:error, atom()} | Result.Err.t()
+  @impl Command
   def run(opts) do
     opts
     |> build()
@@ -30,6 +32,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
     |> ZhrDevs.Submissions.start_automatic_check()
   end
 
+  @impl Command
   def build(opts \\ []) do
     Result.new(fn ->
       %T{} = submissions_folder = Keyword.fetch!(opts, :submissions_folder)
@@ -50,6 +53,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
     end)
   end
 
+  @impl Command
   def on_success(opts) do
     output_file_path = Keyword.fetch!(opts, :output_json_path)
     task_uuid = Keyword.fetch!(opts, :task_uuid)
@@ -67,6 +71,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
       :ok = persist_output(output_file_path, task_uuid, solution_uuid)
 
       # We now want to safely delete the original output.json (maybe with the whole tournament dir?)
+      # Because it will mislead the whole `on_success` function another time it will be called
       :ok = File.rm!(output_file_path)
 
       ZhrDevs.App.dispatch(complete_check_solution)
@@ -77,6 +82,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
     end
   end
 
+  @impl Command
   def on_failure(%{error: :on_success_not_met, context: context}) do
     Logger.error(
       "Multiplayer generation process is completed successfully, but output.json doesn't get generated.\nLatest output: #{context}"

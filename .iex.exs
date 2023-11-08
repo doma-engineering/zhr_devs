@@ -7,19 +7,19 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 
 # Following functions provided to make it easier to test events in the dev environment
 # build_submission_opts = fn identity, task, solution_path ->
-#   [
-#     hashed_identity: DomaOAuth.hash(identity),
-#     task_uuid: "ab524c15-eff7-493f-82a0-4d4fed18424e",
-#     technology: "goo",
-#     solution_path: solution_path
-#   ]
+  # [
+  #   hashed_identity: "38srzhuvtWZqg8E2TtH1Geq2vsFxC2FxW0ftN-YvF2s=",
+  #   task_uuid: "7e93f0b4-bdd1-465a-a10b-be17600f1b12",
+  #   technology: "goo",
+  #   solution_path: "/home/nox/zhr_bakery/submissions/1.zip"
+  # ]
 
 # :sys.get_state(ZhrDevs.BakeryIntegration.Queue)
 # [
 #   hashed_identity: "BPLA_szi6TIEB4aeYnDQX8YS3rbVrMTpHSsSWXA=",
 #   task_uuid: "504b984a-1afb-4e7b-8e75-d72afc78e0cc",
 #   technology: "goo",
-#   solution_path: "/home/nox/zhr_bakery/submissions/2.zip"
+#   solution_path: "/home/nox/zhr_bakery/submissions/1.zip"
 # ]
 
 # ZhrDevs.App.dispatch(

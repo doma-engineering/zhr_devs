@@ -24,6 +24,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionUploadTest do
   describe "submission upload" do
     setup :verify_on_exit!
 
+    @tag fs: true
     test "allow upload with valid size" do
       expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, 2, fn _ -> @task end)
 
@@ -35,6 +36,8 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionUploadTest do
         conn(:post, @dummy_request_path, params)
         |> login()
         |> ProtectedRouter.call(@routes)
+
+      IO.puts(conn.resp_body)
 
       assert conn.status === 200
       assert conn.resp_body =~ "uuid4"
