@@ -6,6 +6,9 @@ export type { TournamentResult } from "./request";
 const TournamentTable: FC<{ result: [TournamentResult] }> = ({
   result
 }) => {
+
+  console.dir(result);
+
   return (
     // TailwindCSS table
     <table className="table-auto w-full">
@@ -18,7 +21,7 @@ const TournamentTable: FC<{ result: [TournamentResult] }> = ({
       </thead>
       <tbody>
         {result.map(entry => (
-          <tr key={entry.hashed_id} className={entry.my ? "bg-purple-400" : ""}>
+          <tr key={entry.hashed_id} className={entry.me ? 'bg-purple-400' : ''}>
             <td className="border px-4 py-2">{entry.hashed_id}</td>
             <td className="border px-4 py-2">{entry.score.points}</td>
             <td className="border px-4 py-2">{entry.is_baseline ? "Yes" : "No"}</td>

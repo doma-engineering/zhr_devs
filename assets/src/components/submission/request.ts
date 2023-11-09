@@ -8,7 +8,7 @@ export type TournamentResult = {
     score: {
         points: number
     },
-    my: boolean
+    me: boolean
 }
 
 export type SubmissionInfo = {

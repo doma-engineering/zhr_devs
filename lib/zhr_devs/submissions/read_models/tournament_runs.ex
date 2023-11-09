@@ -32,9 +32,13 @@ defmodule ZhrDevs.Submissions.ReadModels.TournamentRuns do
   end
 
   def handle_cast({:add_tournament_result, result}, state) do
-    sorted_result = Enum.sort_by(result, & &1["score"])
+    state =
+      state
+      |> Kernel.++(result)
+      |> List.flatten()
+      |> Enum.sort_by(&Kernel.get_in(&1, [:score, :points]), :desc)
 
-    {:noreply, [sorted_result | state]}
+    {:noreply, state}
   end
 
   def handle_call({:get_tournament_results, hashed_identity}, _from, state) do
@@ -43,8 +47,8 @@ defmodule ZhrDevs.Submissions.ReadModels.TournamentRuns do
 
   defp do_get_tournament_results(_hashed_id, []), do: []
 
-  defp do_get_tournament_results(hashed_id, [latest_results | _] = state) do
-    Enum.map(latest_results, fn
+  defp do_get_tournament_results(hashed_id, state) do
+    Enum.map(state, fn
       %{hashed_id: ^hashed_id} = entry ->
         Map.put(entry, :me, true)
 

@@ -16,15 +16,23 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 
 # :sys.get_state(ZhrDevs.BakeryIntegration.Queue)
 # [
-#   hashed_identity: "iWrOpjuQtkdiF0svjuldVe-nVT-siBuDErNVFqlqCeM=",
+#   hashed_identity: "zRcB77sjpxcD8Hh9pWjq4_g5Pf3KU5g_pPxqRzcxsLQ=",
 #   task_uuid: "83a16039-b846-431f-803f-c4e51a8d0cac",
 #   technology: "goo",
 #   solution_path: "/Users/thunderbook/Work/doma/zhr_bakery/submissions/1.zip"
 # ]
 
 # ZhrDevs.App.dispatch(
+#   %ZhrDevs.Submissions.Commands.StartCheckSolution{
+#     solution_uuid: Uptight.Text.new!("3ed96175-633e-4c66-bda2-ddc35140c5d7"),
+#     task_uuid: Uptight.Text.new!("83a16039-b846-431f-803f-c4e51a8d0cac"),
+#     solution_path: "/Users/thunderbook/Work/doma/zhr_bakery/submissions/1.zip"
+#   }
+# )
+
+# ZhrDevs.App.dispatch(
 #   %ZhrDevs.Submissions.Commands.CompleteCheckSolution{
-#     solution_uuid: Uptight.Text.new!("f8b91697-f813-428a-94d6-ecc4ad100213"),
+#     solution_uuid: Uptight.Text.new!("3ed96175-633e-4c66-bda2-ddc35140c5d7"),
 #     task_uuid: Uptight.Text.new!("83a16039-b846-431f-803f-c4e51a8d0cac"),
 #     score: File.read!("score_example.json") |> Jason.decode!() |> Map.get("gen_multiplayer_score")
 #   }
