@@ -71,7 +71,7 @@ config :zhr_devs, ZhrDevs.EventStore,
   pool_size: 10
 
 config :zhr_devs,
-  submissions_operator_email: ["operator@zhr.dev"]
+  submissions_operator_email: ["jons@zerohr.io", "olexandr@zerohr.io", "gluhihtremar@gmail.com", "pola@doma.dev"]
 
 config :zhr_devs, ZhrDevs.Mailer, adapter: Bamboo.LocalAdapter
 

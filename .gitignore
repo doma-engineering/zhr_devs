@@ -25,6 +25,8 @@ zhr_devs-*.tar
 # Temporary files, for example, from tests.
 /tmp/
 
+.env
+
 start.sh
 
 config/secrets.exs
