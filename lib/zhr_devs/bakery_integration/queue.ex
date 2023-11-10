@@ -108,6 +108,12 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
     {:noreply, %State{state | queue: rest_of_queue, running: [running_check]}}
   end
 
+  def handle_info(:run_next_check, %{running: running} = state) do
+    Logger.info("#{__MODULE__} Already running a check: #{inspect(running)}")
+
+    {:noreply, state}
+  end
+
   def handle_info({:DOWN, ref, _, _, :normal}, %State{running: checks} = state) do
     updated_checks = Enum.filter(checks, &(&1.ref != ref))
 
