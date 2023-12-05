@@ -5,6 +5,8 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionTest do
   alias ZhrDevs.Submissions.ReadModels.CandidateAttempts
   alias ZhrDevs.Web.ProtectedRouter
 
+  alias Uptight.Text, as: T
+
   @routes ZhrDevs.Web.ProtectedRouter.init([])
 
   import ZhrDevs.Fixtures
@@ -13,7 +15,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionTest do
   @task %ZhrDevs.Task{
     name: :on_the_map,
     technology: :goo,
-    uuid: "goo-0-dev",
+    uuid: T.new!("goo-0-dev"),
     trigger_automatic_check: false
   }
 
@@ -29,6 +31,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.SubmissionTest do
 
       start_supervised!({ZhrDevs.IdentityManagement.ReadModels.Identity, login_event})
       start_supervised!({CandidateAttempts, login_event.hashed_identity})
+      start_supervised!({ZhrDevs.Submissions.ReadModels.TournamentRuns, [task_uuid: @task.uuid]})
 
       conn =
         conn(:get, "/submission/nt/on_the_map/goo")
