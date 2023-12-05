@@ -47,7 +47,7 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 # Below you can find a valid command that would do just that.
 # The UUID field will be generated automatically (using Commanded.UUID.uuid4()) during the command handling.
 #
-# ZhrDevs.Tasks.Commands.SupportTask.dispatch(technology: "goo", name: "on_the_map")
+# ZhrDevs.Tasks.Commands.SupportTask.dispatch(technology: "goo", name: "on_the_map", trigger_automatic_check: true)
 
 # Whenever you want to change the manual task processing to automatical one,
 # you can do that by dispatching the ChangeTaskMode command:
@@ -57,9 +57,9 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 ### End Task supporting commands ###
 
 # opts = [
-#  submissions_folder: %Uptight.Text{text: "/home/nox/zhr_bakery/submissions"},
-#  server_code: %Uptight.Text{text: "/home/nox/on_the_map_goo"},
-#  task_uuid: %Uptight.Text{text: "ab524c15-eff7-493f-82a0-4d4fed18424e"}
+#  submissions_folder: %Uptight.Text{text: "/home/nix/zhr_bakery/submissions"},
+#  server_code: %Uptight.Text{text: "/home/nix/on_the_map_goo"},
+#  task_uuid: %Uptight.Text{text: "5b24b694-00de-4085-830e-4d8b43b5a2ef"}
 # ]
 
 # cmd = ZhrDevs.BakeryIntegration.Commands.GenMultiplayer.run(opts)
