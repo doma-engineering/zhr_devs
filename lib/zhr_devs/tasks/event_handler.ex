@@ -48,11 +48,17 @@ defmodule ZhrDevs.Tasks.EventHandler do
         {:task_supported, task}
       )
 
+    ZhrDevs.Submissions.spawn_tournament_tracker(task.uuid)
+
     AvailableTasks.add_task(task)
   end
 
   def handle(%TaskModeChanged{} = event, _meta) do
     :ok =
       AvailableTasks.change_task_mode(event.name, event.technology, event.trigger_automatic_check)
+  end
+
+  def error(_, _, %Commanded.Event.FailureContext{context: context}) do
+    {:retry, 2_000, context}
   end
 end

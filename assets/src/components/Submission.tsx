@@ -6,24 +6,46 @@ import { Routed } from '../router'
 import Task from '../components/tasks/Task'
 import Invites from '../components/submission/Invites'
 import UploadCompoment from "../components/submission/UploadComponent"
+import TournamentTable from "./submission/TournamentTable";
 
-import type { SubmissionInfo } from "./submission/request";
-
-import { redirect } from "react-router-dom";
+import type { SubmissionInfo, TournamentResult } from "./submission/request";
 
 type State = SubmissionInfo | undefined
 
 // const DUMMY_SUBMISSION: SubmissionInfo = {
-//   counter: 0,
-//   task: {
-//     uuid: 'taskID',
-//     name: 'hanooy_maps',
-//     technology: 'goo'
-//   },
-//   invitations: {
-//     invited: ['Geeks', 'Ancient Greeks'],
-//     interested: ['Apple', 'Microsoft']
-//   }
+//     counter: 0,
+//     task: {
+//         uuid: 'taskID',
+//         name: 'hanooy_maps',
+//         technology: 'goo'
+//     },
+//     results:
+//         [
+//             {
+//                 "hashed_id": "-HeoxYD4z_TXBdefTuKTpYxTX2VdHkC5R1WE2bxwfmA=",
+//                 "is_baseline": false,
+//                 "norm": null,
+//                 "score": {
+//                     "points": 0
+//                 },
+//                 "team": null,
+//                 my: true,
+//             },
+//             {
+//                 "hashed_id": "ltX89lzN_vh2DwbuEMqHcqac39joTwdXOypA_ktMFGg=",
+//                 "is_baseline": true,
+//                 "norm": null,
+//                 "score": {
+//                     "points": 48
+//                 },
+//                 "team": null,
+//                 my: false
+//             }
+//         ],
+//     invitations: {
+//         invited: ['Geeks', 'Ancient Greeks'],
+//         interested: ['Apple', 'Microsoft']
+//     }
 // }
 
 function Submission({ host, port }: Routed) {
@@ -35,8 +57,9 @@ function Submission({ host, port }: Routed) {
         fetchSubmissionInfo(tech, task, host, port).then(response => {
             if ('task' in response) {
                 setSubmissionInfo(response)
-
-                setAttempt(response.counter + 1)
+                
+                const attempts = response.counter < 2 ? response.counter + 1 : 2
+                setAttempt(attempts)
             } else {
                 console.dir(response)
                 // return redirect("/my")
@@ -111,9 +134,11 @@ function Submission({ host, port }: Routed) {
                             <div className="border-b-slate-200 border-b">
                                 <span className="text-lg text-purple-400">Attempt {attempt}</span>
                             </div>
-                            <div className="text-center">
-                                <p className="text-purple-400 mt-4 text-lg">Results will be shown here</p>
-                            </div>
+
+                            {
+                                submissionInfo ? <TournamentTable result={submissionInfo.results as [TournamentResult]} />
+                                : <div className="text-center"><p className="text-purple-400 mt-4 text-lg">Results will be shown here</p></div>
+                            }
                         </div>
                     </div>
                 </section>

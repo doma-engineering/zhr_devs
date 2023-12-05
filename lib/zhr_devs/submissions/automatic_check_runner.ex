@@ -16,10 +16,27 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
   alias ZhrDevs.Submissions.Events.SolutionCheckCompleted
   alias ZhrDevs.Submissions.Events.SolutionCheckStarted
 
-  def handle(%SolutionCheckStarted{solution_path: solution_path} = event, _meta) do
+  def handle(%SolutionCheckStarted{} = event, _meta) do
     %ZhrDevs.Task{} =
       task = ZhrDevs.Tasks.ReadModels.AvailableTasks.get_task_by_uuid(event.task_uuid)
 
+    if task.trigger_automatic_check do
+      enqueue_check(event, task)
+    else
+      :ok
+    end
+  end
+
+  def handle(%SolutionCheckCompleted{solution_uuid: solution_uuid}, _meta) do
+    # Notice that we are not using the init() callback to delete already processed events.
+    # That's because we don't want to reply already processed events on system restart.
+    :ok = ZhrDevs.BakeryIntegration.Queue.dequeue_check(solution_uuid)
+  end
+
+  defp enqueue_check(
+         %SolutionCheckStarted{solution_path: solution_path} = event,
+         %ZhrDevs.Task{} = task
+       ) do
     server_code =
       T.new!(
         Application.fetch_env!(:zhr_devs, :server_code_folders)[{task.name, task.technology}]
@@ -34,11 +51,5 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
     ]
 
     :ok = ZhrDevs.BakeryIntegration.Queue.enqueue_check(opts)
-  end
-
-  def handle(%SolutionCheckCompleted{solution_uuid: solution_uuid}, _meta) do
-    # Notice that we are not using the init() callback to delete already processed events.
-    # That's because we don't want to reply already processed events on system restart.
-    :ok = ZhrDevs.BakeryIntegration.Queue.dequeue_check(solution_uuid)
   end
 end

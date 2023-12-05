@@ -22,7 +22,7 @@ function Task(props: { technology: string, name: string, counter: number, render
 
     let innerContent: JSX.Element
 
-    if (props.counter < 2 && props.renderLink) {
+    if (props.counter <= 2 && props.renderLink) {
         innerContent =
             <Link to={`submissions/nt/${props.name}/${props.technology}/`}>
                 {taskInfo}

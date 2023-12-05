@@ -4,6 +4,7 @@ defmodule ZhrDevs.Submissions do
   """
 
   alias ZhrDevs.Submissions.ReadModels.CandidateAttempts
+  alias ZhrDevs.Submissions.ReadModels.TournamentRuns
 
   @typep formatted_attemts :: [%{name: atom(), technology: atom(), counter: integer()}]
 
@@ -11,6 +12,13 @@ defmodule ZhrDevs.Submissions do
     DynamicSupervisor.start_child(
       ZhrDevs.DynamicSupervisor,
       {CandidateAttempts, hashed_identity}
+    )
+  end
+
+  def spawn_tournament_tracker(%Uptight.Text{} = task_uuid) do
+    DynamicSupervisor.start_child(
+      ZhrDevs.DynamicSupervisor,
+      {TournamentRuns, [task_uuid: task_uuid]}
     )
   end
 
@@ -41,11 +49,12 @@ defmodule ZhrDevs.Submissions do
     CandidateAttempts.attempts(hashed_identity, task)
   end
 
-  def details(hashed_identity, %ZhrDevs.Task{} = task) do
+  def details(hashed_identity, %ZhrDevs.Task{} = task, results \\ []) do
     %{
       technology: task.technology,
       counter: attempts(hashed_identity, task),
       task: task,
+      results: results,
       invitations: %{
         invited: [],
         interested: ["Company X"]
