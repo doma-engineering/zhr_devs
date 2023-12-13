@@ -1,15 +1,28 @@
 defmodule ZhrDevs.BakeryIntegration.Queue do
   @moduledoc """
   This module is responsible for queueing the submission check runs.
+  It using a Queue.RunningCheck struct to keep track of running checks.
 
   It will hold a :queue with all checks.
+    - When a new check is enqueued, it will be added to the queue and
+      the CommandRunner process will be started after 30 seconds;
+      Once the CommandRunner process is spawned, it will return the pid,
+      which will be used to monitor the process and restart it if it fails.
+
   It will also keep track of running checks, to be able to:
-    - Restart them in case of failure with more granular control
-    - Stop the check in case we already processed the solution before;
-      That usually happens on system restart, when we are replaying the events.
-      In such a case the queue will receive the request to start the check first,
-      but then the event will be replayed and the check will be removed from queue.
-      If check is already running, we will kill the process that is running the check.
+    - Restart them in case of failure with more granular control;
+      By default, if a check fails, it will be restarted 3 times before giving up.
+      (TODO: Send an email when we failed to run a check 3 times)
+
+  It should be mentioned, that this process won't be receiving "replayed" events,
+  because the event handler that it controled by (ZhrDevs.Submissions.AutomaticCheckRunner)
+  is not configured to do so.
+
+  If not listening to events is not ok, this process is already implements
+  the way to 'dequeue' checks. (We should decide how to handle this case)
+
+  Therefore, we might want to have a 'button' that will re-enqueue all checks (TODO)
+  Also, as discussed with Jons, we want to have a way to run only subest of submissions (TODO)
   """
 
   use GenServer
@@ -21,6 +34,14 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
 
   alias ZhrDevs.BakeryIntegration.Queue.RunningCheck
 
+  @type check_options() :: [
+          task: String.t(),
+          submissions_folder: Uptight.Text.t(),
+          server_code: Uptight.Text.t(),
+          solution_uuid: Uptight.Text.t(),
+          task_uuid: Uptight.Text.t()
+        ]
+
   defmodule State do
     @moduledoc """
     State of the queue process
@@ -28,16 +49,19 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
     defstruct queue: :queue.new(), running: [], delayed_check_ref: nil
   end
 
+  @spec start_link(check_options()) :: {:ok, pid()} | {:error, term()}
   def start_link(opts \\ []) do
     name = Keyword.get(opts, :name, __MODULE__)
 
     GenServer.start_link(__MODULE__, opts, name: name)
   end
 
+  @spec enqueue_check(check_options(), atom()) :: :ok
   def enqueue_check(options, name \\ __MODULE__) do
     GenServer.call(name, {:enqueue_check, options})
   end
 
+  @spec dequeue_check(Uptight.Text.t(), atom()) :: :ok
   def dequeue_check(solution_uuid, name \\ __MODULE__) do
     GenServer.cast(name, {:dequeue_check, solution_uuid})
   end
@@ -96,7 +120,7 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
   def handle_info(:run_next_check, %{queue: queue, running: []} = state) do
     {{:value, options}, rest_of_queue} = :queue.out(queue)
 
-    {:ok, pid} = ZhrDevs.BakeryIntegration.Commands.GenMultiplayer.run(options)
+    {:ok, pid} = ZhrDevs.BakeryIntegration.gen_multiplayer(options)
 
     running_check = %RunningCheck{
       solution_uuid: Keyword.fetch!(options, :solution_uuid),
@@ -139,8 +163,7 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
       running_check ->
         Logger.info("Retrying the check. Current state: #{inspect(running_check)}")
 
-        {:ok, pid} =
-          ZhrDevs.BakeryIntegration.Commands.GenMultiplayer.run(running_check.restart_opts)
+        {:ok, pid} = ZhrDevs.BakeryIntegration.gen_multiplayer(running_check.restart_opts)
 
         updated_running_check = %RunningCheck{
           running_check

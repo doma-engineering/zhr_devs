@@ -11,6 +11,8 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunner do
   """
   use GenServer, restart: :transient
 
+  alias ZhrDevs.BakeryIntegration.Commands.Command
+
   alias Uptight.Text, as: T
 
   import Witchcraft.Functor
@@ -24,6 +26,7 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunner do
     defstruct [:port, :latest_output, :exit_status, :on_success, :on_failure]
   end
 
+  @spec start_link(Command.options()) :: {:ok, pid()} | {:error, term()}
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts)
   end
