@@ -16,6 +16,14 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
 
   alias ZhrDevs.Submissions.Commands.CompleteCheckSolution
 
+  @type options() :: [
+          submission_folder: Uptight.Text.t(),
+          server_code: Uptight.Text.t(),
+          task: ZhrDevs.Task.t(),
+          solution_uuid: Uptight.Text.t(),
+          task_uuid: Uptight.Text.t()
+        ]
+
   @gen_multiplayer [".", "priv", "bakery", "gen_multiplayer"]
                    |> map(&T.new!/1)
                    |> Ubuntu.Path.new!()
