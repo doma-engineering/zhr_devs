@@ -36,6 +36,8 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
 
   alias ZhrDevs.{Email, Mailer}
 
+  alias ZhrDevs.BakeryIntegration.Commands.Command
+
   @type check_options() :: [
           task: String.t(),
           submissions_folder: Uptight.Text.t(),
