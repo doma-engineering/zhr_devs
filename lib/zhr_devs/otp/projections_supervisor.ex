@@ -9,6 +9,8 @@ defmodule ZhrDevs.Otp.ProjectionsSupervisor do
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads
   alias ZhrDevs.Tasks.ReadModels.AvailableTasksAgent
 
+  alias ZhrDevs.Submissions.DelayedEmailsSender
+
   @dialyzer {:no_return, {:init, 1}}
 
   use Supervisor
@@ -21,7 +23,8 @@ defmodule ZhrDevs.Otp.ProjectionsSupervisor do
   def init([]) do
     children = [
       AvailableTasksAgent,
-      TaskDownloads
+      TaskDownloads,
+      DelayedEmailsSender
     ]
 
     Supervisor.init(children, strategy: :one_for_one, name: __MODULE__)

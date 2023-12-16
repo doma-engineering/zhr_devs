@@ -12,13 +12,14 @@ defmodule ZhrDevs.Application do
     children = [
       {Registry, keys: :unique, name: ZhrDevs.Registry},
       {DynamicSupervisor, strategy: :one_for_one, name: ZhrDevs.DynamicSupervisor},
-      ZhrDevs.App,
+      {Task.Supervisor, name: ZhrDevs.EmailsSendingSupervisor},
       ProjectionsSupervisor,
-      ProcessManagersSupervisor,
+      ZhrDevs.App,
       IdentityManagement.EventHandler,
       Submissions.EventHandler,
       Tasks.EventHandler,
       ZhrDevs.Submissions.TransactionalEmailsSender,
+      ProcessManagersSupervisor,
       cowboy_child_spec()
     ]
 

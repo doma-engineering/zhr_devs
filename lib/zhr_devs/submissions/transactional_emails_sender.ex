@@ -15,29 +15,52 @@ defmodule ZhrDevs.Submissions.TransactionalEmailsSender do
 
   alias ZhrDevs.{Email, Mailer}
 
+  alias ZhrDevs.Submissions.Events.SolutionCheckCompleted
+  alias ZhrDevs.Submissions.Events.SolutionCheckStarted
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
+
+  alias ZhrDevs.Submissions.DelayedEmailsSender
 
   @retry_delay_milliseconds 10_000
 
-  def handle(%SolutionSubmitted{} = solution_submitted, _meta) do
+  def handle(%SolutionSubmitted{} = solution_submitted, %{created_at: received_at}) do
     %ZhrDevs.Task{} =
       task =
       ZhrDevs.Tasks.ReadModels.AvailableTasks.get_task_by_uuid(solution_submitted.task_uuid)
 
-    maybe_notify_operator(solution_submitted, task)
+    opts = [
+      uuid: solution_submitted.uuid,
+      task_name: task.name,
+      technology: task.technology,
+      submission_url: submission_url(solution_submitted.uuid),
+      hashed_identity: solution_submitted.hashed_identity,
+      received_at: received_at
+    ]
+
+    :ok = DelayedEmailsSender.register_submission(opts)
+
+    maybe_notify_operator(solution_submitted, opts)
   end
 
-  def error(_, event, %{context: %{failures: 3}}) do
+  def handle(%SolutionCheckStarted{} = solution_check_started, _metadata) do
+    DelayedEmailsSender.unregister_submission(solution_check_started.solution_uuid)
+  end
+
+  def handle(%SolutionCheckCompleted{} = solution_check_completed, _metadata) do
+    DelayedEmailsSender.unregister_submission(solution_check_completed.solution_uuid)
+  end
+
+  def error(_, %SolutionSubmitted{}, %{context: %{failures: 3}}) do
     Logger.error(
-      "[#{__MODULE__}] Failed to handle an event: #{inspect(event)} 3 times in a row, giving up."
+      "[#{__MODULE__}] Failed to handle an SolutionSubmitted event 3 times in a row, giving up."
     )
 
     {:stop, :max_retries_reached}
   end
 
-  def error({:error, _} = error, event, %{context: context}) do
+  def error({:error, _} = error, %SolutionSubmitted{}, %{context: context}) do
     Logger.error(
-      "[#{__MODULE__}] Failed to handle an event: #{inspect(event)}, error: #{inspect(error)} retrying in #{@retry_delay_milliseconds} ms."
+      "[#{__MODULE__}] Failed to handle SolutionSubmitted event, error: #{inspect(error)} retrying in #{@retry_delay_milliseconds} ms."
     )
 
     context = Map.update(context, :failures, 1, fn failures -> failures + 1 end)
@@ -45,14 +68,7 @@ defmodule ZhrDevs.Submissions.TransactionalEmailsSender do
     {:retry, @retry_delay_milliseconds, context}
   end
 
-  defp maybe_notify_operator(%SolutionSubmitted{trigger_automatic_check: false} = event, task) do
-    opts = [
-      task_name: task.name,
-      technology: task.technology,
-      submission_url: submission_url(event.uuid),
-      hashed_identity: event.hashed_identity
-    ]
-
+  defp maybe_notify_operator(%SolutionSubmitted{trigger_automatic_check: false}, opts) do
     opts
     |> Email.solution_submitted()
     |> Mailer.deliver_now()
@@ -65,7 +81,7 @@ defmodule ZhrDevs.Submissions.TransactionalEmailsSender do
     end
   end
 
-  defp maybe_notify_operator(_solution_submitted, _task) do
+  defp maybe_notify_operator(_solution_submitted, _) do
     # Skip notifying operator if automatic check is enabled
 
     :ok
