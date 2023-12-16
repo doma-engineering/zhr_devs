@@ -13,6 +13,7 @@ defmodule ZhrDevs.Application do
       {Registry, keys: :unique, name: ZhrDevs.Registry},
       {DynamicSupervisor, strategy: :one_for_one, name: ZhrDevs.DynamicSupervisor},
       {Task.Supervisor, name: ZhrDevs.EmailsSendingSupervisor},
+      ZhrDevs.App,
       ProjectionsSupervisor,
       ProcessManagersSupervisor,
       SubmissionSupervisor,

@@ -11,8 +11,8 @@ defmodule ZhrDevs.BakeryIntegration.Commands.Command do
 
   @type options() :: [
           {:cmd, Ubuntu.Command.t()},
-          {:on_success, (() -> :ok | {:error, term()})},
-          {:on_failure, (() -> :ok)}
+          {:on_success, (-> :ok | {:error, term()})},
+          {:on_failure, (-> :ok)}
         ]
 
   @type run() :: {:ok, pid()} | {:error, term()}

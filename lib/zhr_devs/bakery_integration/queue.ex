@@ -161,25 +161,38 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
         {:noreply, %State{state | running: updated_refs, delayed_check_ref: delayed_check_ref}}
 
       running_check ->
-        Logger.info("Retrying the check. Current state: #{inspect(running_check)}")
+        retry_interval = check_retry_interval(running_check.retries)
 
-        {:ok, pid} = ZhrDevs.BakeryIntegration.gen_multiplayer(running_check.restart_opts)
+        Logger.info("""
+        Retrying the check. Current state: #{inspect(running_check)}.\nWill be restarted in #{retry_interval} ms
+        """)
 
-        updated_running_check = %RunningCheck{
-          running_check
-          | ref: Process.monitor(pid),
-            retries: running_check.retries + 1,
-            pid: pid
-        }
+        Process.send_after(self(), {:retry_check, running_check}, retry_interval)
 
-        running_checks =
-          Enum.map(checks, fn
-            %RunningCheck{ref: ^ref} -> updated_running_check
-            other -> other
-          end)
-
-        {:noreply, %State{state | running: running_checks}}
+        {:noreply, state}
     end
+  end
+
+  def handle_info(
+        {:retry_check, %RunningCheck{ref: ref} = running_check},
+        %State{running: checks} = state
+      ) do
+    {:ok, pid} = ZhrDevs.BakeryIntegration.gen_multiplayer(running_check.restart_opts)
+
+    updated_running_check = %RunningCheck{
+      running_check
+      | ref: Process.monitor(pid),
+        retries: running_check.retries + 1,
+        pid: pid
+    }
+
+    running_checks =
+      Enum.map(checks, fn
+        %RunningCheck{ref: ^ref} -> updated_running_check
+        other -> other
+      end)
+
+    {:noreply, %State{state | running: running_checks}}
   end
 
   @spec schedule_next_check(reference() | nil) :: reference()
@@ -194,5 +207,11 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
   defp maybe_reset_check_timer(ref) do
     Process.cancel_timer(ref)
     :ok
+  end
+
+  @spec check_retry_interval(integer()) :: integer()
+  defp check_retry_interval(retries) do
+    # This is a simple exponential backoff based on the number of retries.
+    (retries + 1) * :timer.seconds(10)
   end
 end
