@@ -165,7 +165,7 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
     {:noreply, %State{state | running: updated_checks, delayed_check_ref: delayed_check_ref}}
   end
 
-  def handle_info({:DOWN, ref, _, _, reason}, %State{running: checks} = state) do
+  def handle_info({:DOWN, ref, _, _, {:shutdown, reason}}, %State{running: checks} = state) do
     checks
     |> Enum.find(&(&1.ref == ref))
     |> case do

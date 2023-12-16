@@ -74,7 +74,13 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunner do
 
         :ok = state.on_failure.(formatted_error)
 
-        {:stop, {:shutdown, {error, state.latest_output}}, state}
+        system_error = %{
+          error: error,
+          context: state.latest_output,
+          exit_status: state.exit_status
+        }
+
+        {:stop, {:shutdown, system_error}, state}
     end
   end
 
