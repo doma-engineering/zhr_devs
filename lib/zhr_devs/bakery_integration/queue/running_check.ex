@@ -10,8 +10,15 @@ defmodule ZhrDevs.BakeryIntegration.Queue.RunningCheck do
           ref: reference(),
           pid: pid(),
           retries: non_neg_integer(),
-          restart_opts: [Command.options()]
+          restart_opts: [Command.options()],
+          task_technology: String.t()
         }
 
-  defstruct solution_uuid: nil, ref: nil, retries: 0, restart_opts: [], pid: nil
+  @enforce_keys [:solution_uuid, :restart_opts, :task_technology]
+  defstruct solution_uuid: nil,
+            ref: nil,
+            retries: 0,
+            restart_opts: [],
+            pid: nil,
+            task_technology: nil
 end

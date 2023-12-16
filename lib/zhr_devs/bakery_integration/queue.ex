@@ -34,6 +34,8 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
 
   alias ZhrDevs.BakeryIntegration.Queue.RunningCheck
 
+  alias ZhrDevs.{Email, Mailer}
+
   @type check_options() :: [
           task: String.t(),
           submissions_folder: Uptight.Text.t(),
@@ -64,6 +66,19 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
   @spec dequeue_check(Uptight.Text.t(), atom()) :: :ok
   def dequeue_check(solution_uuid, name \\ __MODULE__) do
     GenServer.cast(name, {:dequeue_check, solution_uuid})
+  end
+
+  @spec send_email_alert(RunningCheck.t(), Command.system_error()) ::
+          DynamicSupervisor.on_start_child()
+  def send_email_alert(running_check, system_error) do
+    Task.Supervisor.start_child(
+      ZhrDevs.EmailsSendingSupervisor,
+      fn ->
+        Email.automatic_check_failed(running_check: running_check, system_error: system_error)
+        |> Mailer.deliver_now!()
+      end,
+      restart: :transient
+    )
   end
 
   def init(opts) do
@@ -123,10 +138,12 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
     {:ok, pid} = ZhrDevs.BakeryIntegration.gen_multiplayer(options)
 
     running_check = %RunningCheck{
+      retries: 0,
       solution_uuid: Keyword.fetch!(options, :solution_uuid),
       ref: Process.monitor(pid),
       pid: pid,
-      restart_opts: options
+      restart_opts: options,
+      task_technology: Keyword.fetch!(options, :task)
     }
 
     {:noreply, %State{state | queue: rest_of_queue, running: [running_check]}}
@@ -155,31 +172,46 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
           "Check failed 3 times: #{inspect(running_check)}. Reason: #{inspect(reason)}"
         )
 
+        {:ok, _pid} = send_email_alert(running_check, reason)
+
         updated_refs = Enum.filter(checks, &(&1.ref != ref))
         delayed_check_ref = schedule_next_check(state.delayed_check_ref)
 
         {:noreply, %State{state | running: updated_refs, delayed_check_ref: delayed_check_ref}}
 
       running_check ->
-        Logger.info("Retrying the check. Current state: #{inspect(running_check)}")
+        retry_interval = check_retry_interval(running_check.retries)
 
-        {:ok, pid} = ZhrDevs.BakeryIntegration.gen_multiplayer(running_check.restart_opts)
+        Logger.info("""
+        Retrying the check. Current state: #{inspect(running_check)}.\nWill be restarted in #{retry_interval} ms
+        """)
 
-        updated_running_check = %RunningCheck{
-          running_check
-          | ref: Process.monitor(pid),
-            retries: running_check.retries + 1,
-            pid: pid
-        }
+        Process.send_after(self(), {:retry_check, running_check}, retry_interval)
 
-        running_checks =
-          Enum.map(checks, fn
-            %RunningCheck{ref: ^ref} -> updated_running_check
-            other -> other
-          end)
-
-        {:noreply, %State{state | running: running_checks}}
+        {:noreply, state}
     end
+  end
+
+  def handle_info(
+        {:retry_check, %RunningCheck{ref: ref} = running_check},
+        %State{running: checks} = state
+      ) do
+    {:ok, pid} = ZhrDevs.BakeryIntegration.gen_multiplayer(running_check.restart_opts)
+
+    updated_running_check = %RunningCheck{
+      running_check
+      | ref: Process.monitor(pid),
+        retries: running_check.retries + 1,
+        pid: pid
+    }
+
+    running_checks =
+      Enum.map(checks, fn
+        %RunningCheck{ref: ^ref} -> updated_running_check
+        other -> other
+      end)
+
+    {:noreply, %State{state | running: running_checks}}
   end
 
   @spec schedule_next_check(reference() | nil) :: reference()
@@ -194,5 +226,11 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
   defp maybe_reset_check_timer(ref) do
     Process.cancel_timer(ref)
     :ok
+  end
+
+  @spec check_retry_interval(integer()) :: integer()
+  defp check_retry_interval(retries) do
+    # This is a simple exponential backoff based on the number of retries.
+    (retries + 1) * :timer.seconds(10)
   end
 end

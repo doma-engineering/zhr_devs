@@ -45,6 +45,20 @@ defmodule ZhrDevs.Email do
     )
   end
 
+  def automatic_check_failed(opts \\ []) do
+    running_check = Keyword.fetch!(opts, :running_check)
+    system_error = Keyword.fetch!(opts, :system_error)
+
+    {text, html} = ZhrDevs.Email.AutomaticCheckFailed.build(running_check, system_error)
+
+    noreply(
+      @submissions_operator,
+      T.new!("Automatic check has failed 3 times."),
+      T.new!(html),
+      T.new!(text)
+    )
+  end
+
   @spec submission_to_text(Keyword.t()) :: String.t()
   defp submission_to_text(submission_opts) do
     hashed_identity = submission_opts |> Keyword.fetch!(:hashed_identity) |> to_string()
