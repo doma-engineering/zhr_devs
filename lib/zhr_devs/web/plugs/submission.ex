@@ -7,6 +7,8 @@ defmodule ZhrDevs.Web.Plugs.Submission do
 
   alias ZhrDevs.Tasks.ReadModels.AvailableTasks
 
+  alias ZhrDevs.Submissions.ReadModels.TournamentRuns
+
   @behaviour Plug
 
   import Plug.Conn
@@ -38,12 +40,11 @@ defmodule ZhrDevs.Web.Plugs.Submission do
       name = String.to_existing_atom(name)
       technology = String.to_existing_atom(technology)
 
+      me = conn |> get_session(:hashed_identity) |> Uptight.Base.mk_url!()
       %ZhrDevs.Task{} = task = AvailableTasks.get_task_by_name_technology(name, technology)
+      tournament_results = TournamentRuns.get_tournament_results(task.uuid, to_string(me))
 
-      conn
-      |> get_session(:hashed_identity)
-      |> Uptight.Base.mk_url!()
-      |> ZhrDevs.Submissions.details(task)
+      ZhrDevs.Submissions.details(me, task, tournament_results)
     end)
   end
 end

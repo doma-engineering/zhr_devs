@@ -10,26 +10,30 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
 
   import Plug.Conn
 
-  @upload_dir Application.compile_env!(:zhr_devs, :uploads_path)
-
   alias ZhrDevs.Submissions.Commands.SubmitSolution
 
   import ZhrDevs.Web.Presentation.Helper, only: [json_error: 1]
 
+  alias ZhrDevs.Tasks.ReadModels.AvailableTasks
+
   def init([]), do: []
 
   def call(
-        %{body_params: %{"submission" => %Plug.Upload{path: submission_tmp_path} = upload}} =
-          conn,
+        %{
+          body_params: %{"submission" => %Plug.Upload{path: submission_tmp_path} = upload},
+          params: %{"task_uuid" => task_uuid}
+        } = conn,
         _opts
       ) do
     uuid4 = Commanded.UUID.uuid4()
     hashed_identity = get_session(conn, :hashed_identity)
-    upload_path = upload_path(uuid4)
+    %ZhrDevs.Task{} = task = AvailableTasks.get_task_by_uuid(task_uuid)
+    upload_path = upload_path(task, uuid4)
 
     with :ok <- check_mime_type(upload),
+         :ok <- File.mkdir_p(Path.dirname(upload_path)),
          :ok <- File.cp!(submission_tmp_path, upload_path),
-         :ok <- submit_solution(uuid4, hashed_identity, conn.params) do
+         :ok <- submit_solution(uuid4, hashed_identity, conn.params, upload_path) do
       conn
       |> put_resp_content_type("application/json")
       |> send_resp(200, Jason.encode!(%{uuid4: uuid4}))
@@ -53,17 +57,17 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
     end
   end
 
-  defp upload_path(uuid) do
-    Path.join(@upload_dir, "#{uuid}.zip")
+  defp upload_path(%ZhrDevs.Task{name: task, technology: technology}, uuid) do
+    ZhrDevs.submission_upload_path(task, technology, "#{uuid}.zip")
   end
 
-  defp submit_solution(uuid, hashed_identity, params) do
+  defp submit_solution(uuid, hashed_identity, params, path) do
     opts = [
       uuid: uuid,
       hashed_identity: hashed_identity,
       technology: Map.get(params, "technology"),
       task_uuid: Map.get(params, "task_uuid"),
-      solution_path: upload_path(uuid)
+      solution_path: path
     ]
 
     SubmitSolution.dispatch(opts)

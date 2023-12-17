@@ -22,7 +22,9 @@ defmodule ZhrDevs.Submissions.Commands.CompleteCheckSolutionTest do
       command = %CompleteCheckSolution{
         solution_uuid: solution_uuid,
         task_uuid: "doesn't matter",
-        points: 1
+        score: %{
+          "points" => 1
+        }
       }
 
       assert :ok = App.dispatch(command)
@@ -38,7 +40,9 @@ defmodule ZhrDevs.Submissions.Commands.CompleteCheckSolutionTest do
       command = %CompleteCheckSolution{
         solution_uuid: solution_uuid,
         task_uuid: "doesn't matter",
-        points: 100
+        score: %{
+          "points" => 100
+        }
       }
 
       for _ <- 1..3, do: App.dispatch(command)

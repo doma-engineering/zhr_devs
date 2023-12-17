@@ -27,6 +27,7 @@
                         # Stuff that has to be externally configured
                         pkgs.gnupg
                         pkgs.darcs
+                        pkgs.unzip
                         npkgs.yarn
                         ## Stuff that isn't yet implemented
                         # domaPakages.passveil

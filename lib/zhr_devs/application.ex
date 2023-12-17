@@ -2,10 +2,10 @@ defmodule ZhrDevs.Application do
   @moduledoc false
   use Application
 
-  alias ZhrDevs.{IdentityManagement, Submissions, Tasks}
-
+  alias ZhrDevs.Otp.EventHandlersSupervisor
   alias ZhrDevs.Otp.ProcessManagersSupervisor
   alias ZhrDevs.Otp.ProjectionsSupervisor
+  alias ZhrDevs.Otp.SubmissionSupervisor
 
   @impl true
   def start(_type, _args) do
@@ -13,13 +13,11 @@ defmodule ZhrDevs.Application do
       {Registry, keys: :unique, name: ZhrDevs.Registry},
       {DynamicSupervisor, strategy: :one_for_one, name: ZhrDevs.DynamicSupervisor},
       {Task.Supervisor, name: ZhrDevs.EmailsSendingSupervisor},
-      ProjectionsSupervisor,
       ZhrDevs.App,
-      IdentityManagement.EventHandler,
-      Submissions.EventHandler,
-      Tasks.EventHandler,
-      ZhrDevs.Submissions.TransactionalEmailsSender,
+      ProjectionsSupervisor,
       ProcessManagersSupervisor,
+      SubmissionSupervisor,
+      EventHandlersSupervisor,
       cowboy_child_spec()
     ]
 

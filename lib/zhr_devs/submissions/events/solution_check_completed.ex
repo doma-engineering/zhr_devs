@@ -8,7 +8,7 @@ defmodule ZhrDevs.Submissions.Events.SolutionCheckCompleted do
   @fields [
     solution_uuid: Text.new(),
     task_uuid: Text.new(),
-    points: 0
+    score: %{}
   ]
   @enforce_keys Keyword.keys(@fields)
   @derive Jason.Encoder
@@ -21,5 +21,18 @@ defmodule ZhrDevs.Submissions.Events.SolutionCheckCompleted do
   @spec fields_keys() :: [atom()]
   def fields_keys do
     Keyword.keys(@fields)
+  end
+end
+
+defimpl Commanded.Serialization.JsonDecoder,
+  for: ZhrDevs.Submissions.Events.SolutionCheckCompleted do
+  alias ZhrDevs.Submissions.Events.SolutionCheckCompleted
+
+  def decode(%SolutionCheckCompleted{} = event) do
+    %SolutionCheckCompleted{
+      solution_uuid: Uptight.Text.new!(event.solution_uuid),
+      task_uuid: Uptight.Text.new!(event.task_uuid),
+      score: event.score
+    }
   end
 end

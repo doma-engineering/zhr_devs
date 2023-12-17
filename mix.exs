@@ -27,7 +27,6 @@ defmodule ZhrDevs.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:castore, "~> 1.0"},
       {:plug_cowboy, "~> 2.6"},
       {:corsica, "~> 1.3"},
       {:doma_oauth, github: "doma-engineering/doma_oauth", tag: "0.1.1"},
@@ -35,7 +34,7 @@ defmodule ZhrDevs.MixProject do
       {:witchcraft_goo, github: "doma-engineering/witchcraft-goo", branch: "main"},
       {:uptight, github: "doma-engineering/uptight", branch: "main"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.2", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.2", runtime: false},
 
       # Testing
       {:stream_data, "~> 0.5.0", only: [:test]},
@@ -50,7 +49,10 @@ defmodule ZhrDevs.MixProject do
       # Emails
       {:bamboo_smtp, "~> 4.2"},
       {:mime, "~> 1.0 or ~> 2.0"},
-      {:cron, "~> 0.1.0"}
+      {:cron, "~> 0.1.0"},
+
+      # Things get's dangerous
+      {:ubuntu, github: "doma-engineering/ubuntu", branch: "main"}
     ]
   end
 end

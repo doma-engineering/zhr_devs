@@ -22,9 +22,7 @@ defmodule ZhrDevs.Queries do
         []
       )
 
-      Process.unlink(connection)
-
-      :ok
+      GenServer.stop(connection)
     end
   end
 

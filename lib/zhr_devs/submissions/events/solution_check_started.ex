@@ -23,3 +23,15 @@ defmodule ZhrDevs.Submissions.Events.SolutionCheckStarted do
     Keyword.keys(@fields)
   end
 end
+
+defimpl Commanded.Serialization.JsonDecoder, for: ZhrDevs.Submissions.Events.SolutionCheckStarted do
+  alias ZhrDevs.Submissions.Events.SolutionCheckStarted
+
+  def decode(%SolutionCheckStarted{} = event) do
+    %SolutionCheckStarted{
+      solution_uuid: Uptight.Text.new!(event.solution_uuid),
+      task_uuid: Uptight.Text.new!(event.task_uuid),
+      solution_path: Uptight.Text.new!(event.solution_path)
+    }
+  end
+end

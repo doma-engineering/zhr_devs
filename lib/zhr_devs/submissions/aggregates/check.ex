@@ -52,7 +52,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Check do
     %Events.SolutionCheckCompleted{
       solution_uuid: cmd.solution_uuid,
       task_uuid: cmd.task_uuid,
-      points: cmd.points
+      score: cmd.score
     }
   end
 
