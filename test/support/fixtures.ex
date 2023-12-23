@@ -64,4 +64,12 @@ defmodule ZhrDevs.Fixtures do
 
     Plug.Test.init_test_session(conn, %{hashed_identity: login_event.hashed_identity.encoded})
   end
+
+  def build_task(name \\ :on_the_map, technology \\ :goo) do
+    %ZhrDevs.Task{
+      uuid: Uptight.Text.new!(Commanded.UUID.uuid4()),
+      name: name,
+      technology: technology
+    }
+  end
 end
