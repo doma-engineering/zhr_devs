@@ -10,7 +10,7 @@ type Tasks = {
     tasks: [Task]
 }
 
-export default async function fetchTasks(host: string, port: string): Promise<Tasks | ApiError> {
+export async function fetchTasks(host: string, port: string): Promise<Tasks | ApiError> {
     const opts = {
         headers: {
             "Content-Type": "application/json",
@@ -20,4 +20,15 @@ export default async function fetchTasks(host: string, port: string): Promise<Ta
     const url = 'my/tasks'
 
     return fetch(url, opts).then(response => response.json())
+}
+
+export async function triggerManualCheck(taskUUID: string): Promise<object> {
+    const headers = {
+        "Content-Type": "application/json",
+    }
+
+    const url = '/my/task/trigger_manual_check'
+    const body = JSON.stringify({taskUUID: taskUUID})
+
+    return fetch(url, { method: "POST", body: body, headers: headers}).then((response) => response.json()).catch((error) => error.json());
 }

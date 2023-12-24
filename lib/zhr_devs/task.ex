@@ -60,4 +60,9 @@ defmodule ZhrDevs.Task do
       new!(Text.new!(uuid), name, technology, trigger_automatic_check)
     end)
   end
+
+  @spec name(t()) :: atom()
+  def name(%ZhrDevs.Task{name: name, technology: tech}) do
+    :"#{name}_#{tech}"
+  end
 end

@@ -6,7 +6,7 @@ defmodule ZhrDevs.BakeryIntegration.Queue.RunningCheck do
   alias ZhrDevs.BakeryIntegration.Commands.Command
 
   @type t() :: %__MODULE__{
-          solution_uuid: Uptight.Text.t(),
+          check_uuid: Uptight.Text.t(),
           ref: reference(),
           pid: pid(),
           retries: non_neg_integer(),
@@ -14,8 +14,8 @@ defmodule ZhrDevs.BakeryIntegration.Queue.RunningCheck do
           task_technology: String.t()
         }
 
-  @enforce_keys [:solution_uuid, :restart_opts, :task_technology]
-  defstruct solution_uuid: nil,
+  @enforce_keys [:check_uuid, :restart_opts, :task_technology]
+  defstruct check_uuid: nil,
             ref: nil,
             retries: 0,
             restart_opts: [],

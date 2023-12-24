@@ -3,6 +3,7 @@ import { fetchSubmissionInfo } from './submission/request'
 import { Link, useParams } from 'react-router-dom'
 import { Routed } from '../router'
 
+import { triggerManualCheck } from '../components/tasks/request'
 import Task from '../components/tasks/Task'
 import Invites from '../components/submission/Invites'
 import UploadCompoment from "../components/submission/UploadComponent"
@@ -67,6 +68,16 @@ function Submission({ host, port }: Routed) {
         })
     }
 
+    function doTriggerManualCheck(taskId: string) {
+        triggerManualCheck(taskId).then(response => {
+            if ('error' in response) {
+                alert(response.error)
+            } else {
+                alert('Manual check triggered')
+            }
+        })
+    }
+
     useEffect(() => {
         if (technology && task) {
             doFetchSubmissionInfo(technology, task)
@@ -95,6 +106,10 @@ function Submission({ host, port }: Routed) {
                                 invited={submissionInfo.invitations.invited}
                                 interested={submissionInfo.invitations.interested}
                                 testCompleted={submissionInfo.counter > 0} /> : <></>}
+                    </div>
+
+                    <div className="mt-4">
+                        {submissionInfo ? <button className=" w-full rounded bg-purple-600 text-white p-2" onClick={() => doTriggerManualCheck(submissionInfo?.task.uuid)}>Trigger manual check</button> : <></>}
                     </div>
                 </div>
 

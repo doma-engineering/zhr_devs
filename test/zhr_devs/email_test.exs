@@ -134,7 +134,7 @@ defmodule ZhrDevs.EmailTest do
     setup do
       running_check = %RunningCheck{
         task_technology: "on_the_map_goo",
-        solution_uuid: T.new!(Commanded.UUID.uuid4()),
+        check_uuid: T.new!(Commanded.UUID.uuid4()),
         restart_opts: []
       }
 
@@ -155,7 +155,7 @@ defmodule ZhrDevs.EmailTest do
       assert email.text_body =~ "Error: :execution_stopped"
       assert email.text_body =~ "Exit_status: 137"
       assert email.text_body =~ "Context: \"container exited with code 137\""
-      assert email.text_body =~ "Triggered by solution with UUID: #{check.solution_uuid}"
+      assert email.text_body =~ "Triggered by solution with UUID: #{check.check_uuid}"
     end
 
     test "contains expected html", %{email: email, check: check} do
@@ -163,7 +163,7 @@ defmodule ZhrDevs.EmailTest do
       assert email.html_body =~ "Error: :execution_stopped"
       assert email.html_body =~ "Exit_status: 137"
       assert email.html_body =~ "Context: \"container exited with code 137\""
-      assert email.html_body =~ "Triggered by solution with UUID: #{check.solution_uuid}"
+      assert email.html_body =~ "Triggered by solution with UUID: #{check.check_uuid}"
     end
 
     test "could be delivered", %{email: email} do

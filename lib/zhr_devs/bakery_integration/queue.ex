@@ -42,7 +42,7 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
           task: String.t(),
           submissions_folder: Uptight.Text.t(),
           server_code: Uptight.Text.t(),
-          solution_uuid: Uptight.Text.t(),
+          check_uuid: Uptight.Text.t(),
           task_uuid: Uptight.Text.t()
         ]
 
@@ -65,9 +65,14 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
     GenServer.call(name, {:enqueue_check, options})
   end
 
+  @spec prioritize_check(check_options(), atom()) :: :ok
+  def prioritize_check(options, name \\ __MODULE__) do
+    GenServer.call(name, {:prioritize_check, options})
+  end
+
   @spec dequeue_check(Uptight.Text.t(), atom()) :: :ok
-  def dequeue_check(solution_uuid, name \\ __MODULE__) do
-    GenServer.cast(name, {:dequeue_check, solution_uuid})
+  def dequeue_check(check_uuid, name \\ __MODULE__) do
+    GenServer.cast(name, {:dequeue_check, check_uuid})
   end
 
   @spec send_email_alert(RunningCheck.t(), Command.system_error()) ::
@@ -101,28 +106,37 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
     {:reply, :ok, %State{state | queue: :queue.in(options, queue), delayed_check_ref: ref}}
   end
 
-  def handle_cast({:dequeue_check, solution_uuid}, %State{queue: queue, running: running} = state) do
-    Logger.info("#{__MODULE__} Dequeuing check: #{solution_uuid}")
+  def handle_call({:prioritize_check, options}, _from, %State{queue: queue} = state) do
+    Logger.info("#{__MODULE__} Prioritizing check: #{inspect(options)}")
+
+    reshaped_queue = [options | :queue.to_list(queue)] |> :queue.from_list()
+    ref = schedule_next_check(state.delayed_check_ref)
+
+    {:reply, :ok, %State{state | queue: reshaped_queue, delayed_check_ref: ref}}
+  end
+
+  def handle_cast({:dequeue_check, check_uuid}, %State{queue: queue, running: running} = state) do
+    Logger.info("#{__MODULE__} Dequeuing check: #{check_uuid}")
 
     updated_queue =
       :queue.delete_with(
         fn element ->
-          element[:solution_uuid] === solution_uuid
+          element[:check_uuid] === check_uuid
         end,
         queue
       )
 
     running_checks =
-      case Enum.find(running, &(&1.solution_uuid == solution_uuid)) do
+      case Enum.find(running, &(&1.check_uuid == check_uuid)) do
         nil ->
           running
 
         %RunningCheck{pid: pid, ref: ref} ->
-          Logger.debug("#{__MODULE__} Killing check: #{solution_uuid}")
+          Logger.debug("#{__MODULE__} Killing check: #{check_uuid}")
 
           Process.demonitor(ref, [:flush])
           Process.exit(pid, :shutdown)
-          Enum.filter(running, &(&1.solution_uuid != solution_uuid))
+          Enum.filter(running, &(&1.check_uuid != check_uuid))
       end
 
     {:noreply, %State{state | queue: updated_queue, running: running_checks}}
@@ -141,7 +155,7 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
 
     running_check = %RunningCheck{
       retries: 0,
-      solution_uuid: Keyword.fetch!(options, :solution_uuid),
+      check_uuid: Keyword.fetch!(options, :check_uuid),
       ref: Process.monitor(pid),
       pid: pid,
       restart_opts: options,

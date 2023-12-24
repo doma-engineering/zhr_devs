@@ -18,4 +18,12 @@ defmodule ZhrDevs do
 
     Path.join([@submissions_folder, task_binary, technology_binary, submission_file])
   end
+
+  def submission_upload_folder(task, technology)
+      when is_atom(task) and is_atom(technology) do
+    task_binary = Atom.to_string(task)
+    technology_binary = Atom.to_string(technology)
+
+    Path.join([@submissions_folder, task_binary, technology_binary])
+  end
 end

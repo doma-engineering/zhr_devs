@@ -88,7 +88,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
       hashed_identity = opts[:hashed_identity]
 
       assert_receive_event(
-        App,
+        ZhrDevs.App,
         Events.SolutionSubmitted,
         fn event -> event.hashed_identity.encoded == hashed_identity end,
         fn event ->
@@ -161,7 +161,7 @@ defmodule ZhrDevs.Submissions.Commands.SolutionSubmittedTest do
       uuid = uuid |> Uptight.Text.new!()
 
       assert_correlated(
-        App,
+        ZhrDevs.App,
         Events.SolutionSubmitted,
         fn solution_submitted -> solution_submitted.uuid == uuid end,
         Events.SolutionCheckStarted,

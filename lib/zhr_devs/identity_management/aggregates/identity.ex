@@ -7,7 +7,7 @@ defmodule ZhrDevs.IdentityManagement.Aggregates.Identity do
 
   Command functions (execute/2):
     A command function receives the aggregate's state and the command to execute. It must return the resultant domain events, which may be one event or multiple events.
-    
+
     You can return a single event or a list of events: %Event{}, [%Event{}], {:ok, %Event{}}, or {:ok, [%Event{}]}.
     To respond without returning an event you can return :ok, nil or an empty list as either [] or {:ok, []}.
     For business rule violations and errors you may return an {:error, error} tagged tuple or raise an exception.
@@ -42,7 +42,11 @@ defmodule ZhrDevs.IdentityManagement.Aggregates.Identity do
     }
   end
 
+  def execute(_, _), do: nil
+
   def apply(%Identity{} = identity, %Events.LoggedIn{} = logged_in) do
     %Identity{identity | login_at: logged_in.login_at}
   end
+
+  def apply(identity, _), do: identity
 end

@@ -31,7 +31,8 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
         task: :on_the_map_goo,
         server_code: T.new!("server_code"),
         task_uuid: T.new!("task-uuid"),
-        solution_uuid: T.new!("solution-uuid")
+        check_uuid: T.new!("solution-uuid"),
+        type: :automatic
       ]
 
       assert [
@@ -47,7 +48,8 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
         server_code: T.new!("server_code"),
         task: :on_the_map_goo,
         task_uuid: T.new!("task-uuid"),
-        solution_uuid: T.new!("solution-uuid")
+        check_uuid: T.new!("solution-uuid"),
+        type: :automatic
       ]
 
       cmd = opts |> GenMultiplayer.build() |> extract() |> Keyword.fetch!(:cmd)
@@ -63,10 +65,11 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
     test "with missing option raises KeyError" do
       opts = [
         submissions_folder: T.new!("submissions_folder"),
-        task: :on_the_map_goo,
+        task: "on_the_map_goo",
         server_code: T.new!("server_code"),
         task_uuid: T.new!("task-uuid"),
-        solution_uuid: "solution-uuid"
+        check_uuid: T.new!("solution-uuid"),
+        type: :automatic
       ]
 
       for key <- Keyword.keys(opts) do
@@ -87,9 +90,13 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
           solution_path: "/some/path"
         })
 
-      wait_for_event(ZhrDevs.App, ZhrDevs.Submissions.Events.SolutionCheckStarted, fn event ->
-        event.solution_uuid == solution_uuid
-      end)
+      wait_for_event(
+        ZhrDevs.App,
+        ZhrDevs.Submissions.Events.SolutionCheckStarted,
+        fn event ->
+          event.solution_uuid == solution_uuid
+        end
+      )
     end
 
     setup do
