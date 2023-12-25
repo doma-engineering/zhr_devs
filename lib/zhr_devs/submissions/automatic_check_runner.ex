@@ -80,7 +80,8 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
       task: "#{task.name}_#{task.technology}",
       task_uuid: event.task_uuid,
       check_uuid: event.uuid,
-      type: :manual
+      type: :manual,
+      triggered_by: event.triggered_by
     ]
 
     :ok = ZhrDevs.BakeryIntegration.Queue.prioritize_check(opts)

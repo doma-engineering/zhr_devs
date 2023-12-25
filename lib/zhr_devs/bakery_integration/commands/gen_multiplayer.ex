@@ -143,6 +143,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
     task_uuid = Keyword.fetch!(opts, :task_uuid)
     submissions = Keyword.get(opts, :submissions, [])
     uuid = Keyword.fetch!(opts, :uuid)
+    triggered_by = Keyword.fetch!(opts, :triggered_by)
 
     if File.exists?(output_file_path) do
       Logger.info(
@@ -153,7 +154,8 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
         task_uuid: task_uuid,
         score: extract_score!(output_file_path),
         submissions: submissions,
-        uuid: uuid
+        uuid: uuid,
+        triggered_by: triggered_by
       }
 
       :ok = persist_output(output_file_path, task_uuid, uuid, :manual)

@@ -4,7 +4,7 @@ defmodule ZhrDevs.Submissions.Commands.CompleteManualCheck do
   it will allow to trigger all (or the subset of) the submissions.
   """
 
-  @fields [task_uuid: nil, uuid: nil, submissions: [], score: %{}]
+  @fields [task_uuid: nil, uuid: nil, submissions: [], score: %{}, triggered_by: nil]
   @enforce_keys Keyword.keys(@fields)
   defstruct @fields
 end
