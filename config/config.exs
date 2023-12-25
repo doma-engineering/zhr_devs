@@ -1,5 +1,9 @@
 import Config
 
+config :logger,
+  backends: [:console],
+  format: "[$level] $message\n"
+
 config :zhr_devs, :server,
   host: "localhost",
   scheme: :http,

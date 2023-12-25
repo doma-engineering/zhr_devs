@@ -15,7 +15,7 @@ defmodule ZhrDevs.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger, :bamboo, :bamboo_smtp],
+      extra_applications: [:logger, :bamboo, :bamboo_smtp, :logger_file_backend],
       mod: {ZhrDevs.Application, []}
     ]
   end
@@ -35,6 +35,7 @@ defmodule ZhrDevs.MixProject do
       {:uptight, github: "doma-engineering/uptight", branch: "main"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.2", runtime: false},
+      {:logger_file_backend, "~> 0.0.13"},
 
       # Testing
       {:stream_data, "~> 0.5.0", only: [:test]},
