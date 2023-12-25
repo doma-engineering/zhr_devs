@@ -82,7 +82,8 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
       output_json_path: output_json_path(task),
       task_uuid: Keyword.fetch!(opts, :task_uuid),
       uuid: Keyword.fetch!(opts, :check_uuid),
-      submissions: Keyword.get(opts, :submissions, [])
+      submissions: Keyword.get(opts, :submissions, []),
+      triggered_by: Keyword.fetch!(opts, :triggered_by)
     ]
 
     [

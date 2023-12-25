@@ -144,6 +144,40 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
     end
   end
 
+  describe "manual_on_success/1" do
+    test "with missing opts - raise KeyError" do
+      opts = [
+        output_json_path: T.new!("output_json_path"),
+        task_uuid: T.new!("task_uuid"),
+        uuid: T.new!("uuid"),
+        triggered_by: T.new!("triggered_by")
+      ]
+
+      for key <- Keyword.keys(opts) do
+        invalid_opts = Keyword.delete(opts, key)
+
+        assert_raise KeyError, fn ->
+          GenMultiplayer.manual_on_success(invalid_opts)
+        end
+      end
+    end
+
+    test "with non existing output.json file - returns an error" do
+      output_json_path = GenMultiplayer.output_json_path(:non_existing)
+
+      opts = [
+        output_json_path: output_json_path,
+        task_uuid: T.new!("task_uuid"),
+        uuid: T.new!("uuid"),
+        triggered_by: T.new!("triggered_by")
+      ]
+
+      assert capture_log([level: :error], fn ->
+               assert {:error, _} = GenMultiplayer.manual_on_success(opts)
+             end) =~ "Manual tournament generation failed"
+    end
+  end
+
   describe "on_failure/1" do
     test "log proper message when success_criteria aren't met" do
       assert capture_log([level: :error], fn ->
