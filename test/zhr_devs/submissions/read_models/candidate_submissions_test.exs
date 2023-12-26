@@ -152,7 +152,7 @@ defmodule ZhrDevs.Submissions.ReadModels.CandidateSubmissionsTest do
     {:ok, table_name: table_name, owner: table_owner_pid}
   end
 
-  defp random_table_name() do
+  defp random_table_name do
     :crypto.strong_rand_bytes(4) |> Base.encode64() |> binary_part(0, 4) |> String.to_atom()
   end
 end

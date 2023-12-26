@@ -12,38 +12,17 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunnerTest do
                             |> map(&T.new!/1)
                             |> Ubuntu.Path.new!()
 
-  describe ":DOWN message handling" do
-    test "trigger success callback only on successful run" do
-      {:ok, pid} = run_command(cmd: long_running_command())
-
-      assert_receive :success, 200
-
-      refute_receive {:error, _}, 200
-
-      refute Process.alive?(pid)
-    end
-
-    test "trigger success callback AND error callback if on_success returns error" do
-      on_success = fn ->
-        {:error, "on_success error"}
-      end
-
-      {:ok, pid} = run_command(cmd: long_running_command(), on_success: on_success)
-
-      assert_receive {:error, %{error: :on_success_not_met, context: nil}}, 100
-
-      refute Process.alive?(pid)
-    end
-  end
-
   describe "exit status message received from port" do
     test "it sends :execution_stopped error to the callback" do
       {:ok, pid} = run_command(cmd: long_running_command())
 
+      Process.monitor(pid)
+
       %{port: port} = :sys.get_state(pid)
       send(pid, {port, {:exit_status, 11}})
 
-      assert_receive {:error, %{error: :execution_stopped, context: nil, exit_status: 11}}, 200
+      assert_receive {:DOWN, _, _, _, {:shutdown, %{error: :execution_stopped, exit_status: 11}}},
+                     200
     end
   end
 
@@ -60,30 +39,6 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunnerTest do
   end
 
   defp run_command(opts) do
-    me = self()
-
-    on_success =
-      Keyword.get(opts, :on_success, fn ->
-        send(me, :success)
-
-        :ok
-      end)
-
-    on_failure =
-      Keyword.get(opts, :on_failure, fn error ->
-        send(me, {:error, error})
-
-        :ok
-      end)
-
-    cmd = Keyword.fetch!(opts, :cmd)
-
-    opts = [
-      cmd: cmd,
-      on_success: on_success,
-      on_failure: on_failure
-    ]
-
     start_supervised({CommandRunner, opts})
   end
 

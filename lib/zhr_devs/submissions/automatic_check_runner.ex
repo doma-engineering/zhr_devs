@@ -64,7 +64,8 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
       task: "#{task.name}_#{task.technology}",
       check_uuid: event.solution_uuid,
       task_uuid: event.task_uuid,
-      type: :automatic
+      type: :automatic,
+      command_module: ZhrDevs.BakeryIntegration.command_module(task)
     ]
 
     :ok = ZhrDevs.BakeryIntegration.Queue.enqueue_check(opts)
@@ -81,7 +82,8 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
       task_uuid: event.task_uuid,
       check_uuid: event.uuid,
       type: :manual,
-      triggered_by: event.triggered_by
+      triggered_by: event.triggered_by,
+      command_module: ZhrDevs.BakeryIntegration.command_module(task)
     ]
 
     :ok = ZhrDevs.BakeryIntegration.Queue.prioritize_check(opts)

@@ -11,14 +11,14 @@ defmodule ZhrDevs.BakeryIntegration.Commands.Command do
 
   @type options() :: [
           {:cmd, Ubuntu.Command.t()},
-          {:on_success, (-> :ok | {:error, term()})},
-          {:on_failure, (-> :ok)}
+          {:on_success, mfa()},
+          {:on_failure, mfa()}
         ]
 
   @type run() :: {:ok, pid()} | {:error, term()}
 
   @callback run(opts :: Keyword.t()) :: run()
   @callback build(opts :: Keyword.t()) :: Uptight.Result.t()
-  @callback on_success(term()) :: :ok | {:error, term()}
-  @callback on_failure(system_error()) :: :ok
+  @callback on_success(mfa()) :: :ok
+  @callback on_failure(system_error(), mfa()) :: :ok
 end

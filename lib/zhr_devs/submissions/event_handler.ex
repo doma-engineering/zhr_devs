@@ -24,15 +24,16 @@ defmodule ZhrDevs.Submissions.EventHandler do
     start_from: :origin,
     consistency: :strong
 
-  alias ZhrDevs.Submissions.Events.SolutionCheckCompleted
-  alias ZhrDevs.Submissions.Events.SolutionSubmitted
-  alias ZhrDevs.Submissions.Events.ManualCheckCompleted
+    alias ZhrDevs.Submissions.Events.SolutionCheckCompleted
+    alias ZhrDevs.Submissions.Events.SolutionSubmitted
+
+    alias ZhrDevs.Submissions.Events.ManualCheckCompleted
 
   alias ZhrDevs.Submissions.Events.TaskDownloaded
   alias ZhrDevs.Submissions.Events.TestCasesDownloaded
 
-  alias ZhrDevs.Submissions.ReadModels.TaskDownloads
   alias ZhrDevs.Submissions.ReadModels.CandidateSubmissions
+  alias ZhrDevs.Submissions.ReadModels.TaskDownloads
 
   def init do
     :ok = ZhrDevs.Queries.delete_handler_subscriptions(__MODULE__)

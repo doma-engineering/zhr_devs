@@ -131,7 +131,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
       output_json_path = GenMultiplayer.output_json_path(:non_existing)
       opts = Keyword.put(default_opts, :output_json_path, output_json_path)
 
-      assert {:error, _} = GenMultiplayer.on_success(opts)
+      assert :ok = GenMultiplayer.on_success(opts)
     end
 
     test "with non existing output.json file - logs an error", %{opts: default_opts} do
@@ -139,8 +139,8 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
       opts = Keyword.put(default_opts, :output_json_path, output_json_path)
 
       assert capture_log([level: :error], fn ->
-               assert {:error, _} = GenMultiplayer.on_success(opts)
-             end) =~ "Failed to generate multiplayer"
+               assert :ok = GenMultiplayer.on_success(opts)
+             end) =~ "Port terminated with :normal"
     end
   end
 
@@ -182,22 +182,28 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
     test "log proper message when success_criteria aren't met" do
       assert capture_log([level: :error], fn ->
                assert :ok =
-                        GenMultiplayer.on_failure(%{
-                          error: :on_success_not_met,
-                          context: "whatever"
-                        })
+                        GenMultiplayer.on_failure(
+                          %{
+                            error: :on_success_not_met,
+                            context: "whatever"
+                          },
+                          []
+                        )
              end) =~
-               "Multiplayer generation process is completed successfully, but output.json doesn't get generated.\nLatest output: whatever"
+               "Port terminated with :normal reason, but output.json doesn't get generated.\nLatest output: whatever"
     end
 
     test "log proper message when execution is stopped" do
       assert capture_log([level: :error], fn ->
                assert :ok =
-                        GenMultiplayer.on_failure(%{
-                          error: :execution_stopped,
-                          context: "whatever",
-                          exit_code: 1
-                        })
+                        GenMultiplayer.on_failure(
+                          %{
+                            error: :execution_stopped,
+                            context: "whatever",
+                            exit_code: 1
+                          },
+                          []
+                        )
              end) =~
                "Multiplayer generation process is stopped with exit code: 1.\nLatest output: whatever"
     end

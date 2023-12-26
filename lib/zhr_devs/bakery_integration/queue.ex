@@ -12,7 +12,7 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
   It will also keep track of running checks, to be able to:
     - Restart them in case of failure with more granular control;
       By default, if a check fails, it will be restarted 3 times before giving up.
-      (TODO: Send an email when we failed to run a check 3 times)
+      An email alert will be sent after the third failure.
 
   It should be mentioned, that this process won't be receiving "replayed" events,
   because the event handler that it controled by (ZhrDevs.Submissions.AutomaticCheckRunner)
@@ -151,7 +151,9 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
   def handle_info(:run_next_check, %{queue: queue, running: []} = state) do
     {{:value, options}, rest_of_queue} = :queue.out(queue)
 
-    {:ok, pid} = ZhrDevs.BakeryIntegration.gen_multiplayer(options)
+    command_module = Keyword.fetch!(options, :command_module)
+
+    {:ok, pid} = command_module.run(options)
 
     running_check = %RunningCheck{
       retries: 0,
@@ -172,6 +174,13 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
   end
 
   def handle_info({:DOWN, ref, _, _, :normal}, %State{running: checks} = state) do
+    successfuly_terminated_check = Enum.find(checks, &(&1.ref == ref))
+
+    :ok =
+      successfuly_terminated_check.restart_opts
+      |> Keyword.fetch!(:on_success)
+      |> emit_success_event()
+
     updated_checks = Enum.filter(checks, &(&1.ref != ref))
 
     delayed_check_ref = schedule_next_check(state.delayed_check_ref)
@@ -187,6 +196,11 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
         Logger.error(
           "Check failed 3 times: #{inspect(running_check)}. Reason: #{inspect(reason)}"
         )
+
+        :ok =
+          running_check.restart_opts
+          |> Keyword.fetch!(:on_failure)
+          |> emit_failure_event(reason)
 
         {:ok, _pid} = send_email_alert(running_check, reason)
 
@@ -248,5 +262,13 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
   defp check_retry_interval(retries) do
     # This is a simple exponential backoff based on the number of retries.
     (retries + 1) * :timer.seconds(10)
+  end
+
+  defp emit_failure_event({m, f, a}, reason) do
+    :ok = Kernel.apply(m, f, [reason | a])
+  end
+
+  defp emit_success_event({m, f, a}) do
+    :ok = Kernel.apply(m, f, a)
   end
 end

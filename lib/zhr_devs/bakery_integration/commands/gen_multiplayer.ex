@@ -60,7 +60,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
     %T{} = server_code = Keyword.fetch!(opts, :server_code)
     task = Keyword.fetch!(opts, :task)
 
-    on_success_opts = [
+    callback_opts = [
       output_json_path: output_json_path(task),
       task_uuid: Keyword.fetch!(opts, :task_uuid),
       solution_uuid: Keyword.fetch!(opts, :check_uuid)
@@ -68,8 +68,8 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
 
     [
       cmd: Ubuntu.Command.new(@gen_multiplayer, [submissions_folder, server_code]),
-      on_success: fn -> __MODULE__.on_success(on_success_opts) end,
-      on_failure: fn error -> __MODULE__.on_failure(error) end
+      on_success: {__MODULE__, :on_success, [callback_opts]},
+      on_failure: {__MODULE__, :on_failure, [callback_opts]}
     ]
   end
 
@@ -78,7 +78,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
     %T{} = server_code = Keyword.fetch!(opts, :server_code)
     task = Keyword.fetch!(opts, :task)
 
-    on_success_opts = [
+    callback_opts = [
       output_json_path: output_json_path(task),
       task_uuid: Keyword.fetch!(opts, :task_uuid),
       uuid: Keyword.fetch!(opts, :check_uuid),
@@ -88,8 +88,8 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
 
     [
       cmd: Ubuntu.Command.new(@gen_multiplayer, [submissions_folder, server_code]),
-      on_success: fn -> __MODULE__.manual_on_success(on_success_opts) end,
-      on_failure: fn error -> __MODULE__.on_failure(error) end
+      on_success: {__MODULE__, :manual_on_success, [callback_opts]},
+      on_failure: {__MODULE__, :on_failure, [callback_opts]}
     ]
   end
 
@@ -116,27 +116,31 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
 
       ZhrDevs.App.dispatch(complete_check_solution)
     else
-      Logger.error("Failed to generate multiplayer: #{inspect(output_file_path)}")
-
-      {:error, "#{output_file_path} file doesn't exist"}
+      on_failure(
+        %{error: :on_success_not_met, context: "output.json doesn't get generated"},
+        opts
+      )
     end
   end
 
   @impl Command
-  def on_failure(%{error: :on_success_not_met, context: context}) do
+  def on_failure(%{error: :on_success_not_met, context: context}, _callback_opts) do
     Logger.error(
-      "Multiplayer generation process is completed successfully, but output.json doesn't get generated.\nLatest output: #{context}"
+      "Port terminated with :normal reason, but output.json doesn't get generated.\nLatest output: #{context}"
     )
 
     :ok
   end
 
-  def on_failure(%{error: :execution_stopped, context: context, exit_code: code}) do
+  def on_failure(%{error: :execution_stopped, context: context, exit_code: code}, _callback_opts) do
     Logger.error(
       "Multiplayer generation process is stopped with exit code: #{code}.\nLatest output: #{context}"
     )
 
     :ok
+  end
+
+  def on_failure(%{error: error, context: context, exit_code: exit_code}, _callback_opts) do
   end
 
   def manual_on_success(opts) do

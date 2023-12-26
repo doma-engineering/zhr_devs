@@ -20,4 +20,13 @@ defmodule ZhrDevs.BakeryIntegration do
   def gen_multiplayer(gen_multiplayer_options) do
     GenMultiplayer.run(gen_multiplayer_options)
   end
+
+  @doc """
+  We want different tasks to trigger different commands.
+  One type of tasks require OTMG, such as 'on_the_map' task.
+  Others will require SinglePlayer command or something.
+  """
+  def command_module(%ZhrDevs.Task{name: :on_the_map}) do
+    GenMultiplayer
+  end
 end
