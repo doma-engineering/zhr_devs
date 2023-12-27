@@ -27,4 +27,5 @@ defmodule ZhrDevs.Submissions.EventsRouter do
 
   dispatch(Commands.TriggerManualCheck, to: Aggregates.ManualCheck, identity: :triggered_by)
   dispatch(Commands.CompleteManualCheck, to: Aggregates.ManualCheck, identity: :triggered_by)
+  dispatch(Commands.FailManualCheck, to: Aggregates.ManualCheck, identity: :triggered_by)
 end

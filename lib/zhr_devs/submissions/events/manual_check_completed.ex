@@ -7,7 +7,8 @@ defmodule ZhrDevs.Submissions.Events.ManualCheckCompleted do
     uuid: nil,
     task_uuid: nil,
     submissions: [],
-    score: %{}
+    score: %{},
+    triggered_by: nil
   ]
   @enforce_keys Keyword.keys(@fields)
   @derive Jason.Encoder
@@ -22,6 +23,7 @@ defimpl Commanded.Serialization.JsonDecoder, for: ZhrDevs.Submissions.Events.Man
       uuid: Uptight.Text.new!(event.uuid),
       submissions: Enum.map(event.submissions, &Uptight.Text.new!/1),
       task_uuid: Uptight.Text.new!(event.task_uuid),
+      triggered_by: Uptight.Base.mk_url!(event.triggered_by),
       score: event.score
     }
   end

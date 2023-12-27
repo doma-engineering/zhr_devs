@@ -53,7 +53,18 @@ defmodule ZhrDevs.Submissions.Aggregates.ManualCheck do
       uuid: cmd.uuid,
       task_uuid: cmd.task_uuid,
       submissions: cmd.submissions,
-      score: cmd.score
+      score: cmd.score,
+      triggered_by: cmd.triggered_by
+    }
+  end
+
+  def execute(%__MODULE__{}, %Commands.FailManualCheck{} = cmd) do
+    %Events.ManualCheckFailed{
+      uuid: cmd.uuid,
+      task_uuid: cmd.task_uuid,
+      submissions: cmd.submissions,
+      system_error: cmd.system_error,
+      triggered_by: cmd.triggered_by
     }
   end
 
@@ -79,6 +90,13 @@ defmodule ZhrDevs.Submissions.Aggregates.ManualCheck do
     %__MODULE__{
       state
       | last_check_status: :completed
+    }
+  end
+
+  def apply(%__MODULE__{} = state, %Events.ManualCheckFailed{}) do
+    %__MODULE__{
+      state
+      | last_check_status: :failed
     }
   end
 

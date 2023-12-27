@@ -16,6 +16,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
 
   alias ZhrDevs.Submissions.Commands.CompleteCheckSolution
   alias ZhrDevs.Submissions.Commands.CompleteManualCheck
+  alias ZhrDevs.Submissions.Commands.FailManualCheck
 
   @type options() :: [
           submission_folder: Uptight.Text.t(),
@@ -89,7 +90,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
     [
       cmd: Ubuntu.Command.new(@gen_multiplayer, [submissions_folder, server_code]),
       on_success: {__MODULE__, :manual_on_success, [callback_opts]},
-      on_failure: {__MODULE__, :on_failure, [callback_opts]}
+      on_failure: {__MODULE__, :manual_on_failure, [callback_opts]}
     ]
   end
 
@@ -141,6 +142,10 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
 
   def on_failure(%{error: _error}, _callback_opts) do
     :ok
+  end
+
+  def manual_on_failure(system_error, callback_opts) when is_map(system_error) do
+    FailManualCheck.dispatch(Keyword.merge(callback_opts, error: system_error))
   end
 
   def manual_on_success(opts) do

@@ -31,6 +31,7 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
 
   alias ZhrDevs.Submissions.Events.ManualCheckTriggered
   # alias ZhrDevs.Submissions.Events.ManualCheckCompleted
+  alias ZhrDevs.Submissions.Events.ManualCheckFailed
 
   def init do
     :ok = ZhrDevs.Queries.delete_handler_subscriptions(__MODULE__)
@@ -49,6 +50,10 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
 
   def handle(%SolutionCheckCompleted{solution_uuid: solution_uuid}, _meta) do
     :ok = ZhrDevs.BakeryIntegration.Queue.dequeue_check(solution_uuid)
+  end
+
+  def handle(%ManualCheckFailed{uuid: check_uuid}, _meta) do
+    :ok = ZhrDevs.BakeryIntegration.Queue.dequeue_check(check_uuid)
   end
 
   def handle(%ManualCheckTriggered{} = event, _meta) do
