@@ -16,9 +16,9 @@ defmodule ZhrDevs.BakeryIntegration do
   alias ZhrDevs.BakeryIntegration.Commands.Command
   alias ZhrDevs.BakeryIntegration.Commands.GenMultiplayer
 
-  @spec gen_multiplayer(GenMultiplayer.options()) :: Command.run()
-  def gen_multiplayer(gen_multiplayer_options) do
-    GenMultiplayer.run(gen_multiplayer_options)
+  @spec gen_multiplayer(Ubuntu.Command.t()) :: Command.run()
+  def gen_multiplayer(command) do
+    GenMultiplayer.run(command)
   end
 
   @doc """

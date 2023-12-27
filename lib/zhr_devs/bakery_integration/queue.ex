@@ -38,14 +38,6 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
 
   alias ZhrDevs.BakeryIntegration.Commands.Command
 
-  @type check_options() :: [
-          task: String.t(),
-          submissions_folder: Uptight.Text.t(),
-          server_code: Uptight.Text.t(),
-          check_uuid: Uptight.Text.t(),
-          task_uuid: Uptight.Text.t()
-        ]
-
   defmodule State do
     @moduledoc """
     State of the queue process
@@ -53,19 +45,19 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
     defstruct queue: :queue.new(), running: [], delayed_check_ref: nil
   end
 
-  @spec start_link(check_options()) :: {:ok, pid()} | {:error, term()}
+  @spec start_link(RunningCheck.restart_opts()) :: {:ok, pid()} | {:error, term()}
   def start_link(opts \\ []) do
     name = Keyword.get(opts, :name, __MODULE__)
 
     GenServer.start_link(__MODULE__, opts, name: name)
   end
 
-  @spec enqueue_check(check_options(), atom()) :: :ok
+  @spec enqueue_check(RunningCheck.restart_opts(), atom()) :: :ok
   def enqueue_check(options, name \\ __MODULE__) do
     GenServer.call(name, {:enqueue_check, options})
   end
 
-  @spec prioritize_check(check_options(), atom()) :: :ok
+  @spec prioritize_check(RunningCheck.restart_opts(), atom()) :: :ok
   def prioritize_check(options, name \\ __MODULE__) do
     GenServer.call(name, {:prioritize_check, options})
   end
@@ -152,8 +144,9 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
     {{:value, options}, rest_of_queue} = :queue.out(queue)
 
     command_module = Keyword.fetch!(options, :command_module)
+    command = Keyword.fetch!(options, :cmd)
 
-    {:ok, pid} = command_module.run(options)
+    {:ok, pid} = command_module.run(command)
 
     running_check = %RunningCheck{
       retries: 0,
@@ -174,59 +167,33 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
   end
 
   def handle_info({:DOWN, ref, _, _, :normal}, %State{running: checks} = state) do
-    successfuly_terminated_check = Enum.find(checks, &(&1.ref == ref))
+    terminated_check = Enum.find(checks, &(&1.ref == ref))
 
-    :ok =
-      successfuly_terminated_check.restart_opts
-      |> Keyword.fetch!(:on_success)
-      |> emit_success_event()
+    case Keyword.fetch!(terminated_check.restart_opts, :on_success) |> emit_success_event() do
+      :ok ->
+        updated_checks = Enum.filter(checks, &(&1.ref != ref))
 
-    updated_checks = Enum.filter(checks, &(&1.ref != ref))
-
-    delayed_check_ref = schedule_next_check(state.delayed_check_ref)
-
-    {:noreply, %State{state | running: updated_checks, delayed_check_ref: delayed_check_ref}}
-  end
-
-  def handle_info({:DOWN, ref, _, _, {:shutdown, reason}}, %State{running: checks} = state) do
-    checks
-    |> Enum.find(&(&1.ref == ref))
-    |> case do
-      %RunningCheck{retries: 3} = running_check ->
-        Logger.error(
-          "Check failed 3 times: #{inspect(running_check)}. Reason: #{inspect(reason)}"
-        )
-
-        :ok =
-          running_check.restart_opts
-          |> Keyword.fetch!(:on_failure)
-          |> emit_failure_event(reason)
-
-        {:ok, _pid} = send_email_alert(running_check, reason)
-
-        updated_refs = Enum.filter(checks, &(&1.ref != ref))
         delayed_check_ref = schedule_next_check(state.delayed_check_ref)
 
-        {:noreply, %State{state | running: updated_refs, delayed_check_ref: delayed_check_ref}}
+        {:noreply, %State{state | running: updated_checks, delayed_check_ref: delayed_check_ref}}
 
-      running_check ->
-        retry_interval = check_retry_interval(running_check.retries)
-
-        Logger.info("""
-        Retrying the check. Current state: #{inspect(running_check)}.\nWill be restarted in #{retry_interval} ms
-        """)
-
-        Process.send_after(self(), {:retry_check, running_check}, retry_interval)
-
-        {:noreply, state}
+      {:error, reason} ->
+        {:noreply, maybe_retry_check(ref, reason, state)}
     end
+  end
+
+  def handle_info({:DOWN, ref, _, _, {:shutdown, reason}}, state) do
+    {:norely, maybe_retry_check(ref, reason, state)}
   end
 
   def handle_info(
         {:retry_check, %RunningCheck{ref: ref} = running_check},
         %State{running: checks} = state
       ) do
-    {:ok, pid} = ZhrDevs.BakeryIntegration.gen_multiplayer(running_check.restart_opts)
+    command_module = Keyword.fetch!(running_check.restart_opts, :command_module)
+    command = Keyword.fetch!(running_check.restart_opts, :cmd)
+
+    {:ok, pid} = command_module.run(command)
 
     updated_running_check = %RunningCheck{
       running_check
@@ -265,10 +232,44 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
   end
 
   defp emit_failure_event({m, f, a}, reason) do
-    :ok = Kernel.apply(m, f, [reason | a])
+    Kernel.apply(m, f, [reason | a])
   end
 
   defp emit_success_event({m, f, a}) do
-    :ok = Kernel.apply(m, f, a)
+    Kernel.apply(m, f, a)
+  end
+
+  defp maybe_retry_check(ref, reason, %State{running: checks} = state) do
+    checks
+    |> Enum.find(&(&1.ref == ref))
+    |> case do
+      %RunningCheck{retries: 3} = running_check ->
+        Logger.error(
+          "Check failed 3 times: #{inspect(running_check)}. Reason: #{inspect(reason)}"
+        )
+
+        :ok =
+          running_check.restart_opts
+          |> Keyword.fetch!(:on_failure)
+          |> emit_failure_event(reason)
+
+        {:ok, _pid} = send_email_alert(running_check, reason)
+
+        updated_refs = Enum.filter(checks, &(&1.ref != ref))
+        delayed_check_ref = schedule_next_check(state.delayed_check_ref)
+
+        %State{state | running: updated_refs, delayed_check_ref: delayed_check_ref}
+
+      running_check ->
+        retry_interval = check_retry_interval(running_check.retries)
+
+        Logger.info("""
+        Retrying the check. Current state: #{inspect(running_check)}.\nWill be restarted in #{retry_interval} ms
+        """)
+
+        Process.send_after(self(), {:retry_check, running_check}, retry_interval)
+
+        state
+    end
   end
 end

@@ -25,14 +25,12 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunner do
     defstruct [:port, :latest_output, :exit_status, :timeout_ref]
   end
 
-  @spec start_link(Command.options()) :: {:ok, pid()} | {:error, term()}
-  def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, opts)
+  @spec start_link(Command.cmd()) :: {:ok, pid()} | {:error, term()}
+  def start_link(%Ubuntu.Command{} = cmd) do
+    GenServer.start_link(__MODULE__, cmd)
   end
 
-  def init(opts) do
-    cmd = Keyword.fetch!(opts, :cmd)
-
+  def init(cmd) do
     port =
       Port.open(
         {:spawn_executable, cmd.path |> Ubuntu.Path.render() |> T.un()},

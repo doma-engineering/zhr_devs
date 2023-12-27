@@ -32,6 +32,10 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
   alias ZhrDevs.Submissions.Events.ManualCheckTriggered
   # alias ZhrDevs.Submissions.Events.ManualCheckCompleted
 
+  def init do
+    :ok = ZhrDevs.Queries.delete_handler_subscriptions(__MODULE__)
+  end
+
   def handle(%SolutionCheckStarted{} = event, _meta) do
     %ZhrDevs.Task{} =
       task = ZhrDevs.Tasks.ReadModels.AvailableTasks.get_task_by_uuid(event.task_uuid)
@@ -58,23 +62,30 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
          %SolutionCheckStarted{solution_path: solution_path} = event,
          %ZhrDevs.Task{} = task
        ) do
+    command_module = ZhrDevs.BakeryIntegration.command_module(task)
+
     opts = [
-      submissions_folder: solution_path |> T.un() |> Path.dirname() |> T.new!(),
+      solution_path: solution_path,
       server_code: server_code(task),
       task: "#{task.name}_#{task.technology}",
       check_uuid: event.solution_uuid,
       task_uuid: event.task_uuid,
       type: :automatic,
-      command_module: ZhrDevs.BakeryIntegration.command_module(task)
+      command_module: command_module
     ]
 
-    :ok = ZhrDevs.BakeryIntegration.Queue.enqueue_check(opts)
+    command_specific_options = opts |> command_module.build() |> Uptight.Result.from_ok()
+    check_options = Keyword.merge(opts, command_specific_options)
+
+    :ok = ZhrDevs.BakeryIntegration.Queue.enqueue_check(check_options)
   end
 
   defp enqueue_check(
          %ManualCheckTriggered{submissions_folder: submissions_folder} = event,
          %ZhrDevs.Task{} = task
        ) do
+    command_module = ZhrDevs.BakeryIntegration.command_module(task)
+
     opts = [
       submissions_folder: submissions_folder,
       server_code: server_code(task),
@@ -86,7 +97,10 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
       command_module: ZhrDevs.BakeryIntegration.command_module(task)
     ]
 
-    :ok = ZhrDevs.BakeryIntegration.Queue.prioritize_check(opts)
+    command_specific_options = opts |> command_module.build() |> Uptight.Result.from_ok()
+    check_options = Keyword.merge(opts, command_specific_options)
+
+    :ok = ZhrDevs.BakeryIntegration.Queue.prioritize_check(check_options)
   end
 
   defp server_code(%ZhrDevs.Task{} = task) do

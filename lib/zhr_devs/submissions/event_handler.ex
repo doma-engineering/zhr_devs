@@ -24,10 +24,10 @@ defmodule ZhrDevs.Submissions.EventHandler do
     start_from: :origin,
     consistency: :strong
 
-    alias ZhrDevs.Submissions.Events.SolutionCheckCompleted
-    alias ZhrDevs.Submissions.Events.SolutionSubmitted
+  alias ZhrDevs.Submissions.Events.SolutionCheckCompleted
+  alias ZhrDevs.Submissions.Events.SolutionSubmitted
 
-    alias ZhrDevs.Submissions.Events.ManualCheckCompleted
+  alias ZhrDevs.Submissions.Events.ManualCheckCompleted
 
   alias ZhrDevs.Submissions.Events.TaskDownloaded
   alias ZhrDevs.Submissions.Events.TestCasesDownloaded

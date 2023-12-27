@@ -26,7 +26,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
   describe "build/1" do
     test "with valid opts - returns expected result" do
       opts = [
-        submissions_folder: T.new!("submissions_folder"),
+        solution_path: T.new!("/tmp/submissions_folder"),
         server_code: T.new!("server_code"),
         task: :on_the_map_goo,
         server_code: T.new!("server_code"),
@@ -44,7 +44,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
 
     test "generates valid Ubuntu command" do
       opts = [
-        submissions_folder: T.new!("submissions_folder"),
+        solution_path: T.new!("/tmp/submissions_folder"),
         server_code: T.new!("server_code"),
         task: :on_the_map_goo,
         task_uuid: T.new!("task-uuid"),
@@ -64,7 +64,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
 
     test "with missing option raises KeyError" do
       opts = [
-        submissions_folder: T.new!("submissions_folder"),
+        solution_path: T.new!("/tmp/submissions_folder"),
         task: "on_the_map_goo",
         server_code: T.new!("server_code"),
         task_uuid: T.new!("task-uuid"),
@@ -131,7 +131,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
       output_json_path = GenMultiplayer.output_json_path(:non_existing)
       opts = Keyword.put(default_opts, :output_json_path, output_json_path)
 
-      assert :ok = GenMultiplayer.on_success(opts)
+      assert {:error, %{error: :on_success_not_met}} = GenMultiplayer.on_success(opts)
     end
 
     test "with non existing output.json file - logs an error", %{opts: default_opts} do
@@ -139,7 +139,9 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
       opts = Keyword.put(default_opts, :output_json_path, output_json_path)
 
       assert capture_log([level: :error], fn ->
-               assert :ok = GenMultiplayer.on_success(opts)
+               assert {:error,
+                       %{error: :on_success_not_met, context: "output.json doesn't get generated"}} =
+                        GenMultiplayer.on_success(opts)
              end) =~ "Port terminated with :normal"
     end
   end
@@ -169,12 +171,12 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
         output_json_path: output_json_path,
         task_uuid: T.new!("task_uuid"),
         uuid: T.new!("uuid"),
-        triggered_by: T.new!("triggered_by")
+        triggered_by: Uptight.Base.mk_url!("triggered_by")
       ]
 
       assert capture_log([level: :error], fn ->
                assert {:error, _} = GenMultiplayer.manual_on_success(opts)
-             end) =~ "Manual tournament generation failed"
+             end) =~ "output.json doesn't get generated"
     end
   end
 

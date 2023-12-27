@@ -14,7 +14,7 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunnerTest do
 
   describe "exit status message received from port" do
     test "it sends :execution_stopped error to the callback" do
-      {:ok, pid} = run_command(cmd: long_running_command())
+      {:ok, pid} = run_command(long_running_command())
 
       Process.monitor(pid)
 
@@ -28,7 +28,7 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunnerTest do
 
   describe "data from port" do
     test "it saves the latest data received from port" do
-      {:ok, pid} = run_command(cmd: long_running_command())
+      {:ok, pid} = run_command(long_running_command())
 
       %{port: port} = :sys.get_state(pid)
       send(pid, {port, {:data, "data from port\n"}})

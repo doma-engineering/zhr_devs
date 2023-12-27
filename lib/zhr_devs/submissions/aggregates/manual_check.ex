@@ -14,7 +14,7 @@ defmodule ZhrDevs.Submissions.Aggregates.ManualCheck do
             :__struct__ => __MODULE__,
             required(:last_check_status) => :new | :running | :completed | :failed,
             required(:last_check_uuid) => Uptight.Text.t(),
-            required(:triggered_by) => Uptight.Base.UrlEncoded.t()
+            required(:triggered_by) => Uptight.Base.Urlsafe.t()
           }
 
   def execute(
