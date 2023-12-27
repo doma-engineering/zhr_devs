@@ -28,13 +28,13 @@ defmodule ZhrDevs.Submissions.Aggregates.Check do
 
   alias ZhrDevs.Submissions.{Commands, Events}
 
-  def execute(%__MODULE__{status: status}, %Commands.StartCheckSolution{}) when status != :new do
+  def execute(%__MODULE__{status: status}, %Commands.StartSolutionCheck{}) when status != :new do
     {:error, :check_is_already_started}
   end
 
   def execute(
         %__MODULE__{solution_uuid: nil, status: :new},
-        %Commands.StartCheckSolution{} = command
+        %Commands.StartSolutionCheck{} = command
       ) do
     %Events.SolutionCheckStarted{
       solution_uuid: command.solution_uuid,
@@ -43,12 +43,12 @@ defmodule ZhrDevs.Submissions.Aggregates.Check do
     }
   end
 
-  def execute(%__MODULE__{status: status}, %Commands.CompleteCheckSolution{})
+  def execute(%__MODULE__{status: status}, %Commands.CompleteSolutionCheck{})
       when status != :started do
     {:error, :illegal_attempt}
   end
 
-  def execute(%__MODULE__{status: :started}, %Commands.CompleteCheckSolution{} = cmd) do
+  def execute(%__MODULE__{status: :started}, %Commands.CompleteSolutionCheck{} = cmd) do
     %Events.SolutionCheckCompleted{
       solution_uuid: cmd.solution_uuid,
       task_uuid: cmd.task_uuid,

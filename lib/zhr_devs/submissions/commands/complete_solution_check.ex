@@ -1,4 +1,4 @@
-defmodule ZhrDevs.Submissions.Commands.CompleteCheckSolution do
+defmodule ZhrDevs.Submissions.Commands.CompleteSolutionCheck do
   @moduledoc """
   A command must contain a field to uniquely identify the aggregate instance (e.g. account_number).
   Use @enforce_keys to force the identity field to be specified when creating the command struct.

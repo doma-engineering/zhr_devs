@@ -14,7 +14,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
   alias Uptight.Result
   alias Uptight.Text, as: T
 
-  alias ZhrDevs.Submissions.Commands.CompleteCheckSolution
+  alias ZhrDevs.Submissions.Commands.CompleteSolutionCheck
   alias ZhrDevs.Submissions.Commands.CompleteManualCheck
   alias ZhrDevs.Submissions.Commands.FailManualCheck
 
@@ -103,7 +103,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
     if File.exists?(output_file_path) do
       Logger.info("Successfully generated tournament output: #{inspect(output_file_path)}")
 
-      complete_check_solution = %CompleteCheckSolution{
+      complete_check_solution = %CompleteSolutionCheck{
         solution_uuid: solution_uuid,
         task_uuid: task_uuid,
         score: extract_score!(output_file_path)

@@ -23,7 +23,7 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 # ]
 
 # ZhrDevs.App.dispatch(
-#   %ZhrDevs.Submissions.Commands.StartCheckSolution{
+#   %ZhrDevs.Submissions.Commands.StartSolutionCheck{
 #     solution_uuid: Uptight.Text.new!("3ed96175-633e-4c66-bda2-ddc35140c5d7"),
 #     task_uuid: Uptight.Text.new!("83a16039-b846-431f-803f-c4e51a8d0cac"),
 #     solution_path: "/Users/thunderbook/Work/doma/zhr_bakery/submissions/1.zip"
@@ -31,7 +31,7 @@ alias ZhrDevs.Submissions.Commands.SubmitSolution
 # )
 
 # ZhrDevs.App.dispatch(
-#   %ZhrDevs.Submissions.Commands.CompleteCheckSolution{
+#   %ZhrDevs.Submissions.Commands.CompleteSolutionCheck{
 #     solution_uuid: Uptight.Text.new!("3ed96175-633e-4c66-bda2-ddc35140c5d7"),
 #     task_uuid: Uptight.Text.new!("83a16039-b846-431f-803f-c4e51a8d0cac"),
 #     score: File.read!("score_example.json") |> Jason.decode!() |> Map.get("gen_multiplayer_score")

@@ -84,7 +84,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
   describe "on_success/1" do
     defp init_aggregate_state(task_uuid, solution_uuid) do
       :ok =
-        ZhrDevs.App.dispatch(%ZhrDevs.Submissions.Commands.StartCheckSolution{
+        ZhrDevs.App.dispatch(%ZhrDevs.Submissions.Commands.StartSolutionCheck{
           task_uuid: task_uuid,
           solution_uuid: solution_uuid,
           solution_path: "/some/path"
