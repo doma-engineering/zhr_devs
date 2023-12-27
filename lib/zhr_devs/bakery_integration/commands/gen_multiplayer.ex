@@ -38,8 +38,8 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
   def gen_multiplayer, do: @gen_multiplayer
 
   @impl Command
-  def run(%Ubuntu.Command{} = cmd) do
-    ZhrDevs.Submissions.start_automatic_check(cmd)
+  def run(opts) do
+    ZhrDevs.Submissions.start_automatic_check(opts)
   end
 
   @impl Command

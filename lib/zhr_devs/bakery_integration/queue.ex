@@ -145,8 +145,9 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
 
     command_module = Keyword.fetch!(options, :command_module)
     command = Keyword.fetch!(options, :cmd)
+    logger_metadata = Keyword.get(options, :logger_metadata, [])
 
-    {:ok, pid} = command_module.run(command)
+    {:ok, pid} = command_module.run(cmd: command, logger_metadata: logger_metadata)
 
     running_check = %RunningCheck{
       retries: 0,
@@ -192,8 +193,9 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
       ) do
     command_module = Keyword.fetch!(running_check.restart_opts, :command_module)
     command = Keyword.fetch!(running_check.restart_opts, :cmd)
+    logger_metadata = Keyword.get(running_check.restart_opts, :logger_metadata, [])
 
-    {:ok, pid} = command_module.run(command)
+    {:ok, pid} = command_module.run(cmd: command, logger_metadata: logger_metadata)
 
     updated_running_check = %RunningCheck{
       running_check

@@ -85,7 +85,11 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
       check_uuid: event.solution_uuid,
       task_uuid: event.task_uuid,
       type: :automatic,
-      command_module: command_module
+      command_module: command_module,
+      logger_metadata: [
+        backend: event.solution_uuid |> T.un() |> String.to_atom(),
+        path: "/tmp/#{task.name}/#{task.technology}/#{T.un(event.solution_uuid)}.log"
+      ]
     ]
 
     command_specific_options = opts |> command_module.build() |> Uptight.Result.from_ok()
@@ -108,7 +112,11 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
       check_uuid: event.uuid,
       type: :manual,
       triggered_by: event.triggered_by,
-      command_module: ZhrDevs.BakeryIntegration.command_module(task)
+      command_module: ZhrDevs.BakeryIntegration.command_module(task),
+      logger_metadata: [
+        backend: event.uuid |> T.un() |> String.to_atom(),
+        path: "/tmp/#{task.name}/#{task.technology}/manual/#{T.un(event.uuid)}.log"
+      ]
     ]
 
     command_specific_options = opts |> command_module.build() |> Uptight.Result.from_ok()

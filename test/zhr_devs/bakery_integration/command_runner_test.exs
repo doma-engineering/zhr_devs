@@ -14,7 +14,7 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunnerTest do
 
   describe "exit status message received from port" do
     test "it sends :execution_stopped error to the callback" do
-      {:ok, pid} = run_command(long_running_command())
+      {:ok, pid} = run_command(cmd: long_running_command())
 
       Process.monitor(pid)
 
@@ -28,13 +28,30 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunnerTest do
 
   describe "data from port" do
     test "it saves the latest data received from port" do
-      {:ok, pid} = run_command(long_running_command())
+      {:ok, pid} = run_command(cmd: long_running_command())
 
       %{port: port} = :sys.get_state(pid)
       send(pid, {port, {:data, "data from port\n"}})
       send(pid, {port, {:data, "\n\n\ndata from port 2"}})
 
       assert %{latest_output: "data from port 2"} = :sys.get_state(pid)
+    end
+
+    test "with Logger configuration - creates a logger backend with the provided metadata" do
+      {:ok, pid} =
+        run_command(
+          cmd: long_running_command(),
+          logger_metadata: [backend: :runner_id, path: "/tmp/runner_id.log"]
+        )
+
+      %{port: port} = :sys.get_state(pid)
+
+      send(pid, {port, {:data, "data from port\n"}})
+
+      assert File.exists?("/tmp/runner_id.log")
+      assert File.read!("/tmp/runner_id.log") =~ "data from port"
+
+      clean_up_tmp()
     end
   end
 
@@ -44,5 +61,11 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunnerTest do
 
   defp long_running_command do
     Ubuntu.Command.new!(@long_running_script_path, [])
+  end
+
+  def clean_up_tmp do
+    File.rm("/tmp/runner_id.log")
+
+    :ok
   end
 end
