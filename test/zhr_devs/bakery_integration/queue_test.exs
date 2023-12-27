@@ -126,7 +126,13 @@ defmodule ZhrDevs.BakeryIntegration.QueueTest do
     end
 
     test "with non empty queue - starts the check" do
-      check = Keyword.merge(mock_cmd_opts(), check_uuid: T.new!("check_uuid"), task: "mock_task")
+      check =
+        Keyword.merge(mock_cmd_opts(),
+          check_uuid: T.new!("check_uuid"),
+          task: "mock_task",
+          logger_metadata: [backend: :mock, path: "/tmp/mock.log"]
+        )
+
       queue = :queue.from_list([check])
 
       {pid, _} = start_queue!(queue: queue)
@@ -142,7 +148,13 @@ defmodule ZhrDevs.BakeryIntegration.QueueTest do
 
   describe ":DOWN messages handling" do
     setup do
-      check = Keyword.merge(mock_cmd_opts(), check_uuid: T.new!("check_uuid"), task: "mock_task")
+      check =
+        Keyword.merge(mock_cmd_opts(),
+          check_uuid: T.new!("check_uuid"),
+          task: "mock_task",
+          logger_metadata: [backend: :mock, path: "/tmp/mock.log"]
+        )
+
       queue = :queue.from_list([check])
 
       %{queue: queue}

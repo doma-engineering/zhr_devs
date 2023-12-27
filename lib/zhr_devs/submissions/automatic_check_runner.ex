@@ -34,6 +34,8 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
   alias ZhrDevs.Submissions.Events.ManualCheckFailed
   alias ZhrDevs.Submissions.Events.ManualCheckTriggered
 
+  @command_log_folder Application.compile_env!(:zhr_devs, :command_logs_folder)
+
   def init do
     :ok = ZhrDevs.Queries.delete_handler_subscriptions(__MODULE__)
   end
@@ -85,7 +87,15 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
       check_uuid: event.solution_uuid,
       task_uuid: event.task_uuid,
       type: :automatic,
-      command_module: command_module
+      command_module: command_module,
+      logger_metadata: [
+        backend: event.solution_uuid |> T.un() |> String.to_atom(),
+        path:
+          Path.join([
+            @command_log_folder,
+            "#{task.name}/#{task.technology}, #{T.un(event.solution_uuid)}.log"
+          ])
+      ]
     ]
 
     command_specific_options = opts |> command_module.build() |> Uptight.Result.from_ok()
@@ -108,7 +118,17 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
       check_uuid: event.uuid,
       type: :manual,
       triggered_by: event.triggered_by,
-      command_module: ZhrDevs.BakeryIntegration.command_module(task)
+      command_module: ZhrDevs.BakeryIntegration.command_module(task),
+      logger_metadata: [
+        backend: event.uuid |> T.un() |> String.to_atom(),
+        path:
+          Path.join([
+            @command_log_folder,
+            "#{task.name}/#{task.technology}",
+            "manual",
+            "#{T.un(event.uuid)}.log"
+          ])
+      ]
     ]
 
     command_specific_options = opts |> command_module.build() |> Uptight.Result.from_ok()

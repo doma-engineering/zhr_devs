@@ -12,8 +12,8 @@ defmodule ZhrDevs.Support.MockCommand do
   import ZhrDevs.Fixtures, only: [long_running_command: 0]
 
   @impl Command
-  def run(%Ubuntu.Command{} = cmd) do
-    ZhrDevs.BakeryIntegration.run_command(cmd)
+  def run(opts) do
+    ZhrDevs.BakeryIntegration.run_command(opts)
   end
 
   @impl Command

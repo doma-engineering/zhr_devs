@@ -20,9 +20,12 @@ defmodule ZhrDevs.BakeryIntegration do
   For now it will be just Ubuntu.Command.t()
   And it became this type below when Logger PR will be merged
   """
-  @type command_with_metadata() :: [{:cmd, Command.cmd()}, {:logger_metadata, Keyword.t()}]
+  @type command_with_metadata() :: [
+          {:cmd, Ubuntu.Command.t()},
+          {:logger_metadata, [{:backend, atom()}, {:path, String.t()}]}
+        ]
 
-  @spec run_command(Ubuntu.Command.t()) :: Command.run()
+  @spec run_command(command_with_metadata()) :: Command.run()
   def run_command(command_options) do
     DynamicSupervisor.start_child(
       ZhrDevs.Submissions.CheckSupervisor,
