@@ -24,7 +24,7 @@ defmodule ZhrDevs.Submissions.EventsRouter do
 
   dispatch(Commands.StartSolutionCheck, to: Aggregates.Check, identity: :solution_uuid)
   dispatch(Commands.CompleteSolutionCheck, to: Aggregates.Check, identity: :solution_uuid)
-  # dispatch(Commands.FailSolutionCheck, to: Aggregates.Check, identity: :solution_uuid)
+  dispatch(Commands.FailSolutionCheck, to: Aggregates.Check, identity: :solution_uuid)
 
   dispatch(Commands.TriggerManualCheck, to: Aggregates.ManualCheck, identity: :triggered_by)
   dispatch(Commands.CompleteManualCheck, to: Aggregates.ManualCheck, identity: :triggered_by)

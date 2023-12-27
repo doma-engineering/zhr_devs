@@ -22,7 +22,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Check do
           %{
             :__struct__ => __MODULE__,
             required(:solution_uuid) => Text.t(),
-            required(:status) => :new | :started | :completed,
+            required(:status) => :new | :started | :completed | :failed,
             required(:execution_errors) => [String.t()] | []
           }
 
@@ -56,6 +56,14 @@ defmodule ZhrDevs.Submissions.Aggregates.Check do
     }
   end
 
+  def execute(%__MODULE__{}, %Commands.FailSolutionCheck{} = cmd) do
+    %Events.SolutionCheckFailed{
+      solution_uuid: cmd.solution_uuid,
+      task_uuid: cmd.task_uuid,
+      system_error: cmd.system_error
+    }
+  end
+
   ### State mutators ###
 
   def apply(%__MODULE__{} = state, %Events.SolutionCheckStarted{} = event) do
@@ -70,6 +78,13 @@ defmodule ZhrDevs.Submissions.Aggregates.Check do
     %__MODULE__{
       state
       | status: :completed
+    }
+  end
+
+  def apply(%__MODULE__{} = state, %Events.SolutionCheckFailed{}) do
+    %__MODULE__{
+      state
+      | status: :failed
     }
   end
 end

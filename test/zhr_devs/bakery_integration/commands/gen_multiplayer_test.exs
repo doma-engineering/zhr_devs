@@ -189,7 +189,8 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
                             error: :on_success_not_met,
                             context: "whatever"
                           },
-                          []
+                          task_uuid: T.new!("task_uuid"),
+                          solution_uuid: T.new!("solution_uuid")
                         )
              end) =~
                "Port terminated with :normal reason, but output.json doesn't get generated.\nLatest output: whatever"
@@ -204,7 +205,8 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
                             context: "whatever",
                             exit_code: 1
                           },
-                          []
+                          task_uuid: T.new!("task_uuid"),
+                          solution_uuid: T.new!("solution_uuid")
                         )
              end) =~
                "Multiplayer generation process is stopped with exit code: 1.\nLatest output: whatever"
