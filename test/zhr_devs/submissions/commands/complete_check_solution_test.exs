@@ -1,4 +1,4 @@
-defmodule ZhrDevs.Submissions.Commands.CompleteCheckSolutionTest do
+defmodule ZhrDevs.Submissions.Commands.CompleteSolutionCheckTest do
   use ExUnit.Case, async: true
 
   @moduletag :capture_log
@@ -9,17 +9,17 @@ defmodule ZhrDevs.Submissions.Commands.CompleteCheckSolutionTest do
 
   alias ZhrDevs.App
   alias ZhrDevs.Submissions.Aggregates.Check
-  alias ZhrDevs.Submissions.Commands.CompleteCheckSolution
-  alias ZhrDevs.Submissions.Commands.StartCheckSolution
+  alias ZhrDevs.Submissions.Commands.CompleteSolutionCheck
+  alias ZhrDevs.Submissions.Commands.StartSolutionCheck
   alias ZhrDevs.Submissions.Events.SolutionCheckStarted
 
-  describe "StartCheckSolution command" do
+  describe "StartSolutionCheck command" do
     test "do not allow to dispatch command twice with the same solution_uuid" do
       solution_uuid = Commanded.UUID.uuid4() |> Uptight.Base.mk_url!()
 
       :ok = simulate_check_started(solution_uuid)
 
-      command = %CompleteCheckSolution{
+      command = %CompleteSolutionCheck{
         solution_uuid: solution_uuid,
         task_uuid: "doesn't matter",
         score: %{
@@ -37,7 +37,7 @@ defmodule ZhrDevs.Submissions.Commands.CompleteCheckSolutionTest do
 
       :ok = simulate_check_started(solution_uuid)
 
-      command = %CompleteCheckSolution{
+      command = %CompleteSolutionCheck{
         solution_uuid: solution_uuid,
         task_uuid: "doesn't matter",
         score: %{
@@ -54,7 +54,7 @@ defmodule ZhrDevs.Submissions.Commands.CompleteCheckSolutionTest do
     end
 
     def simulate_check_started(solution_uuid) do
-      command = %StartCheckSolution{
+      command = %StartSolutionCheck{
         solution_uuid: solution_uuid,
         task_uuid: "doesn't matter",
         solution_path: "doesn't matter"

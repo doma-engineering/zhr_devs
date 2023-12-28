@@ -14,7 +14,9 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
   alias Uptight.Result
   alias Uptight.Text, as: T
 
-  alias ZhrDevs.Submissions.Commands.CompleteCheckSolution
+  alias ZhrDevs.Submissions.Commands.CompleteSolutionCheck
+  alias ZhrDevs.Submissions.Commands.FailSolutionCheck
+
   alias ZhrDevs.Submissions.Commands.CompleteManualCheck
   alias ZhrDevs.Submissions.Commands.FailManualCheck
 
@@ -103,7 +105,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
     if File.exists?(output_file_path) do
       Logger.info("Successfully generated tournament output: #{inspect(output_file_path)}")
 
-      complete_check_solution = %CompleteCheckSolution{
+      complete_check_solution = %CompleteSolutionCheck{
         solution_uuid: solution_uuid,
         task_uuid: task_uuid,
         score: extract_score!(output_file_path)
@@ -124,24 +126,27 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
   end
 
   @impl Command
-  def on_failure(%{error: :on_success_not_met, context: context}, _callback_opts) do
+  def on_failure(%{error: :on_success_not_met, context: context} = system_error, callback_opts) do
     Logger.error(
       "Port terminated with :normal reason, but output.json doesn't get generated.\nLatest output: #{context}"
     )
 
-    :ok
+    FailSolutionCheck.dispatch(Keyword.merge(callback_opts, error: system_error))
   end
 
-  def on_failure(%{error: :execution_stopped, context: context, exit_code: code}, _callback_opts) do
+  def on_failure(
+        %{error: :execution_stopped, context: context, exit_code: code} = system_error,
+        callback_opts
+      ) do
     Logger.error(
       "Multiplayer generation process is stopped with exit code: #{code}.\nLatest output: #{context}"
     )
 
-    :ok
+    FailSolutionCheck.dispatch(Keyword.merge(callback_opts, error: system_error))
   end
 
-  def on_failure(%{error: _error}, _callback_opts) do
-    :ok
+  def on_failure(system_error, callback_opts) do
+    FailSolutionCheck.dispatch(Keyword.merge(callback_opts, error: system_error))
   end
 
   def manual_on_failure(system_error, callback_opts) when is_map(system_error) do

@@ -3,9 +3,6 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
   This process is similar to other Event.Handlers, except it's a part
   of a separate supervision tree (ZhrDevs.Otp.SubmissionSupervisor).
 
-  Notice that we are not using the init() callback to delete already processed events;
-  That's because we don't want to reply already processed events on system restart.
-
   When we enqueue check we have two options:
   - Enqueue using normal procedure, which will insert the check at the end of queue (used for automatic checks)
   - Prioritize the check, which will insert the check at the beginning of queue (used for manual checks)
@@ -15,6 +12,9 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
   build the command with respect to the :type option provided (we have slightly different flow for manual and automatic checks)
 
   This is important, because we want Queue and CommandRunner processes to be decoupled from this logic.
+
+  Why we should execute the IO side effects separately from the pure logic? This article explains it well:
+  https://github.com/commanded/commanded/wiki/Functional-core%2C-imperative-shell
   """
 
   require Logger
@@ -27,11 +27,12 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
   alias Uptight.Text, as: T
 
   alias ZhrDevs.Submissions.Events.SolutionCheckCompleted
+  alias ZhrDevs.Submissions.Events.SolutionCheckFailed
   alias ZhrDevs.Submissions.Events.SolutionCheckStarted
 
-  alias ZhrDevs.Submissions.Events.ManualCheckTriggered
-  # alias ZhrDevs.Submissions.Events.ManualCheckCompleted
+  alias ZhrDevs.Submissions.Events.ManualCheckCompleted
   alias ZhrDevs.Submissions.Events.ManualCheckFailed
+  alias ZhrDevs.Submissions.Events.ManualCheckTriggered
 
   def init do
     :ok = ZhrDevs.Queries.delete_handler_subscriptions(__MODULE__)
@@ -52,7 +53,15 @@ defmodule ZhrDevs.Submissions.AutomaticCheckRunner do
     :ok = ZhrDevs.BakeryIntegration.Queue.dequeue_check(solution_uuid)
   end
 
+  def handle(%SolutionCheckFailed{solution_uuid: solution_uuid}, _meta) do
+    :ok = ZhrDevs.BakeryIntegration.Queue.dequeue_check(solution_uuid)
+  end
+
   def handle(%ManualCheckFailed{uuid: check_uuid}, _meta) do
+    :ok = ZhrDevs.BakeryIntegration.Queue.dequeue_check(check_uuid)
+  end
+
+  def handle(%ManualCheckCompleted{uuid: check_uuid}, _meta) do
     :ok = ZhrDevs.BakeryIntegration.Queue.dequeue_check(check_uuid)
   end
 

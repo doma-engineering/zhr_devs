@@ -1,4 +1,4 @@
-defmodule ZhrDevs.Submissions.Commands.StartCheckSolution do
+defmodule ZhrDevs.Submissions.Commands.StartSolutionCheck do
   @moduledoc """
   This command will be dispatched by the process manager once SolutionSubmitted event will occur.
 
