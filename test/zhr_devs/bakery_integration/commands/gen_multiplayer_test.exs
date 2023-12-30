@@ -37,8 +37,27 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
 
       assert [
                {:cmd, %Ubuntu.Command{}},
-               {:on_success, _},
-               {:on_failure, _}
+               {:on_success, {GenMultiplayer, :on_success, _}},
+               {:on_failure, {GenMultiplayer, :on_failure, _}}
+             ] = opts |> GenMultiplayer.build() |> Uptight.Result.from_ok()
+    end
+
+    test "with manual type - returns expected result" do
+      opts = [
+        submissions_folder: T.new!("/tmp/submissions_folder"),
+        server_code: T.new!("server_code"),
+        task: :on_the_map_goo,
+        server_code: T.new!("server_code"),
+        task_uuid: T.new!("task-uuid"),
+        check_uuid: T.new!("solution-uuid"),
+        type: :manual,
+        triggered_by: Uptight.Base.mk_url!("triggered_by")
+      ]
+
+      assert [
+               {:cmd, %Ubuntu.Command{}},
+               {:on_success, {GenMultiplayer, :manual_on_success, _}},
+               {:on_failure, {GenMultiplayer, :manual_on_failure, _}}
              ] = opts |> GenMultiplayer.build() |> Uptight.Result.from_ok()
     end
 
@@ -210,6 +229,77 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayerTest do
                         )
              end) =~
                "Multiplayer generation process is stopped with exit code: 1.\nLatest output: whatever"
+    end
+
+    test "dispatch FailSolutionCheck command" do
+      solution_uuid = Commanded.UUID.uuid4() |> T.new!()
+
+      assert :ok =
+               GenMultiplayer.on_failure(
+                 %{error: :on_success_not_met, context: "whatever"},
+                 task_uuid: T.new!("task_uuid"),
+                 solution_uuid: solution_uuid
+               )
+
+      wait_for_event(
+        ZhrDevs.App,
+        ZhrDevs.Submissions.Events.SolutionCheckFailed,
+        fn event ->
+          event.solution_uuid == solution_uuid
+        end
+      )
+    end
+  end
+
+  describe "manual_on_failure/2" do
+    test "emits a ManualCheckFailed event" do
+      callback_opts = [
+        task_uuid: T.new!("task_uuid"),
+        uuid: T.new!("uuid"),
+        triggered_by: Uptight.Base.mk_url!(DomaOAuth.hash("triggered_by"))
+      ]
+
+      :ok = GenMultiplayer.manual_on_failure(%{error: :whatever}, callback_opts)
+
+      wait_for_event(
+        ZhrDevs.App,
+        ZhrDevs.Submissions.Events.ManualCheckFailed,
+        fn event ->
+          event.uuid == callback_opts[:uuid]
+        end
+      )
+    end
+  end
+
+  describe "persist_output/4" do
+    @tag fs: true
+    test "with :manual option - persists output to 'manual' folder" do
+      output_json_path = GenMultiplayer.output_json_path(:task)
+
+      File.write!(output_json_path, Jason.encode!(%{gen_multiplayer_score: []}))
+
+      assert File.exists?(output_json_path)
+
+      task_uuid = Commanded.UUID.uuid4() |> T.new!()
+      uuid = Commanded.UUID.uuid4() |> T.new!()
+
+      assert :ok = GenMultiplayer.persist_output(output_json_path, task_uuid, uuid, :manual)
+
+      output_backup_folder = Application.fetch_env!(:zhr_devs, :output_json_backup_folder)
+
+      assert File.exists?(
+               Path.join([output_backup_folder, T.un(task_uuid), "manual", "#{T.un(uuid)}.json"])
+             )
+
+      assert :ok = GenMultiplayer.persist_output(output_json_path, task_uuid, uuid, :auto)
+
+      assert File.exists?(
+               Path.join([output_backup_folder, T.un(task_uuid), "#{T.un(uuid)}.json"])
+             )
+
+      on_exit(:cleanup, fn ->
+        File.rm_rf!(Path.join([output_backup_folder, "task_uuid"]))
+      end)
     end
   end
 end

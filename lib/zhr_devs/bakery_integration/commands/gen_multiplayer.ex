@@ -39,7 +39,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
 
   @impl Command
   def run(%Ubuntu.Command{} = cmd) do
-    ZhrDevs.Submissions.start_automatic_check(cmd)
+    ZhrDevs.BakeryIntegration.run_command(cmd)
   end
 
   @impl Command
@@ -197,12 +197,12 @@ defmodule ZhrDevs.BakeryIntegration.Commands.GenMultiplayer do
     Path.join([File.cwd!(), "tournament", task, "output.json"])
   end
 
-  defp extract_score!(path) do
+  def extract_score!(path) do
     path |> File.read!() |> Jason.decode!() |> Map.fetch!("gen_multiplayer_score")
   end
 
   @spec persist_output(String.t(), T.t(), T.t(), :automatic | :manual) :: :ok
-  def persist_output(output_json_file_path, %T{} = task_uuid, %T{} = uuid, :maual) do
+  def persist_output(output_json_file_path, %T{} = task_uuid, %T{} = uuid, :manual) do
     backup_path =
       Path.join([@output_json_backup_folder, T.un(task_uuid), "manual", "#{T.un(uuid)}.json"])
 

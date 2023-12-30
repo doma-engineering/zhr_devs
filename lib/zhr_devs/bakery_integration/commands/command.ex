@@ -8,9 +8,7 @@ defmodule ZhrDevs.BakeryIntegration.Commands.Command do
           context: term(),
           message: term()
         }
-
   @type cmd() :: Ubuntu.Command.t()
-
   @type run() :: {:ok, pid()} | {:error, term()}
 
   @callback run(cmd()) :: run()

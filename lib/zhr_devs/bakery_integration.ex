@@ -16,9 +16,18 @@ defmodule ZhrDevs.BakeryIntegration do
   alias ZhrDevs.BakeryIntegration.Commands.Command
   alias ZhrDevs.BakeryIntegration.Commands.GenMultiplayer
 
-  @spec gen_multiplayer(Ubuntu.Command.t()) :: Command.run()
-  def gen_multiplayer(command) do
-    GenMultiplayer.run(command)
+  @typedoc """
+  For now it will be just Ubuntu.Command.t()
+  And it became this type below when Logger PR will be merged
+  """
+  @type command_with_metadata() :: [{:cmd, Command.cmd()}, {:logger_metadata, Keyword.t()}]
+
+  @spec run_command(Ubuntu.Command.t()) :: Command.run()
+  def run_command(command_options) do
+    DynamicSupervisor.start_child(
+      ZhrDevs.Submissions.CheckSupervisor,
+      {ZhrDevs.BakeryIntegration.CommandRunner, command_options}
+    )
   end
 
   @doc """

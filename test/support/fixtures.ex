@@ -1,5 +1,6 @@
 defmodule ZhrDevs.Fixtures do
   @moduledoc "Helper functions to generate test data."
+  use Witchcraft.Functor
 
   alias DomaOAuth.Authentication.Success
 
@@ -71,5 +72,13 @@ defmodule ZhrDevs.Fixtures do
       name: name,
       technology: technology
     }
+  end
+
+  @long_running_script_path [".", "test", "support", "long_running.sh"]
+                            |> map(&T.new!/1)
+                            |> Ubuntu.Path.new!()
+
+  def long_running_command do
+    Ubuntu.Command.new!(@long_running_script_path, [])
   end
 end

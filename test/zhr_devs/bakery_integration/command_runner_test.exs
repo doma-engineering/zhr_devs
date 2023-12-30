@@ -1,16 +1,12 @@
 defmodule ZhrDevs.BakeryIntegration.CommandRunnerTest do
-  use ExUnit.Case, async: false
-  use Witchcraft.Functor
+  use ExUnit.Case, async: true
 
   alias ZhrDevs.BakeryIntegration.CommandRunner
 
-  alias Uptight.Text, as: T
+  import ExUnit.CaptureLog
+  import ZhrDevs.Fixtures, only: [long_running_command: 0]
 
   @moduletag :capture_log
-
-  @long_running_script_path [".", "test", "support", "long_running.sh"]
-                            |> map(&T.new!/1)
-                            |> Ubuntu.Path.new!()
 
   describe "exit status message received from port" do
     test "it sends :execution_stopped error to the callback" do
@@ -38,11 +34,33 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunnerTest do
     end
   end
 
-  defp run_command(opts) do
-    start_supervised({CommandRunner, opts})
+  describe "handling of :timeout message" do
+    test "it output logs correctly and stops the process" do
+      {output, log} =
+        with_log([level: :error], fn ->
+          CommandRunner.handle_info(:timeout, %{port: :port, latest_output: "latest output"})
+        end)
+
+      assert log =~ "No output from Port for 2 minutes. Terminating."
+
+      assert {:stop, {:shutdown, %{error: :timeout_reached}}, _} = output
+    end
   end
 
-  defp long_running_command do
-    Ubuntu.Command.new!(@long_running_script_path, [])
+  describe "unhandled messages" do
+    test "it output warning logs correctly and do not stops the process" do
+      {output, log} =
+        with_log([level: :warning], fn ->
+          CommandRunner.handle_info(:nonexisted, %{port: :port, latest_output: "latest output"})
+        end)
+
+      assert log =~ "Unhandled message"
+
+      assert {:noreply, _} = output
+    end
+  end
+
+  defp run_command(opts) do
+    start_supervised({CommandRunner, opts})
   end
 end

@@ -82,12 +82,13 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
 
   def init(opts) do
     queue = Keyword.get(opts, :queue, :queue.new())
+    running = Keyword.get(opts, :running, [])
 
     delayed_check_ref =
       unless :queue.is_empty(queue),
         do: Process.send_after(self(), :run_next_check, @queue_delay_ms)
 
-    {:ok, %State{queue: queue, running: [], delayed_check_ref: delayed_check_ref}}
+    {:ok, %State{queue: queue, running: running, delayed_check_ref: delayed_check_ref}}
   end
 
   def handle_call({:enqueue_check, options}, _from, %State{queue: queue} = state) do
@@ -180,6 +181,12 @@ defmodule ZhrDevs.BakeryIntegration.Queue do
       {:error, reason} ->
         {:noreply, maybe_retry_check(ref, reason, state)}
     end
+  end
+
+  def handle_info({:DOWN, ref, _, _, reason}, state) when is_atom(reason) do
+    Logger.error("Check failed with not :normal reason: #{inspect(reason)}")
+
+    {:norely, maybe_retry_check(ref, %{error: reason}, state)}
   end
 
   def handle_info({:DOWN, ref, _, _, {:shutdown, reason}}, state) do
