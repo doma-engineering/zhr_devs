@@ -8,7 +8,11 @@ defmodule ZhrDevs.MixProject do
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases(),
+      preferred_cli_env: [
+        "test.all": :test
+      ]
     ]
   end
 
@@ -54,6 +58,12 @@ defmodule ZhrDevs.MixProject do
 
       # Things get's dangerous
       {:ubuntu, github: "doma-engineering/ubuntu", branch: "main"}
+    ]
+  end
+
+  defp aliases do
+    [
+      "test.all": ["test --include fs --include flaky"]
     ]
   end
 end

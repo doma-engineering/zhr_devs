@@ -21,6 +21,12 @@ make dev
 mix test && echo ok || echo ko
 ```
 
+To run whole test suite:
+
+```bash
+mix test.all
+```
+
 - If you want to drop the database: `make danger_zone_i_am_sure_i_want_to_clean_dev_state`
 
 - To run application:
