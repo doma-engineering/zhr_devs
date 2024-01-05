@@ -7,8 +7,6 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTask do
   so fields will remain the same, but event will be called TestCasesDownloaded
   """
 
-  import ZhrDevs.Submissions.Commands.Parsing.Shared
-
   alias ZhrDevs.Submissions.Events.TaskDownloaded
 
   alias ZhrDevs.Submissions.SubmissionIdentity
@@ -19,7 +17,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTask do
   alias Uptight.Result
   alias Uptight.Text
 
-  @fields TaskDownloaded.fields() ++ [submission_identity: nil]
+  @fields TaskDownloaded.fields() ++ [submission_identity: nil, additional_inputs: false]
   @enforce_keys Keyword.keys(@fields)
   defstruct @fields
 
@@ -28,7 +26,8 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTask do
           required(:technology) => atom(),
           required(:hashed_identity) => Urlsafe.t(),
           required(:task_uuid) => Text.t(),
-          required(:submission_identity) => SubmissionIdentity.t()
+          required(:submission_identity) => SubmissionIdentity.t(),
+          required(:additional_inputs) => boolean()
         }
 
   @typep error() :: String.t() | struct()
@@ -53,14 +52,12 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTask do
         |> Keyword.fetch!(:hashed_identity)
         |> Uptight.Base.mk_url!()
 
-      technology = unpack_technology(opts)
-
-      task_uuid =
-        opts
-        |> Keyword.fetch!(:task_uuid)
-        |> Text.new!()
+      technology = Keyword.fetch!(opts, :technology)
+      additional_inputs = Keyword.get(opts, :additional_inputs, false)
+      task_uuid = Keyword.fetch!(opts, :task_uuid)
 
       %__MODULE__{
+        additional_inputs: additional_inputs,
         technology: technology,
         hashed_identity: hashed_identity,
         task_uuid: task_uuid,

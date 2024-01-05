@@ -81,7 +81,7 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
     }
   end
 
-  def execute(%__MODULE__{attempts: 0}, %DownloadTask{} = command) do
+  def execute(%__MODULE__{attempts: 0}, %DownloadTask{additional_inputs: false} = command) do
     %TaskDownloaded{
       hashed_identity: command.hashed_identity,
       task_uuid: command.task_uuid,
@@ -89,8 +89,20 @@ defmodule ZhrDevs.Submissions.Aggregates.Submission do
     }
   end
 
-  def execute(%__MODULE__{attempts: 1}, %DownloadTask{} = command) do
+  def execute(%__MODULE__{attempts: 0}, %DownloadTask{additional_inputs: true}) do
+    {:error, "You can't download additional inputs for the first submission"}
+  end
+
+  def execute(%__MODULE__{attempts: 1}, %DownloadTask{additional_inputs: true} = command) do
     %TestCasesDownloaded{
+      hashed_identity: command.hashed_identity,
+      task_uuid: command.task_uuid,
+      technology: command.technology
+    }
+  end
+
+  def execute(%__MODULE__{attempts: 1}, %DownloadTask{additional_inputs: false} = command) do
+    %TaskDownloaded{
       hashed_identity: command.hashed_identity,
       task_uuid: command.task_uuid,
       technology: command.technology
