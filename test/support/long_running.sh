@@ -1,3 +1,3 @@
 echo 'Start running'
 
-sleep 2
+sleep 3

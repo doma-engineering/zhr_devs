@@ -25,10 +25,14 @@ defmodule ZhrDevs.Otp.SubmissionSupervisor do
   defp check_supervisor_opts do
     [
       strategy: :one_for_one,
-      max_children: 1,
+      max_children: max_children(),
       max_seconds: 60,
       max_restarts: 3,
       name: ZhrDevs.Submissions.CheckSupervisor
     ]
+  end
+
+  defp max_children do
+    if System.get_env("MIX_ENV") == "test", do: 100, else: 1
   end
 end

@@ -1,6 +1,8 @@
 defmodule ZhrDevs.Submissions.ReadModels.TournamentRuns do
   @moduledoc """
-  Keeps track of the multiplayer runs for the particular task
+  Keeps track of the multiplayer runs for the particular task.
+
+  Currently we only keep the results of the last run.
   """
 
   alias Uptight.Text, as: T
@@ -31,14 +33,10 @@ defmodule ZhrDevs.Submissions.ReadModels.TournamentRuns do
     {:ok, []}
   end
 
-  def handle_cast({:add_tournament_result, result}, state) do
-    state =
-      state
-      |> Kernel.++(result)
-      |> List.flatten()
-      |> Enum.sort_by(&Kernel.get_in(&1, [:score, :points]), :desc)
+  def handle_cast({:add_tournament_result, result}, _state) do
+    new_state = Enum.sort_by(result, &Kernel.get_in(&1, [:score, :points]), :desc)
 
-    {:noreply, state}
+    {:noreply, new_state}
   end
 
   def handle_call({:get_tournament_results, hashed_identity}, _from, state) do

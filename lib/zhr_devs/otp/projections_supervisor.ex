@@ -6,10 +6,9 @@ defmodule ZhrDevs.Otp.ProjectionsSupervisor do
   TODO: In-memory for what? Just for testing? We sometimes write them to JSONB in database, don't we?
   """
 
+  alias ZhrDevs.Submissions.ReadModels.CandidateSubmissions
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads
   alias ZhrDevs.Tasks.ReadModels.AvailableTasksAgent
-
-  alias ZhrDevs.Submissions.DelayedEmailsSender
 
   @dialyzer {:no_return, {:init, 1}}
 
@@ -24,7 +23,7 @@ defmodule ZhrDevs.Otp.ProjectionsSupervisor do
     children = [
       AvailableTasksAgent,
       TaskDownloads,
-      DelayedEmailsSender
+      CandidateSubmissions
     ]
 
     Supervisor.init(children, strategy: :one_for_one, name: __MODULE__)

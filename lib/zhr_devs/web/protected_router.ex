@@ -42,6 +42,8 @@ defmodule ZhrDevs.Web.ProtectedRouter do
 
   get("/submission/:submission_uuid/download", to: ZhrDevs.Web.Plugs.DownloadSubmission)
 
+  post("/task/trigger_manual_check", to: ZhrDevs.Web.Plugs.TriggerManualCheck)
+
   defp check_auth(conn, _opts) do
     conn
     |> check_session()

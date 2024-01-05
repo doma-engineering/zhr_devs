@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import fetchTasks from './tasks/request'
+import { fetchTasks } from './tasks/request'
 import Task from './tasks/Task'
 import { Routed } from '../router'
 

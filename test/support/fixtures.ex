@@ -1,5 +1,6 @@
 defmodule ZhrDevs.Fixtures do
   @moduledoc "Helper functions to generate test data."
+  use Witchcraft.Functor
 
   alias DomaOAuth.Authentication.Success
 
@@ -63,5 +64,21 @@ defmodule ZhrDevs.Fixtures do
     ExUnit.Callbacks.start_supervised!({Identity, login_event})
 
     Plug.Test.init_test_session(conn, %{hashed_identity: login_event.hashed_identity.encoded})
+  end
+
+  def build_task(name \\ :on_the_map, technology \\ :goo) do
+    %ZhrDevs.Task{
+      uuid: Uptight.Text.new!(Commanded.UUID.uuid4()),
+      name: name,
+      technology: technology
+    }
+  end
+
+  @long_running_script_path [".", "test", "support", "long_running.sh"]
+                            |> map(&T.new!/1)
+                            |> Ubuntu.Path.new!()
+
+  def long_running_command do
+    Ubuntu.Command.new!(@long_running_script_path, [])
   end
 end

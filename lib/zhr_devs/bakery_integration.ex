@@ -16,8 +16,26 @@ defmodule ZhrDevs.BakeryIntegration do
   alias ZhrDevs.BakeryIntegration.Commands.Command
   alias ZhrDevs.BakeryIntegration.Commands.GenMultiplayer
 
-  @spec gen_multiplayer(GenMultiplayer.options()) :: Command.run()
-  def gen_multiplayer(gen_multiplayer_options) do
-    GenMultiplayer.run(gen_multiplayer_options)
+  @typedoc """
+  For now it will be just Ubuntu.Command.t()
+  And it became this type below when Logger PR will be merged
+  """
+  @type command_with_metadata() :: [{:cmd, Command.cmd()}, {:logger_metadata, Keyword.t()}]
+
+  @spec run_command(Ubuntu.Command.t()) :: Command.run()
+  def run_command(command_options) do
+    DynamicSupervisor.start_child(
+      ZhrDevs.Submissions.CheckSupervisor,
+      {ZhrDevs.BakeryIntegration.CommandRunner, command_options}
+    )
+  end
+
+  @doc """
+  We want different tasks to trigger different commands.
+  One type of tasks require OTMG, such as 'on_the_map' task.
+  Others will require SinglePlayer command or something.
+  """
+  def command_module(%ZhrDevs.Task{name: :on_the_map}) do
+    GenMultiplayer
   end
 end

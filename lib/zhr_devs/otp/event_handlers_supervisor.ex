@@ -19,7 +19,8 @@ defmodule ZhrDevs.Otp.EventHandlersSupervisor do
       IdentityManagement.EventHandler,
       Submissions.EventHandler,
       Tasks.EventHandler,
-      Submissions.TransactionalEmailsSender
+      Submissions.TransactionalEmailsSender,
+      Submissions.DelayedEmailsSender
     ]
 
     Supervisor.init(children, strategy: :one_for_one, name: __MODULE__)

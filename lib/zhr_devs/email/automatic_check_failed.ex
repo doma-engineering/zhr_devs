@@ -17,7 +17,7 @@ defmodule ZhrDevs.Email.AutomaticCheckFailed do
   end
 
   def build_text(
-        %RunningCheck{task_technology: task_technology, solution_uuid: uuid},
+        %RunningCheck{task_technology: task_technology, check_uuid: uuid},
         system_error
       ) do
     """
@@ -30,7 +30,7 @@ defmodule ZhrDevs.Email.AutomaticCheckFailed do
   end
 
   def build_html(
-        %RunningCheck{task_technology: task_technology, solution_uuid: uuid},
+        %RunningCheck{task_technology: task_technology, check_uuid: uuid},
         system_error
       ) do
     """

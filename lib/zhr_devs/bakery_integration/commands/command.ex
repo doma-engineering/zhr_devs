@@ -8,17 +8,11 @@ defmodule ZhrDevs.BakeryIntegration.Commands.Command do
           context: term(),
           message: term()
         }
-
-  @type options() :: [
-          {:cmd, Ubuntu.Command.t()},
-          {:on_success, (-> :ok | {:error, term()})},
-          {:on_failure, (-> :ok)}
-        ]
-
+  @type cmd() :: Ubuntu.Command.t()
   @type run() :: {:ok, pid()} | {:error, term()}
 
-  @callback run(opts :: Keyword.t()) :: run()
+  @callback run(cmd()) :: run()
   @callback build(opts :: Keyword.t()) :: Uptight.Result.t()
-  @callback on_success(term()) :: :ok | {:error, term()}
-  @callback on_failure(system_error()) :: :ok
+  @callback on_success(Keyword.t()) :: :ok | {:error, system_error()}
+  @callback on_failure(system_error(), Keyword.t()) :: :ok
 end

@@ -21,3 +21,12 @@ config :zhr_devs, ZhrDevs.EventStore,
   pool_size: String.to_integer(System.get_env("PG_POOL_SIZE", "10")),
   stacktrace: true,
   show_sensitive_data_on_connection_error: true
+
+config :logger,
+  backends: [:console, {LoggerFileBackend, :info}],
+  format: "[$level] $message\n"
+
+# configuration for the {LoggerFileBackend, :error_log} backend
+config :logger, :info,
+  path: "/var/log/zhr_devs/info.log",
+  level: :info

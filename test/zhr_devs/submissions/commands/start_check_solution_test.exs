@@ -1,4 +1,4 @@
-defmodule ZhrDevs.Submissions.Commands.StartCheckSolutionTest do
+defmodule ZhrDevs.Submissions.Commands.StartSolutionCheckTest do
   use ExUnit.Case, async: true
 
   @moduletag :capture_log
@@ -9,17 +9,17 @@ defmodule ZhrDevs.Submissions.Commands.StartCheckSolutionTest do
 
   alias ZhrDevs.App
   alias ZhrDevs.Submissions.Aggregates.Check
-  alias ZhrDevs.Submissions.Commands.StartCheckSolution
+  alias ZhrDevs.Submissions.Commands.StartSolutionCheck
   alias ZhrDevs.Submissions.Events.SolutionCheckStarted
 
-  describe "StartCheckSolution command" do
+  describe "StartSolutionCheck command" do
     test "command generates a valid event" do
       solution_uuid = Commanded.UUID.uuid4() |> Uptight.Base.mk_url!()
       task_uuid = Commanded.UUID.uuid4() |> Uptight.Base.mk_url!()
       solution_path = "doesn't matter"
 
       assert :ok =
-               App.dispatch(%StartCheckSolution{
+               App.dispatch(%StartSolutionCheck{
                  solution_uuid: solution_uuid,
                  task_uuid: task_uuid,
                  solution_path: solution_path
@@ -35,7 +35,7 @@ defmodule ZhrDevs.Submissions.Commands.StartCheckSolutionTest do
     test "do not allow to dispatch command twice with the same solution_uuid" do
       solution_uuid = Commanded.UUID.uuid4()
 
-      command = %StartCheckSolution{
+      command = %StartSolutionCheck{
         solution_uuid: solution_uuid,
         task_uuid: "doesn't matter",
         solution_path: "doesn't matter"
@@ -49,7 +49,7 @@ defmodule ZhrDevs.Submissions.Commands.StartCheckSolutionTest do
     test "Check aggregate state is predictable even after issuing the command more then once" do
       solution_uuid = Commanded.UUID.uuid4() |> Uptight.Base.mk_url!()
 
-      command = %StartCheckSolution{
+      command = %StartSolutionCheck{
         solution_uuid: solution_uuid,
         task_uuid: "doesn't matter",
         solution_path: "doesn't matter"

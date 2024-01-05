@@ -21,7 +21,7 @@ defmodule ZhrDevs.App do
     otp_app: :zhr_devs,
     event_store: Application.compile_env(:zhr_devs, :event_store)
 
-  router(ZhrDevs.IdentityManagement.EventsRouter)
   router(ZhrDevs.Submissions.EventsRouter)
+  router(ZhrDevs.IdentityManagement.EventsRouter)
   router(ZhrDevs.Tasks.EventsRouter)
 end

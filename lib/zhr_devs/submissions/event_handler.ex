@@ -27,9 +27,12 @@ defmodule ZhrDevs.Submissions.EventHandler do
   alias ZhrDevs.Submissions.Events.SolutionCheckCompleted
   alias ZhrDevs.Submissions.Events.SolutionSubmitted
 
+  alias ZhrDevs.Submissions.Events.ManualCheckCompleted
+
   alias ZhrDevs.Submissions.Events.TaskDownloaded
   alias ZhrDevs.Submissions.Events.TestCasesDownloaded
 
+  alias ZhrDevs.Submissions.ReadModels.CandidateSubmissions
   alias ZhrDevs.Submissions.ReadModels.TaskDownloads
 
   def init do
@@ -46,11 +49,21 @@ defmodule ZhrDevs.Submissions.EventHandler do
       task
     )
 
-    :ok
+    CandidateSubmissions.register_submission(
+      task: task,
+      hashed_identity: solution_submitted.hashed_identity,
+      submission_uuid: solution_submitted.uuid
+    )
   end
 
   def handle(%SolutionCheckCompleted{task_uuid: task_uuid, score: result}, _meta) do
     Logger.debug("SolutionCheckCompleted: #{inspect(task_uuid)}")
+
+    ZhrDevs.Submissions.ReadModels.TournamentRuns.add_tournament_result(task_uuid, result)
+  end
+
+  def handle(%ManualCheckCompleted{task_uuid: task_uuid, score: result}, _meta) do
+    Logger.debug("ManualCheckCompleted for task: #{inspect(task_uuid)}")
 
     ZhrDevs.Submissions.ReadModels.TournamentRuns.add_tournament_result(task_uuid, result)
   end

@@ -4,10 +4,9 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunner do
 
   To run successfully the command must implement the ZhrDevs.BakeryIntegration.Commands.Command behaviour
 
-  on_success is zero arity function that will be called when the command finishes successfully.
-  on_failure is one arity function that will be called when the command fails.
-
   If at any point in time process terminates abnormally it would be restarted, because it's transient.
+
+  If there is no output from the port for 2 minutes, the process will be terminated.
   """
   use GenServer, restart: :transient
 
@@ -23,19 +22,15 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunner do
     @moduledoc """
     State of the individual process
     """
-    defstruct [:port, :latest_output, :exit_status, :on_success, :on_failure]
+    defstruct [:port, :latest_output, :exit_status, :timeout_ref]
   end
 
-  @spec start_link(Command.options()) :: {:ok, pid()} | {:error, term()}
-  def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, opts)
+  @spec start_link(Command.cmd()) :: {:ok, pid()} | {:error, term()}
+  def start_link(%Ubuntu.Command{} = cmd) do
+    GenServer.start_link(__MODULE__, cmd)
   end
 
-  def init(opts) do
-    cmd = Keyword.fetch!(opts, :cmd)
-    on_success = Keyword.fetch!(opts, :on_success)
-    on_failure = Keyword.fetch!(opts, :on_failure)
-
+  def init(cmd) do
     port =
       Port.open(
         {:spawn_executable, cmd.path |> Ubuntu.Path.render() |> T.un()},
@@ -44,44 +39,47 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunner do
 
     Port.monitor(port)
 
-    {:ok, %State{port: port, on_success: on_success, on_failure: on_failure}}
+    {:ok, %State{port: port}}
   end
 
   # This callback handles data incoming from the command's STDOUT
   def handle_info({port, {:data, text_line}}, %{port: port} = state) do
-    {:noreply, %State{state | latest_output: String.trim(text_line)}}
+    {:noreply,
+     %State{
+       state
+       | latest_output: String.trim(text_line),
+         timeout_ref: maybe_reset_timer(state.timeout_ref)
+     }}
   end
 
   # This callback tells us when the process exits
   def handle_info({port, {:exit_status, status}}, %{port: port} = state) do
     Logger.info("Port exit: :exit_status: #{status}")
 
-    error = %{error: :execution_stopped, context: state.latest_output, exit_status: status}
-    :ok = state.on_failure.(error)
+    formatted_error = %{
+      error: :execution_stopped,
+      context: state.latest_output,
+      exit_status: status
+    }
 
-    {:stop, :shutdown, state}
+    {:stop, {:shutdown, formatted_error}, state}
   end
 
   def handle_info({:DOWN, _ref, :port, port, :normal}, state) do
-    Logger.info("Handled :DOWN message from port: #{inspect(port)}")
+    Logger.info("Handled :DOWN message from port with :normal reason #{inspect(port)}")
 
-    case state.on_success.() do
-      :ok ->
-        {:stop, :normal, state}
+    {:stop, :normal, state}
+  end
 
-      {:error, error} ->
-        formatted_error = %{error: :on_success_not_met, context: state.latest_output}
+  def handle_info(:timeout, %{port: port} = state) do
+    Logger.error("No output from Port for 2 minutes. Terminating.\nPort info: #{Port.info(port)}")
 
-        :ok = state.on_failure.(formatted_error)
+    formatted_error = %{
+      error: :timeout_reached,
+      context: state.latest_output
+    }
 
-        system_error = %{
-          error: error,
-          context: state.latest_output,
-          exit_status: state.exit_status
-        }
-
-        {:stop, {:shutdown, system_error}, state}
-    end
+    {:stop, {:shutdown, formatted_error}, state}
   end
 
   def handle_info(msg, state) do
@@ -89,5 +87,15 @@ defmodule ZhrDevs.BakeryIntegration.CommandRunner do
     Logger.warning("Unhandled message: #{inspect(msg)}")
 
     {:noreply, state}
+  end
+
+  defp maybe_reset_timer(nil) do
+    Process.send_after(self(), :timeout, :timer.minutes(2))
+  end
+
+  defp maybe_reset_timer(timeout_ref) when is_reference(timeout_ref) do
+    _ = Process.cancel_timer(timeout_ref)
+
+    maybe_reset_timer(nil)
   end
 end

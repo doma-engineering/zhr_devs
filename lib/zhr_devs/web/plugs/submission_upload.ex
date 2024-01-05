@@ -27,7 +27,7 @@ defmodule ZhrDevs.Web.Plugs.SubmissionUpload do
       ) do
     uuid4 = Commanded.UUID.uuid4()
     hashed_identity = get_session(conn, :hashed_identity)
-    %ZhrDevs.Task{} = task = AvailableTasks.get_task_by_uuid(task_uuid)
+    %ZhrDevs.Task{} = task = task_uuid |> Uptight.Text.new!() |> AvailableTasks.get_task_by_uuid()
     upload_path = upload_path(task, uuid4)
 
     with :ok <- check_mime_type(upload),
