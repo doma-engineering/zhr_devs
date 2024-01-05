@@ -32,6 +32,8 @@ defmodule ZhrDevs.Web.ProtectedRouter do
 
   get("/tasks", to: ZhrDevs.Web.Plugs.Tasks)
 
+  get("/tasks/:task_uuid/download", to: ZhrDevs.Web.Plugs.DownloadTask)
+
   get("/submission/:task_uuid", to: ZhrDevs.Web.Plugs.Submission)
 
   get("/submission/nt/:name/:technology", to: ZhrDevs.Web.Plugs.Submission)

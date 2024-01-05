@@ -41,7 +41,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
         DownloadTask.dispatch(
           task_uuid: @task_uuid.text,
           hashed_identity: hashed_identity.encoded,
-          technology: "goo"
+          technology: :goo
         )
 
       assert_receive_event(
@@ -63,14 +63,15 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
         )
 
       wait_for_event(App, SolutionSubmitted, fn event ->
-        event.task_uuid.text === @task_uuid.text
+        event.task_uuid.text == @task_uuid.text
       end)
 
       :ok =
         DownloadTask.dispatch(
-          task_uuid: @task_uuid.text,
+          task_uuid: @task_uuid,
           hashed_identity: hashed_identity.encoded,
-          technology: "goo"
+          technology: :goo,
+          additional_inputs: true
         )
 
       assert_receive_event(
@@ -88,7 +89,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
         DownloadTask.dispatch(
           task_uuid: independent_task_uuid,
           hashed_identity: hashed_identity.encoded,
-          technology: "goo"
+          technology: :goo
         )
 
       wait_for_event(App, TaskDownloaded, fn event ->

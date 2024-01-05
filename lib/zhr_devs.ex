@@ -26,4 +26,44 @@ defmodule ZhrDevs do
 
     Path.join([@submissions_folder, task_binary, technology_binary])
   end
+
+  @doc """
+  A blessed way of getting the task download path.
+  """
+  def task_download_path(%ZhrDevs.Task{} = task) do
+    file_path = build_download_path(task, "task.zip")
+
+    if File.exists?(file_path) do
+      {:ok, file_path}
+    else
+      {:error, "Task file does not exist for task #{task.name}_#{task.technology}"}
+    end
+  end
+
+  @doc """
+  A blessed way of getting the additional inputs path.
+  """
+  def additional_inputs_download_path(%ZhrDevs.Task{} = task) do
+    file_path = build_download_path(task, "additional_inputs.zip")
+
+    if File.exists?(file_path) do
+      {:ok, file_path}
+    else
+      {:error, "Additional inputs file does not exist for task #{task.name}_#{task.technology}"}
+    end
+  end
+
+  defp build_download_path(%ZhrDevs.Task{} = task, file) do
+    {task_binary, technology_binary} = task_to_binaries(task)
+    pwd = Path.expand(".")
+
+    Path.join([pwd, "priv", "tasks", task_binary, technology_binary, file])
+  end
+
+  defp task_to_binaries(%ZhrDevs.Task{name: task, technology: technology}) do
+    task_binary = Atom.to_string(task)
+    technology_binary = Atom.to_string(technology)
+
+    {task_binary, technology_binary}
+  end
 end

@@ -34,6 +34,8 @@ config/secrets.exs
 priv/uploads/dev/*
 priv/uploads/test/*
 
+priv/tasks/*
+
 # Ignore assets that are produced by build tools.
 /priv/static/static
 /priv/static/asset-manifest.json
