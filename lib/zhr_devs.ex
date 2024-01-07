@@ -4,6 +4,7 @@ defmodule ZhrDevs do
   """
 
   @submissions_folder Application.compile_env!(:zhr_devs, :submission_uploads_folder)
+  @harvested_tasks Application.compile_env!(:zhr_devs, :harvested_tasks_structure)
 
   @doc """
   Provides a blessed way of building the submission upload path.
@@ -31,33 +32,35 @@ defmodule ZhrDevs do
   A blessed way of getting the task download path.
   """
   def task_download_path(%ZhrDevs.Task{} = task) do
-    file_path = build_download_path(task, "task.zip")
-
-    if File.exists?(file_path) do
-      {:ok, file_path}
-    else
-      {:error, "Task file does not exist for task #{task.name}_#{task.technology}"}
-    end
+    build_download_path(task, "task.zip")
   end
 
   @doc """
   A blessed way of getting the additional inputs path.
   """
   def additional_inputs_download_path(%ZhrDevs.Task{} = task) do
-    file_path = build_download_path(task, "additional_inputs.zip")
+    build_download_path(task, "inputs.zip")
+  end
 
-    if File.exists?(file_path) do
-      {:ok, file_path}
-    else
-      {:error, "Additional inputs file does not exist for task #{task.name}_#{task.technology}"}
+  defp build_download_path(%ZhrDevs.Task{} = task, kind) do
+    pwd = Path.expand(".")
+    dir = Path.join([pwd | @harvested_tasks])
+
+    dir
+    |> File.ls!()
+    |> lookup_directoty(task, kind)
+    |> case do
+      nil -> {:error, "Could not find #{kind} for task #{task.name}_#{task.technology}"}
+      entry -> {:ok, Path.join([dir, entry])}
     end
   end
 
-  defp build_download_path(%ZhrDevs.Task{} = task, file) do
+  defp lookup_directoty(entries, task, kind) do
     {task_binary, technology_binary} = task_to_binaries(task)
-    pwd = Path.expand(".")
 
-    Path.join([pwd, "priv", "tasks", task_binary, technology_binary, file])
+    Enum.find(entries, fn entry ->
+      String.contains?(entry, [task_binary, technology_binary, kind])
+    end)
   end
 
   defp task_to_binaries(%ZhrDevs.Task{name: task, technology: technology}) do

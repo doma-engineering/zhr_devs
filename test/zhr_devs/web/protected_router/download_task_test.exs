@@ -39,7 +39,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.DownloadTaskTest do
 
       assert %{"error" => error} = Jason.decode!(conn.resp_body)
 
-      assert error =~ "Task file does not exist for task on_the_map_goo"
+      assert error =~ "Could not find task.zip for task on_the_map_goo"
     end
 
     test "when user attempts to download additional inputs without first submission attempt - return an error",
@@ -55,7 +55,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.DownloadTaskTest do
 
       assert %{"error" => error} = Jason.decode!(conn.resp_body)
 
-      assert error =~ "Additional inputs file does not exist for task on_the_map_goo"
+      assert error =~ "Could not find inputs.zip for task on_the_map_goo"
     end
 
     test "with existing task file - returns an error when there is attempt to download additional inputs from 0 attempt",
@@ -95,7 +95,9 @@ defmodule ZhrDevs.Web.ProtectedRouter.DownloadTaskTest do
 
   defp create_task_file(%ZhrDevs.Task{technology: technology, name: name}, kind) do
     {t, n} = {Atom.to_string(technology), Atom.to_string(name)}
-    path = Path.join([Path.expand("."), "priv", "tasks", n, t, kind])
+
+    path =
+      Path.join([Path.expand("."), "priv", "bakery", "tasks", "harvested", "#{t}-#{n}-#{kind}"])
 
     File.mkdir_p!(Path.dirname(path))
     File.write!(path, "100101101")
