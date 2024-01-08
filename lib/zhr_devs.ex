@@ -48,17 +48,18 @@ defmodule ZhrDevs do
 
     dir
     |> File.ls!()
-    |> lookup_directoty(task, kind)
+    |> lookup_download(task, kind)
     |> case do
       nil -> {:error, "Could not find #{kind} for task #{task.name}_#{task.technology}"}
       entry -> {:ok, Path.join([dir, entry])}
     end
   end
 
-  defp lookup_directoty(entries, task, kind) do
+  defp lookup_download(entries, task, kind) do
     {task_binary, technology_binary} = task_to_binaries(task)
 
     Enum.find(entries, fn entry ->
+      String.ends_with?(entry, ".zip") and
       String.contains?(entry, [task_binary, technology_binary, kind])
     end)
   end
