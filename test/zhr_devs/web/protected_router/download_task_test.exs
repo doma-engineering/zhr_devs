@@ -95,9 +95,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.DownloadTaskTest do
 
   defp create_task_file(%ZhrDevs.Task{technology: technology, name: name}, kind) do
     {t, n} = {Atom.to_string(technology), Atom.to_string(name)}
-
-    path =
-      Path.join([Path.expand("."), "priv", "bakery", "tasks", "harvested", "#{t}-#{n}-#{kind}"])
+    path = Path.join([Path.expand("."), "priv", "tasks", "harvested", "#{t}-#{n}-#{kind}"])
 
     File.mkdir_p!(Path.dirname(path))
     File.write!(path, "100101101")

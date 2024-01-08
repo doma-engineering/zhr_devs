@@ -30,7 +30,7 @@ config :zhr_devs,
 config :zhr_devs,
   submission_uploads_folder: "/tmp/submissions",
   output_json_backup_folder: "/tmp/output_backup",
-  harvested_tasks_structure: ["priv", "bakery", "tasks", "harvested"]
+  harvested_tasks_structure: ["priv", "tasks", "harvested"]
 
 config :zhr_devs,
   uploads_path: Path.expand("./priv/uploads/#{Mix.env()}"),
