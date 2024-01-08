@@ -60,7 +60,7 @@ defmodule ZhrDevs do
 
     Enum.find(entries, fn entry ->
       String.ends_with?(entry, ".zip") and
-      String.contains?(entry, [task_binary, technology_binary, kind])
+        String.contains?(entry, [task_binary, technology_binary, kind])
     end)
   end
 
