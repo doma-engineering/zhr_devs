@@ -31,38 +31,52 @@ defmodule ZhrDevs do
   @doc """
   A blessed way of getting the task download path.
   """
+  @spec task_download_path(ZhrDevs.Task.t()) :: {:ok, String.t()} | {:error, String.t()}
   def task_download_path(%ZhrDevs.Task{} = task) do
-    build_download_path(task, "task.zip")
+    build_download_path(task)
   end
 
   @doc """
   A blessed way of getting the additional inputs path.
   """
+  @spec additional_inputs_download_path(ZhrDevs.Task.t()) ::
+          {:ok, String.t()} | {:error, String.t()}
   def additional_inputs_download_path(%ZhrDevs.Task{} = task) do
     build_download_path(task, "inputs.zip")
   end
 
-  defp build_download_path(%ZhrDevs.Task{} = task, kind) do
+  defp build_download_path(%ZhrDevs.Task{} = task, postfix \\ ".zip") do
     pwd = Path.expand(".")
     dir = Path.join([pwd | @harvested_tasks])
 
     dir
     |> File.ls!()
-    |> lookup_download(task, kind)
+    |> lookup_download(task, postfix)
     |> case do
-      nil -> {:error, "Could not find #{kind} for task #{task.name}_#{task.technology}"}
+      nil -> {:error, "Could not find #{postfix} for task #{task.name}_#{task.technology}"}
       entry -> {:ok, Path.join([dir, entry])}
     end
   end
 
-  defp lookup_download(entries, task, kind) do
+  defp lookup_download(entries, task, "inputs.zip") do
     {task_binary, technology_binary} = task_to_binaries(task)
 
     Enum.find(entries, fn entry ->
       entry =~ task_binary &&
         entry =~ technology_binary &&
-        entry =~ kind
+        entry =~ "inputs.zip"
     end)
+  end
+
+  defp lookup_download(entries, task, postfix) do
+    {task_binary, technology_binary} = task_to_binaries(task)
+
+    Enum.filter(entries, fn entry ->
+      entry =~ task_binary &&
+        entry =~ technology_binary &&
+        entry =~ postfix
+    end)
+    |> Enum.find(&(!String.ends_with?(&1, "inputs.zip")))
   end
 
   defp task_to_binaries(%ZhrDevs.Task{name: task, technology: technology}) do

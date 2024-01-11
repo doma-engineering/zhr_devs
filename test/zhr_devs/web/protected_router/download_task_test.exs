@@ -39,7 +39,7 @@ defmodule ZhrDevs.Web.ProtectedRouter.DownloadTaskTest do
 
       assert %{"error" => error} = Jason.decode!(conn.resp_body)
 
-      assert error =~ "Could not find task.zip for task on_the_map_goo"
+      assert error =~ "Could not find .zip for task on_the_map_goo"
     end
 
     test "when user attempts to download additional inputs without first submission attempt - return an error",
