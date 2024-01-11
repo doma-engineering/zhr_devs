@@ -24,21 +24,8 @@ export async function fetchTasks(host: string, port: string): Promise<Tasks | Ap
     return fetch(url, opts).then(response => response.json())
 }
 
-export function downloadTask(taskUUID: string, type: downloadType): void {
-    const url = `my/tasks/${taskUUID}/download?type=${type}`
-    const filename = `${type}.zip`
-
-    fetch(url, { method: "get", mode: "no-cors", referrerPolicy: "no-referrer" })
-    .then((res) => res.blob())
-    .then((res) => {
-      const aElement = document.createElement("a");
-      aElement.setAttribute("download", filename);
-      const href = URL.createObjectURL(res);
-      aElement.href = href;
-      aElement.setAttribute("target", "_blank");
-      aElement.click();
-      URL.revokeObjectURL(href);
-    });
+export function downloadTaskUrl(taskUUID: string, type: downloadType): string {
+    return `/my/tasks/${taskUUID}/download?type=${type}`
 }
 
 export async function triggerManualCheck(taskUUID: string): Promise<object> {

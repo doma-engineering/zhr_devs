@@ -41,7 +41,14 @@ defmodule ZhrDevs.Web.Plugs.DownloadTask do
   def send_code(conn, _opts) do
     with {:ok, download_path} <- get_download_path(conn),
          :ok <- dispatch_command(conn) do
-      send_file(conn, 200, download_path)
+      conn
+      |> put_resp_header(
+        "content-disposition",
+        "attachment; " <> filename_header(download_path)
+      )
+      |> put_resp_content_type("application/zip")
+      |> send_file(200, download_path)
+      |> halt()
     else
       {:error, reason} ->
         conn
@@ -68,5 +75,11 @@ defmodule ZhrDevs.Web.Plugs.DownloadTask do
 
   defp get_download_path(%{assigns: %{additional_inputs: false, task: task}}) do
     ZhrDevs.task_download_path(task)
+  end
+
+  defp filename_header(download_path) do
+    filename = Path.basename(download_path)
+
+    "filename=\"#{filename}\""
   end
 end

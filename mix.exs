@@ -44,6 +44,7 @@ defmodule ZhrDevs.MixProject do
       # Testing
       {:stream_data, "~> 0.5.0", only: [:test]},
       {:hammox, "~> 0.7", only: :test},
+      {:mock, "~> 0.3.8", only: :test},
 
       # Event sourcing / CQRS
       {:commanded, "~> 1.4"},

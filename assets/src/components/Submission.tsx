@@ -3,7 +3,7 @@ import { fetchSubmissionInfo } from './submission/request'
 import { Link, useParams } from 'react-router-dom'
 import { Routed } from '../router'
 
-import { triggerManualCheck, downloadTask } from '../components/tasks/request'
+import { triggerManualCheck, downloadTaskUrl } from '../components/tasks/request'
 import Task from '../components/tasks/Task'
 import Invites from '../components/submission/Invites'
 import UploadCompoment from "../components/submission/UploadComponent"
@@ -121,8 +121,8 @@ function Submission({ host, port }: Routed) {
                         <div className="ml-4">
                             <span className="text-lg font-bold">Get the Task</span>
                             <p className="mt-4 text-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque at felis lobortis, pulvinar justo mattis, tincidunt erat. Sed odio enim, dictum id imperdiet eget</p>
-                            {submissionInfo ? <button className="rounded bg-purple-400 text-white p-2 mt-4" onClick={() => downloadTask(submissionInfo.task.uuid, "task")}>Download task</button> : <></>}
-                            {submissionInfo && attempt > 1 ? <button className="rounded bg-purple-400 text-white p-2 mt-4 ml-2" onClick={() => downloadTask(submissionInfo.task.uuid, "additionalInputs")}>Additional Inputs</button> : <></>}
+                            {submissionInfo ? <a className="rounded bg-purple-400 text-white p-2 mt-4" target="_blank" href={downloadTaskUrl(submissionInfo.task.uuid, "task")}>Download task</a> : <></>}
+                            {submissionInfo && attempt > 1 ? <a className="rounded bg-purple-400 text-white p-2 mt-4 ml-2" target="_blank" href={downloadTaskUrl(submissionInfo.task.uuid, "additionalInputs")}>Additional Inputs</a> : <></>}
                         </div>
                     </div>
 
