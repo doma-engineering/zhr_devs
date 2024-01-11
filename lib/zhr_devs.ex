@@ -59,8 +59,9 @@ defmodule ZhrDevs do
     {task_binary, technology_binary} = task_to_binaries(task)
 
     Enum.find(entries, fn entry ->
-      String.ends_with?(entry, ".zip") and
-        String.contains?(entry, [task_binary, technology_binary, kind])
+      entry =~ task_binary &&
+        entry =~ technology_binary &&
+        entry =~ kind
     end)
   end
 
