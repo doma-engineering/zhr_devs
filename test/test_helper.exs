@@ -1,5 +1,5 @@
 ExUnit.start()
-ExUnit.configure(exclude: [fs: true])
+ExUnit.configure(exclude: [:flaky, fs: true])
 
 Mox.defmock(ZhrDevs.MockAvailableTasks, for: ZhrDevs.Tasks.ReadModels.AvailableTasks)
 Application.put_env(:zhr_devs, :available_tasks_module, ZhrDevs.MockAvailableTasks)

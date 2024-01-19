@@ -1,7 +1,5 @@
 defmodule ZhrDevs.Submissions.Commands.StartSolutionCheckTest do
-  use ExUnit.Case, async: true
-
-  @moduletag :capture_log
+  use ExUnit.Case, async: false
 
   import Commanded.Assertions.EventAssertions
 
@@ -47,6 +45,8 @@ defmodule ZhrDevs.Submissions.Commands.StartSolutionCheckTest do
     end
 
     test "Check aggregate state is predictable even after issuing the command more then once" do
+      # expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, fn _ -> @task end)
+
       solution_uuid = Commanded.UUID.uuid4() |> Uptight.Base.mk_url!()
 
       command = %StartSolutionCheck{

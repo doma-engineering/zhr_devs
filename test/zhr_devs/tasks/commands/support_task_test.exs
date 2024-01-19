@@ -1,5 +1,5 @@
 defmodule ZhrDevs.Tasks.Commands.SupportTaskTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   import Mox
 
@@ -14,15 +14,10 @@ defmodule ZhrDevs.Tasks.Commands.SupportTaskTest do
 
   setup [:set_mox_from_context]
 
-  setup _ do
-    expect(ZhrDevs.MockAvailableTasks, :add_task, fn _ ->
-      :ok
-    end)
-
-    :ok
-  end
-
   test "do not allow to dispatch command twice with same name and technology" do
+    expect(ZhrDevs.MockAvailableTasks, :add_task, fn _ -> :ok end)
+    allow(ZhrDevs.MockAvailableTasks, self(), ZhrDevs.Tasks.EventHandler)
+
     opts = [name: "on_the_map", technology: "goo"]
 
     assert :ok = SupportTask.dispatch(opts)
@@ -47,7 +42,11 @@ defmodule ZhrDevs.Tasks.Commands.SupportTaskTest do
   end
 
   test "ignores uuid passed by user" do
-    opts = [name: "on_the_map", technology: "rust", uuid: "some_uuid"]
+    expect(ZhrDevs.MockAvailableTasks, :add_task, fn _ -> :ok end)
+    allow(ZhrDevs.MockAvailableTasks, self(), ZhrDevs.Tasks.EventHandler)
+
+    uuid = Commanded.UUID.uuid4()
+    opts = [name: "on_the_map", technology: "rust", uuid: uuid]
 
     assert :ok = SupportTask.dispatch(opts)
 

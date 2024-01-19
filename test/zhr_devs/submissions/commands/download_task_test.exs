@@ -1,5 +1,5 @@
 defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   import Commanded.Assertions.EventAssertions
 
@@ -34,6 +34,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
       %{hid: generate_hashed_identity()}
     end
 
+    @tag fs: true
     test "with submission attempts count of 0 emit TestTaskDownloaded event", %{
       hid: hashed_identity
     } do
@@ -51,6 +52,7 @@ defmodule ZhrDevs.Submissions.Commands.DownloadTaskTest do
       )
     end
 
+    @tag fs: true
     test "with already submitted solution emit TestCasesDownloaded event", %{hid: hashed_identity} do
       expect(ZhrDevs.MockAvailableTasks, :get_task_by_uuid, fn _ -> @task end)
 
