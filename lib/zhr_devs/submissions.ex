@@ -8,6 +8,10 @@ defmodule ZhrDevs.Submissions do
 
   @typep formatted_attemts :: [%{name: atom(), technology: atom(), counter: integer()}]
 
+  def start_automatic_check(opts) do
+    ZhrDevs.BakeryIntegration.run_command(opts)
+  end
+
   def spawn_candidate_attempts(%Uptight.Base.Urlsafe{} = hashed_identity) do
     DynamicSupervisor.start_child(
       ZhrDevs.DynamicSupervisor,

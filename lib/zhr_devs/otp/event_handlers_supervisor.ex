@@ -17,8 +17,8 @@ defmodule ZhrDevs.Otp.EventHandlersSupervisor do
   def init([]) do
     children = [
       IdentityManagement.EventHandler,
-      Submissions.EventHandler,
       Tasks.EventHandler,
+      Submissions.EventHandler,
       Submissions.TransactionalEmailsSender,
       Submissions.DelayedEmailsSender
     ]
