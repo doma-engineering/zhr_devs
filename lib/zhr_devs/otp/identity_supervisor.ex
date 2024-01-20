@@ -1,4 +1,4 @@
-defmodule ZhrDevs.Otp.TasksSupervisor do
+defmodule ZhrDevs.Otp.IdentitySupervisor do
   @moduledoc """
   This is a high-level supervisor that will supervise all of the event handlers
   """
@@ -7,10 +7,9 @@ defmodule ZhrDevs.Otp.TasksSupervisor do
 
   use Supervisor
 
-  alias ZhrDevs.Tasks
+  alias ZhrDevs.IdentityManagement
 
-  alias ZhrDevs.Submissions.ReadModels.TaskDownloads
-  alias ZhrDevs.Tasks.ReadModels.AvailableTasksAgent
+  alias ZhrDevs.Submissions.ReadModels.CandidateSubmissions
 
   def start_link([]) do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)
@@ -19,9 +18,8 @@ defmodule ZhrDevs.Otp.TasksSupervisor do
   @impl Supervisor
   def init([]) do
     children = [
-      TaskDownloads,
-      AvailableTasksAgent,
-      Tasks.EventHandler
+      CandidateSubmissions,
+      IdentityManagement.EventHandler
     ]
 
     Supervisor.init(children, strategy: :one_for_all, name: __MODULE__)

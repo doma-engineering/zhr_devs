@@ -8,7 +8,6 @@ defmodule ZhrDevs.Otp.SubmissionsSupervisor do
   use Supervisor
 
   alias ZhrDevs.Submissions
-  alias ZhrDevs.Submissions.ReadModels.CandidateSubmissions
 
   def start_link([]) do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)
@@ -18,8 +17,7 @@ defmodule ZhrDevs.Otp.SubmissionsSupervisor do
   def init([]) do
     children = [
       ZhrDevs.Submissions.ProcessManagers.CheckSolution,
-      Submissions.EventHandler,
-      CandidateSubmissions
+      Submissions.EventHandler
     ]
 
     Supervisor.init(children, strategy: :one_for_all, name: __MODULE__)
