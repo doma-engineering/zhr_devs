@@ -27,8 +27,6 @@ zhr_devs-*.tar
 
 start.sh
 
-config/secrets.exs
-
 .direnv/
 
 priv/uploads/dev/*
@@ -42,7 +40,9 @@ priv/tasks/*
 
 /assets/.env
 
-# Ignore local DB and secret configuraitons
+# Ignore local DB, secret and local (deployment) configuraitons
+/config/deployment.exs
+/config/secrets.exs
 /config/*.secret.exs
 /config/*.secret.auto.exs
 logfile

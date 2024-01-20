@@ -14,6 +14,8 @@ config :zhr_devs, :server,
     log: :debug
   ]
 
+### !!! Please consult this message for an example of a working configuration !!!
+### https://zulip.memorici.de/#narrow/stream/63-doma-infra/topic/do-auth.20bamboo/near/66912
 config :zhr_devs, ZhrDevs.Mailer,
   adapter: Bamboo.SMTPAdapter,
   server: "smtp.domain",
