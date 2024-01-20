@@ -2,10 +2,11 @@ defmodule ZhrDevs.Application do
   @moduledoc false
   use Application
 
-  alias ZhrDevs.Otp.EventHandlersSupervisor
-  alias ZhrDevs.Otp.ProcessManagersSupervisor
-  alias ZhrDevs.Otp.ProjectionsSupervisor
-  alias ZhrDevs.Otp.SubmissionSupervisor
+  alias ZhrDevs.Otp.IdentitySupervisor
+  alias ZhrDevs.Otp.SubmissionCheckSupervisor
+  alias ZhrDevs.Otp.SubmissionsSupervisor
+  alias ZhrDevs.Otp.TasksSupervisor
+  alias ZhrDevs.Otp.TransactionalEventsHandler
 
   @impl true
   def start(_type, _args) do
@@ -14,10 +15,11 @@ defmodule ZhrDevs.Application do
       {DynamicSupervisor, strategy: :one_for_one, name: ZhrDevs.DynamicSupervisor},
       {Task.Supervisor, name: ZhrDevs.EmailsSendingSupervisor},
       ZhrDevs.App,
-      ProjectionsSupervisor,
-      ProcessManagersSupervisor,
-      SubmissionSupervisor,
-      EventHandlersSupervisor,
+      IdentitySupervisor,
+      TasksSupervisor,
+      SubmissionsSupervisor,
+      SubmissionCheckSupervisor,
+      TransactionalEventsHandler,
       cowboy_child_spec()
     ]
 

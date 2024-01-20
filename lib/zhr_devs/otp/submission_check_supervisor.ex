@@ -1,4 +1,4 @@
-defmodule ZhrDevs.Otp.SubmissionSupervisor do
+defmodule ZhrDevs.Otp.SubmissionCheckSupervisor do
   @moduledoc """
   This is a high-level supervisor that will supervise all the submission checks.
   """

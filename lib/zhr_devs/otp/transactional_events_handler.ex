@@ -1,4 +1,4 @@
-defmodule ZhrDevs.Otp.EventHandlersSupervisor do
+defmodule ZhrDevs.Otp.TransactionalEventsHandler do
   @moduledoc """
   This is a high-level supervisor that will supervise all of the event handlers
   """
@@ -7,7 +7,7 @@ defmodule ZhrDevs.Otp.EventHandlersSupervisor do
 
   use Supervisor
 
-  alias ZhrDevs.{IdentityManagement, Submissions, Tasks}
+  alias ZhrDevs.Submissions
 
   def start_link([]) do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)
@@ -16,9 +16,6 @@ defmodule ZhrDevs.Otp.EventHandlersSupervisor do
   @impl Supervisor
   def init([]) do
     children = [
-      IdentityManagement.EventHandler,
-      Tasks.EventHandler,
-      Submissions.EventHandler,
       Submissions.TransactionalEmailsSender,
       Submissions.DelayedEmailsSender
     ]
