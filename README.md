@@ -18,7 +18,7 @@ config :ueberauth, Ueberauth.Strategy.Google.OAuth,
 
 ```bash
 make dev
-mix test && echo ok || echo ko
+mix test.all && echo ok || echo ko
 ```
 
 To run whole test suite:
