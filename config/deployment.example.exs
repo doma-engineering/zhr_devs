@@ -8,5 +8,6 @@ config :zhr_devs,
 config :zhr_devs,
   submission_uploads_folder: "/tmp/submissions",
   output_json_backup_folder: "/tmp/output_backup",
+  our_submissions_folder: "/tmp/zerohr/submissions/ours",
   harvested_tasks_structure: ["priv", "tasks", "harvested"],
   command_logs_folder: "/tmp/command_logs"
