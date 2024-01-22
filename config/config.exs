@@ -23,17 +23,6 @@ config :zhr_devs,
   ]
 
 config :zhr_devs,
-  server_code_folders: %{
-    {:on_the_map, :goo} => "/tmp/on_the_map_goo"
-  }
-
-config :zhr_devs,
-  submission_uploads_folder: "/tmp/submissions",
-  output_json_backup_folder: "/tmp/output_backup",
-  harvested_tasks_structure: ["priv", "tasks", "harvested"],
-  command_logs_folder: "/tmp/command_logs"
-
-config :zhr_devs,
   uploads_path: Path.expand("./priv/uploads/#{Mix.env()}"),
   # 30 MB
   max_upload_size: 30_000_000
